@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CodeStack.Dev.Sw.AddIn.Icons
 {
-    public interface IIcon
+    internal abstract class IIcon
     {
     }
 }

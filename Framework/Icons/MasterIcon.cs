@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace CodeStack.Dev.Sw.AddIn.Icons
 {
-    public class MasterIcon : IIcon
+    internal class MasterIcon : IIcon
     {
-        public Image Icon { get; set; }
+        internal Image Icon { get; set; }
     }
 }

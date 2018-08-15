@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CodeStack.Dev.Sw.AddIn.Icons
 {
-    public class IconsConverter : IDisposable
+    internal class IconsConverter : IDisposable
     {
         private class IconData
         {
@@ -28,7 +28,7 @@ namespace CodeStack.Dev.Sw.AddIn.Icons
 
         private string m_IconsDir;
 
-        public IconsConverter()
+        internal IconsConverter()
         {
             m_IconsDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
@@ -38,7 +38,7 @@ namespace CodeStack.Dev.Sw.AddIn.Icons
             }
         }
 
-        public string[] ConvertIconsGroup(IIcon[] icons, bool highRes)
+        internal string[] ConvertIconsGroup(IIcon[] icons, bool highRes)
         {
             IconData[,] iconsDataGroup = null;
 
@@ -75,7 +75,7 @@ namespace CodeStack.Dev.Sw.AddIn.Icons
             return iconsPaths;
         }
 
-        public string[] ConvertIcon(IIcon icon, bool highRes)
+        internal string[] ConvertIcon(IIcon icon, bool highRes)
         {
             var iconsData = CreateIconData(icon, highRes);
 

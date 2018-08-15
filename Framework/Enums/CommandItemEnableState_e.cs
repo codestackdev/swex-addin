@@ -8,16 +8,24 @@ namespace CodeStack.Dev.Sw.AddIn.Enums
 {
     public enum CommandItemEnableState_e
     {
-        //Deselects and disables the item
+        /// <summary>
+        /// Deselects and disables the item
+        /// </summary>
         DeselectDisable = 0,
 
-        //Deselects and enables the item; this is the default state if no update function is specified
+        /// <summary>
+        /// Deselects and enables the item; this is the default state if no update function is specified
+        /// </summary>
         DeselectEnable = 1,
 
-        //Selects and disables the item
+        /// <summary>
+        /// Selects and disables the item
+        /// </summary>
         SelectDisable = 2,
 
-        //Selects and enables the item 
+        /// <summary>
+        /// Selects and enables the item 
+        /// </summary>
         SelectEnable = 3
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeStack.Dev.Sw.AddIn
+namespace CodeStack.Dev.Sw.AddIn.Helpers
 {
     public static class RegistrationHelper
     {

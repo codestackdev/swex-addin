@@ -5,7 +5,7 @@ using System.Text;
 
 namespace System
 {
-    public static class EnumExtension
+    internal static class EnumExtension
     {
         /// <summary>
         /// Get the specified attribute from the enumerator field
@@ -15,7 +15,7 @@ namespace System
         /// <returns>Attribute</returns>
         /// <exception cref="NullReferenceException"/>
         /// <remarks>This method throws an exception if attribute is missing</remarks>
-        public static TAtt GetAttribute<TAtt>(this Enum enumer)
+        internal static TAtt GetAttribute<TAtt>(this Enum enumer)
             where TAtt : Attribute
         {
             var enumType = enumer.GetType();

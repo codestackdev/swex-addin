@@ -5,7 +5,7 @@ using System.Text;
 
 namespace System
 {
-    public static class TypeExtension
+    internal static class TypeExtension
     {
         /// <summary>
         /// Get the specified attribute from the enumerator field
@@ -15,7 +15,7 @@ namespace System
         /// <returns>Attribute</returns>
         /// <exception cref="NullReferenceException"/>
         /// <remarks>This method throws an exception if attribute is missing</remarks>
-        public static TAtt GetAttribute<TAtt>(this Type type)
+        internal static TAtt GetAttribute<TAtt>(this Type type)
             where TAtt : Attribute
         {
             var atts = type.GetCustomAttributes(typeof(TAtt), false);
@@ -30,12 +30,12 @@ namespace System
             }
         }
 
-        public static bool IsAssignableToGenericType(this Type thisType, Type genericType)
+        internal static bool IsAssignableToGenericType(this Type thisType, Type genericType)
         {
             return thisType.TryFindGenericType(genericType) != null;
         }
 
-        public static Type[] GetArgumentsOfGenericType(this Type thisType, Type genericType)
+        internal static Type[] GetArgumentsOfGenericType(this Type thisType, Type genericType)
         {
             var type = thisType.TryFindGenericType(genericType);
 
@@ -49,7 +49,7 @@ namespace System
             }
         }
 
-        public static Type TryFindGenericType(this Type thisType, Type genericType)
+        internal static Type TryFindGenericType(this Type thisType, Type genericType)
         {
             var interfaceTypes = thisType.GetInterfaces();
 

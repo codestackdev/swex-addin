@@ -1,6 +1,7 @@
 ﻿using CodeStack.Dev.Sw.AddIn.Attributes;
 using CodeStack.Dev.Sw.AddIn.Enums;
 using CodeStack.Dev.Sw.AddIn.Icons;
+using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using SolidWorks.Interop.swpublished;
 using System;
@@ -14,20 +15,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SolidWorks.Interop.sldworks
+namespace CodeStack.Dev.Sw.AddIn
 {
-    public interface IAddCommandGroup<TCmdEnum>
-            where TCmdEnum : IComparable, IFormattable, IConvertible
-    {
-        void Callback(TCmdEnum cmd);
-    }
-
-    public interface IAddCommandGroupWithEnable<TCmdEnum> : IAddCommandGroup<TCmdEnum>
-            where TCmdEnum : IComparable, IFormattable, IConvertible
-    {
-        void Enable(TCmdEnum cmd, ref CommandItemEnableState_e state);
-    }
-
     [ComVisible(true)]
     public abstract class SwAddInEx : ISwAddin
     {
@@ -48,6 +37,15 @@ namespace SolidWorks.Interop.sldworks
 
             m_CmdMgr = m_App.GetCommandManager(cookie);
 
+            CreateCommandGroups();
+
+            OnConnect();
+
+            return true;
+        }
+
+        private void CreateCommandGroups()
+        {
             m_CachedCmdsEnable = new Dictionary<string, swWorkspaceTypes_e>();
             m_CallbacksParams = new Dictionary<string, Tuple<MethodInfo, Enum>>();
             m_EnableParams = new Dictionary<string, Tuple<MethodInfo, Enum>>();
@@ -78,10 +76,6 @@ namespace SolidWorks.Interop.sldworks
                         cmdGrpDefType.GetMethod(nameof(IAddCommandGroup<Enum>.Callback)), enableMethod);
                 }
             }
-
-            OnConnect();
-
-            return true;
         }
 
         protected virtual bool OnConnect()
@@ -133,7 +127,7 @@ namespace SolidWorks.Interop.sldworks
         {
             var supportedSpaces = m_CachedCmdsEnable[cmdId];
 
-            swWorkspaceTypes_e curSpace = swWorkspaceTypes_e.NoDocuments;
+            var curSpace = swWorkspaceTypes_e.NoDocuments;
 
             if (m_App.IActiveDoc2 == null)
             {
@@ -182,24 +176,39 @@ namespace SolidWorks.Interop.sldworks
         private void CreateCommandGroup(Type cmdGroupType, MethodInfo callbackMethod, MethodInfo enableMethod = null)
         {
             var groupId = 0; //TODO: create attribute and read
-            
+
             if (!cmdGroupType.IsEnum)
             {
                 throw new ArgumentException($"{nameof(cmdGroupType)} must be an Enum");
             }
 
             var title = cmdGroupType.GetAttribute<DisplayNameAttribute>().DisplayName;
-
             var toolTip = cmdGroupType.GetAttribute<DescriptionAttribute>().Description;
+            
+            var cmds = Enum.GetValues(cmdGroupType).Cast<Enum>().ToArray();
 
+            var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds);
+
+            using (var iconsConv = new IconsConverter())
+            {
+                CreateIcons(cmdGroup, cmdGroupType, cmds, iconsConv);
+                CreateCommandItems(cmdGroup, groupId, cmds, enableMethod, callbackMethod);
+
+                cmdGroup.HasToolbar = true;
+                cmdGroup.HasMenu = true;
+                cmdGroup.Activate();
+            }
+        }
+
+        private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip, Enum[] cmds)
+        {
             int cmdGroupErr = 0;
+
             bool ignorePrevious = false;
 
             object registryIDs;
 
             bool getDataResult = m_CmdMgr.GetGroupDataFromRegistry(groupId, out registryIDs);
-
-            var cmds = Enum.GetValues(cmdGroupType).Cast<Enum>().ToArray();
 
             var knownIDs = new int[cmds.Length];
 
@@ -216,70 +225,72 @@ namespace SolidWorks.Interop.sldworks
             var cmdGroup = m_CmdMgr.CreateCommandGroup2(groupId, title, toolTip,
                 toolTip, -1, ignorePrevious, ref cmdGroupErr);
 
-            using (var iconsConv = new IconsConverter())
+            return cmdGroup;
+        }
+
+        private void CreateIcons(CommandGroup cmdGroup, Type cmdGroupType, Enum[] cmds, IconsConverter iconsConv)
+        {
+            var mainIcon = cmdGroupType.GetAttribute<IconAttribute>().Icon;
+            var iconList = cmds.Select(c => c.GetAttribute<IconAttribute>().Icon).ToArray();
+
+            if (m_App.SupportsHighResIcons())
             {
-                var mainIcon = cmdGroupType.GetAttribute<IconAttribute>().Icon;
-                var iconList = cmds.Select(c => c.GetAttribute<IconAttribute>().Icon).ToArray();
+                var iconsList = iconsConv.ConvertIcon(mainIcon, true);
+                cmdGroup.MainIconList = iconsList;
+                cmdGroup.IconList = iconsConv.ConvertIconsGroup(iconList, true);
+            }
+            else
+            {
+                var mainIconPath = iconsConv.ConvertIcon(mainIcon, false);
 
-                if (m_App.SupportsHighResIcons())
+                var smallIcon = mainIconPath[0];
+                var largeIcon = mainIconPath[1];
+
+                cmdGroup.SmallMainIcon = smallIcon;
+                cmdGroup.LargeMainIcon = largeIcon;
+
+                var iconListPath = iconsConv.ConvertIconsGroup(iconList, true);
+                var smallIconList = iconListPath[0];
+                var largeIconList = iconListPath[1];
+
+                cmdGroup.SmallIconList = smallIconList;
+                cmdGroup.LargeIconList = largeIconList;
+            }
+        }
+
+        private void CreateCommandItems(CommandGroup cmdGroup, int groupId, Enum[] cmds, 
+            MethodInfo callbackMethod, MethodInfo enableMethod)
+        {
+            var callbackMethodName = nameof(OnCommandClick);
+            var enableMethodName = nameof(OnCommandEnable);
+
+            for (int i = 0; i < cmds.Length; i++)
+            {
+                var cmd = cmds[i];
+
+                var cmdTitle = cmd.GetAttribute<DisplayNameAttribute>().DisplayName;
+                var cmdToolTip = cmd.GetAttribute<DescriptionAttribute>().Description;
+                var cmdInfoAtt = cmd.GetAttribute<CommandItemInfoAttribute>();
+                var tbOpts = cmdInfoAtt.MenuToolbarVisibility;
+
+                var cmdId = Convert.ToInt32(cmd);
+
+                var cmdName = $"{groupId}.{cmdId}";
+
+                m_CachedCmdsEnable.Add(cmdName, cmdInfoAtt.SupportedWorkspaces);
+                m_CallbacksParams.Add(cmdName, new Tuple<MethodInfo, Enum>(callbackMethod, cmd));
+
+                if (enableMethod != null)
                 {
-                    var iconsList = iconsConv.ConvertIcon(mainIcon, true);
-                    cmdGroup.MainIconList = iconsList;
-                    cmdGroup.IconList = iconsConv.ConvertIconsGroup(iconList, true);
-                }
-                else
-                {
-                    var mainIconPath = iconsConv.ConvertIcon(mainIcon, false);
-
-                    var smallIcon = mainIconPath[0];
-                    var largeIcon = mainIconPath[1];
-
-                    cmdGroup.SmallMainIcon = smallIcon;
-                    cmdGroup.LargeMainIcon = largeIcon;
-
-                    var iconListPath = iconsConv.ConvertIconsGroup(iconList, true);
-                    var smallIconList = iconListPath[0];
-                    var largeIconList = iconListPath[1];
-
-                    cmdGroup.SmallIconList = smallIconList;
-                    cmdGroup.LargeIconList = largeIconList;
-                }
-                
-                var callbackMethodName = nameof(OnCommandClick);
-                var enableMethodName = nameof(OnCommandEnable);
-                
-                for (int i = 0; i < cmds.Length; i++)
-                {
-                    var cmd = cmds[i];
-
-                    var cmdTitle = cmd.GetAttribute<DisplayNameAttribute>().DisplayName;
-                    var cmdToolTip = cmd.GetAttribute<DescriptionAttribute>().Description;
-                    var cmdInfoAtt = cmd.GetAttribute<CommandItemInfoAttribute>();
-                    var tbOpts = cmdInfoAtt.MenuToolbarVisibility;
-
-                    var cmdId = Convert.ToInt32(cmd);
-
-                    var cmdName = $"{groupId}.{cmdId}";
-
-                    m_CachedCmdsEnable.Add(cmdName, cmdInfoAtt.SupportedWorkspaces);
-                    m_CallbacksParams.Add(cmdName, new Tuple<MethodInfo, Enum>(callbackMethod, cmd));
-
-                    if (enableMethod != null)
-                    {
-                        m_EnableParams.Add(cmdName, new Tuple<MethodInfo, Enum>(enableMethod, cmd));
-                    }
-
-                    var callbackFunc = $"{callbackMethodName}({cmdName})";
-                    var enableFunc = $"{enableMethodName}({cmdName})";
-
-                    cmdGroup.AddCommandItem2(cmdTitle, -1, cmdToolTip,
-                        cmdTitle, i, callbackFunc, enableFunc, cmdId,
-                        (int)tbOpts);
+                    m_EnableParams.Add(cmdName, new Tuple<MethodInfo, Enum>(enableMethod, cmd));
                 }
 
-                cmdGroup.HasToolbar = true;
-                cmdGroup.HasMenu = true;
-                cmdGroup.Activate();
+                var callbackFunc = $"{callbackMethodName}({cmdName})";
+                var enableFunc = $"{enableMethodName}({cmdName})";
+
+                cmdGroup.AddCommandItem2(cmdTitle, -1, cmdToolTip,
+                    cmdTitle, i, callbackFunc, enableFunc, cmdId,
+                    (int)tbOpts);
             }
         }
         

@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace SolidWorks.Interop.sldworks
 {
-    public static class SldWorksExtension
+    internal static class SldWorksExtension
     {
-        public static bool SupportsHighResIcons(this ISldWorks app)
+        internal static bool SupportsHighResIcons(this ISldWorks app)
         {
             const int SW_2016_REV = 24;
 

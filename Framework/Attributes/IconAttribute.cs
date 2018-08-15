@@ -12,7 +12,7 @@ namespace CodeStack.Dev.Sw.AddIn.Attributes
     [AttributeUsage(AttributeTargets.All)]
     public class IconAttribute : Attribute
     {
-        public IIcon Icon { get; private set; }
+        internal IIcon Icon { get; private set; }
 
         public IconAttribute(Type resType, string masterResName)
             : this(ResourceHelper.GetResource<Image>(resType, masterResName))

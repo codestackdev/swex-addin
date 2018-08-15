@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace CodeStack.Dev.Sw.AddIn.Reflection
 {
-    public static class ResourceHelper
+    internal static class ResourceHelper
     {
-        public static T GetResource<T>(Type resType, string resName)
+        internal static T GetResource<T>(Type resType, string resName)
         {
             return (T)GetValue(null, resType, resName.Split('.'));
         }
 
-        public static object GetValue(object obj, Type type, string[] prpsPath)
+        internal static object GetValue(object obj, Type type, string[] prpsPath)
         {
             foreach (var prpName in prpsPath)
             {

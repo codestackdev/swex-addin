@@ -60,21 +60,23 @@
   <ItemGroup>
     <Compile Include="Attributes\CommandItemInfoAttribute.cs" />
     <Compile Include="Attributes\IconAttribute.cs" />
+    <Compile Include="Base\IAddCommandGroup.cs" />
+    <Compile Include="Base\IAddCommandGroupWithEnable.cs" />
     <Compile Include="Enums\CommandItemEnableState_e.cs" />
     <Compile Include="Enums\swWorkspaceTypes_e.cs" />
+    <Compile Include="Helpers\RegistrationHelper.cs" />
+    <Compile Include="Icons\Icon.cs" />
     <Compile Include="SwAddInEx.cs" />
     <Compile Include="Extensions\SldWorksExtension.cs" />
     <Compile Include="Icons\BasicIcon.cs" />
     <Compile Include="Icons\HighResIcon.cs" />
     <Compile Include="Icons\IconsConverter.cs" />
-    <Compile Include="Icons\IIcon.cs" />
     <Compile Include="Icons\MasterIcon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Attributes\TitleAttribute.cs" />
     <Compile Include="Reflection\ResourceHelper.cs" />
     <Compile Include="Reflection\TypeExtension.cs" />
     <Compile Include="Reflection\EnumExtension.cs" />
-    <Compile Include="RegistrationHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
