@@ -10,12 +10,14 @@ namespace CodeStack.Dev.Sw.AddIn.Attributes
 {
     public class CommandItemInfoAttribute : Attribute
     {
-        public swCommandItemType_e MenuToolbarVisibility { get; private set; }
+        public bool HasToolbar { get; private set; }
+        public bool HasMenu { get; private set; }
         public swWorkspaceTypes_e SupportedWorkspaces { get; private set; }
 
-        public CommandItemInfoAttribute(swCommandItemType_e itemType, swWorkspaceTypes_e suppWorkspaces)
+        public CommandItemInfoAttribute(bool hasMenu, bool hasToolbar, swWorkspaceTypes_e suppWorkspaces)
         {
-            MenuToolbarVisibility = itemType;
+            HasMenu = hasMenu;
+            HasToolbar = hasToolbar;
             SupportedWorkspaces = suppWorkspaces;
         }
     }

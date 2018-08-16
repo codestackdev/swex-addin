@@ -28,6 +28,8 @@ namespace CodeStack.Dev.Sw.AddIn
         private Dictionary<string, Tuple<MethodInfo, Enum>> m_CallbacksParams;
         private Dictionary<string, Tuple<MethodInfo, Enum>> m_EnableParams;
 
+        private List<int> m_CommandGroupIds;
+
         public bool ConnectToSW(object ThisSW, int cookie)
         {
             m_App = ThisSW as ISldWorks;
@@ -49,6 +51,7 @@ namespace CodeStack.Dev.Sw.AddIn
             m_CachedCmdsEnable = new Dictionary<string, swWorkspaceTypes_e>();
             m_CallbacksParams = new Dictionary<string, Tuple<MethodInfo, Enum>>();
             m_EnableParams = new Dictionary<string, Tuple<MethodInfo, Enum>>();
+            m_CommandGroupIds = new List<int>();
 
             var cmdGrpDefTypes = this.GetType().GetInterfaces().Select(
                 t => t.TryFindGenericType(typeof(IAddCommandGroup<>))).Where(t => t != null);
@@ -72,8 +75,11 @@ namespace CodeStack.Dev.Sw.AddIn
                         enableMethod = enableType.GetMethod(nameof(IAddCommandGroupWithEnable<Enum>.Enable));
                     }
 
-                    CreateCommandGroup(cmdGrpType,
-                        cmdGrpDefType.GetMethod(nameof(IAddCommandGroup<Enum>.Callback)), enableMethod);
+                    int grpId;
+                    AddCommandGroup(cmdGrpType,
+                        cmdGrpDefType.GetMethod(nameof(IAddCommandGroup<Enum>.Callback)), enableMethod, out grpId);
+
+                    m_CommandGroupIds.Add(grpId);
                 }
             }
         }
@@ -92,9 +98,11 @@ namespace CodeStack.Dev.Sw.AddIn
         {
             OnDisconnect();
 
-            //TODO: record group ids
-            m_CmdMgr.RemoveCommandGroup(0);
-
+            foreach (var grpId in m_CommandGroupIds)
+            {
+                m_CmdMgr.RemoveCommandGroup(0);
+            }
+            
             Marshal.ReleaseComObject(m_CmdMgr);
             m_CmdMgr = null;
             Marshal.ReleaseComObject(m_App);
@@ -173,9 +181,14 @@ namespace CodeStack.Dev.Sw.AddIn
             return (int)state;
         }
 
-        private void CreateCommandGroup(Type cmdGroupType, MethodInfo callbackMethod, MethodInfo enableMethod = null)
+        private void AddCommandGroup(Type cmdGroupType, MethodInfo callbackMethod,
+            MethodInfo enableMethod, out int groupId)
         {
-            var groupId = 0; //TODO: create attribute and read
+            var cmdGrpInfoAtt = cmdGroupType.GetAttribute<CommandGroupInfoAttribute>();
+
+            groupId = cmdGrpInfoAtt.Id;
+
+            var isContextMenu = cmdGrpInfoAtt is ContextMenuInfoAttribute;
 
             if (!cmdGroupType.IsEnum)
             {
@@ -187,12 +200,18 @@ namespace CodeStack.Dev.Sw.AddIn
             
             var cmds = Enum.GetValues(cmdGroupType).Cast<Enum>().ToArray();
 
-            var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds);
+            var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds, isContextMenu);
 
             using (var iconsConv = new IconsConverter())
             {
                 CreateIcons(cmdGroup, cmdGroupType, cmds, iconsConv);
-                CreateCommandItems(cmdGroup, groupId, cmds, enableMethod, callbackMethod);
+
+                if (isContextMenu)
+                {
+                    cmdGroup.SelectType = (int)(cmdGrpInfoAtt as ContextMenuInfoAttribute).SelectType;
+                }
+
+                CreateCommandItems(cmdGroup, groupId, cmds, callbackMethod, enableMethod);
 
                 cmdGroup.HasToolbar = true;
                 cmdGroup.HasMenu = true;
@@ -200,7 +219,7 @@ namespace CodeStack.Dev.Sw.AddIn
             }
         }
 
-        private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip, Enum[] cmds)
+        private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip, Enum[] cmds, bool isContextMenu)
         {
             int cmdGroupErr = 0;
 
@@ -222,9 +241,18 @@ namespace CodeStack.Dev.Sw.AddIn
                 ignorePrevious = !CompareIDs(registryIDs as int[], knownIDs);
             }
 
-            var cmdGroup = m_CmdMgr.CreateCommandGroup2(groupId, title, toolTip,
-                toolTip, -1, ignorePrevious, ref cmdGroupErr);
+            CommandGroup cmdGroup;
 
+            if (isContextMenu)
+            {
+                cmdGroup = m_CmdMgr.AddContextMenu(groupId, title);
+            }
+            else
+            {
+                cmdGroup = m_CmdMgr.CreateCommandGroup2(groupId, title, toolTip,
+                    toolTip, -1, ignorePrevious, ref cmdGroupErr);
+            }
+            
             return cmdGroup;
         }
 
@@ -271,8 +299,19 @@ namespace CodeStack.Dev.Sw.AddIn
                 var cmdTitle = cmd.GetAttribute<DisplayNameAttribute>().DisplayName;
                 var cmdToolTip = cmd.GetAttribute<DescriptionAttribute>().Description;
                 var cmdInfoAtt = cmd.GetAttribute<CommandItemInfoAttribute>();
-                var tbOpts = cmdInfoAtt.MenuToolbarVisibility;
 
+                swCommandItemType_e menuToolbarOpts = 0;
+
+                if (cmdInfoAtt.HasMenu)
+                {
+                    menuToolbarOpts |= swCommandItemType_e.swMenuItem;
+                }
+
+                if (cmdInfoAtt.HasToolbar)
+                {
+                    menuToolbarOpts |= swCommandItemType_e.swToolbarItem;
+                }
+                
                 var cmdId = Convert.ToInt32(cmd);
 
                 var cmdName = $"{groupId}.{cmdId}";
@@ -290,7 +329,7 @@ namespace CodeStack.Dev.Sw.AddIn
 
                 cmdGroup.AddCommandItem2(cmdTitle, -1, cmdToolTip,
                     cmdTitle, i, callbackFunc, enableFunc, cmdId,
-                    (int)tbOpts);
+                    (int)menuToolbarOpts);
             }
         }
         

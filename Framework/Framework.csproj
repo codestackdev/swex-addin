@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\CommandGroupInfoAttribute.cs" />
     <Compile Include="Attributes\CommandItemInfoAttribute.cs" />
     <Compile Include="Attributes\IconAttribute.cs" />
     <Compile Include="Base\IAddCommandGroup.cs" />
