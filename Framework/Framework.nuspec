@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>CodeStack.Dev.Sw.AddIn</id>
+    <version>0.1.0-beta</version>
+    <title>Development tools for SOLIDWORKS add-ins</title>
+    <authors>CodeStack</authors>
+    <owners>CodeStack</owners>
+    <licenseUrl>https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://www.codestack.net/labs/solidworks/dev-tools-addin/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Tools for development of SOLIDWORKS add-ins</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright © CodeStack 2018</copyright>
+    <tags>SOLIDWORKS addin commands</tags>
+  </metadata>
+  <files>
+    <file src="..\thirdpty\SolidWorks.Interop.sldworks.dll" target="lib\net461" />
+	<file src="..\thirdpty\SolidWorks.Interop.swconst.dll" target="lib\net461" />
+	<file src="..\thirdpty\SolidWorks.Interop.swpublished.dll" target="lib\net461" />
+	<file src="..\thirdpty\SolidWorksTools.dll" target="lib\net461" />
+  </files>
+</package>
