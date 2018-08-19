@@ -23,17 +23,32 @@ namespace System
         /// <exception cref="NullReferenceException"/>
         /// <remarks>This method throws an exception if attribute is missing</remarks>
         internal static TAtt GetAttribute<TAtt>(this Type type)
+                    where TAtt : Attribute
+        {
+            TAtt att = default(TAtt);
+
+            if (!TryGetAttribute<TAtt>(type, a => att = a))
+            {
+                throw new NullReferenceException($"Attribute of type {typeof(TAtt)} is not fond on {type.FullName}");
+            }
+
+            return att;
+        }
+
+        internal static bool TryGetAttribute<TAtt>(this Type type, Action<TAtt> attProc)
             where TAtt : Attribute
         {
             var atts = type.GetCustomAttributes(typeof(TAtt), false);
 
             if (atts != null && atts.Any())
             {
-                return atts.First() as TAtt;
+                var att = atts.First() as TAtt;
+                attProc.Invoke(att);
+                return true;
             }
             else
             {
-                throw new NullReferenceException($"Attribute of type {typeof(TAtt)} is not found on {type.FullName}");
+                return false;
             }
         }
 

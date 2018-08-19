@@ -25,17 +25,32 @@ namespace System
         internal static TAtt GetAttribute<TAtt>(this Enum enumer)
             where TAtt : Attribute
         {
+            TAtt att = default(TAtt);
+
+            if (!TryGetAttribute<TAtt>(enumer, a => att = a))
+            {
+                throw new NullReferenceException($"Attribute of type {typeof(TAtt)} is not fond on {enumer}");
+            }
+
+            return att;
+        }
+
+        internal static bool TryGetAttribute<TAtt>(this Enum enumer, Action<TAtt> attProc)
+            where TAtt : Attribute
+        {
             var enumType = enumer.GetType();
             var enumField = enumType.GetMember(enumer.ToString()).FirstOrDefault();
             var atts = enumField.GetCustomAttributes(typeof(TAtt), false);
 
             if (atts != null && atts.Any())
             {
-                return atts.First() as TAtt;
+                var att = atts.First() as TAtt;
+                attProc.Invoke(att);
+                return true;
             }
             else
             {
-                throw new NullReferenceException($"Attribute of type {typeof(TAtt)} is not fond on {enumer}");
+                return false;
             }
         }
     }

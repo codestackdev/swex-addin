@@ -8,11 +8,7 @@
 using CodeStack.Dev.Sw.AddIn.Icons;
 using CodeStack.Dev.Sw.AddIn.Reflection;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeStack.Dev.Sw.AddIn.Attributes
 {

@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{451B36D1-79A5-48C4-AF1F-79D6BFF7F3E9}</ProjectGuid>
+    <ProjectGuid>{85F91A89-29A7-481F-9EE5-9D81BB8AFD0D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CodeStack.Dev.Sw.AddIn</RootNamespace>
-    <AssemblyName>CodeStack.Dev.Sw.AddIn</AssemblyName>
+    <RootNamespace>CodeStack.Dev.Sw.AddIn.Example</RootNamespace>
+    <AssemblyName>CodeStack.Dev.Sw.AddIn.Example</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,13 +28,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>codestack.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SolidWorks.Interop.sldworks">
@@ -64,31 +55,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\CommandGroupInfoAttribute.cs" />
-    <Compile Include="Attributes\CommandItemInfoAttribute.cs" />
-    <Compile Include="Attributes\IconAttribute.cs" />
-    <Compile Include="Delegates\EnableMethodDelegate.cs" />
-    <Compile Include="Enums\CommandItemEnableState_e.cs" />
-    <Compile Include="Enums\swWorkspaceTypes_e.cs" />
-    <Compile Include="Exceptions\GroupIdAlreadyExistsException.cs" />
-    <Compile Include="Helpers\RegistrationHelper.cs" />
-    <Compile Include="Icons\Icon.cs" />
-    <Compile Include="SwAddInEx.cs" />
-    <Compile Include="Extensions\SldWorksExtension.cs" />
-    <Compile Include="Icons\BasicIcon.cs" />
-    <Compile Include="Icons\HighResIcon.cs" />
-    <Compile Include="Icons\IconsConverter.cs" />
-    <Compile Include="Icons\MasterIcon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Attributes\TitleAttribute.cs" />
-    <Compile Include="Reflection\ResourceHelper.cs" />
-    <Compile Include="Reflection\TypeExtension.cs" />
-    <Compile Include="Reflection\EnumExtension.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SwSampleAddIn.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="codestack.snk" />
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{451b36d1-79a5-48c4-af1f-79d6bff7f3e9}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="Resources\command1-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\command2-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\command-group-icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>"%25Windir%25\Microsoft.NET\Framework64\v4.0.30319\regasm" /codebase "$(TargetPath)"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
