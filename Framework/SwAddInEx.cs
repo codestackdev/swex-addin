@@ -8,6 +8,7 @@
 using CodeStack.Dev.Sw.AddIn.Attributes;
 using CodeStack.Dev.Sw.AddIn.Enums;
 using CodeStack.Dev.Sw.AddIn.Exceptions;
+using CodeStack.Dev.Sw.AddIn.Helpers;
 using CodeStack.Dev.Sw.AddIn.Icons;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
@@ -28,6 +29,29 @@ namespace CodeStack.Dev.Sw.AddIn
     [ComVisible(true)]
     public abstract class SwAddInEx : ISwAddin
     {
+        #region Registration
+
+        [ComRegisterFunction]
+        public static void RegisterFunction(Type t)
+        {
+            Debug.Assert(false);
+            if (t.TryGetAttribute<AutoRegisterAttribute>())
+            {
+                RegistrationHelper.Register(t);
+            }
+        }
+
+        [ComUnregisterFunction]
+        public static void UnregisterFunction(Type t)
+        {
+            if (t.TryGetAttribute<AutoRegisterAttribute>())
+            {
+                RegistrationHelper.Unregister(t);
+            }
+        }
+
+        #endregion
+
         protected ISldWorks m_App = null;
         protected ICommandManager m_CmdMgr = null;
         protected int m_AddInCookie = 0;
@@ -52,9 +76,7 @@ namespace CodeStack.Dev.Sw.AddIn
             m_EnableParams = new Dictionary<string, Tuple<Delegate, Enum>>();
             m_CommandGroupIds = new List<int>();
 
-            OnConnect();
-
-            return true;
+            return OnConnect();
         }
 
         public void OnCommandClick(string cmdId)
@@ -123,16 +145,24 @@ namespace CodeStack.Dev.Sw.AddIn
 
         public bool DisconnectFromSW()
         {
-            OnDisconnect();
-
             foreach (var grpId in m_CommandGroupIds)
             {
                 m_CmdMgr.RemoveCommandGroup(0);
             }
 
-            Marshal.ReleaseComObject(m_CmdMgr);
+            var res = OnDisconnect();
+
+            if (Marshal.IsComObject(m_CmdMgr))
+            {
+                Marshal.ReleaseComObject(m_CmdMgr);
+            }
             m_CmdMgr = null;
-            Marshal.ReleaseComObject(m_App);
+
+            if (Marshal.IsComObject(m_App))
+            {
+                Marshal.ReleaseComObject(m_App);
+            }
+
             m_App = null;
 
             GC.Collect();
@@ -141,7 +171,7 @@ namespace CodeStack.Dev.Sw.AddIn
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            return true;
+            return res;
         }
 
         protected virtual bool OnConnect()
@@ -154,7 +184,7 @@ namespace CodeStack.Dev.Sw.AddIn
             return true;
         }
 
-        protected void AddCommandGroup<TCmdEnum>(Action<TCmdEnum> callback,
+        internal protected CommandGroup AddCommandGroup<TCmdEnum>(Action<TCmdEnum> callback,
             EnableMethodDelegate<TCmdEnum> enable = null)
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
@@ -238,6 +268,8 @@ namespace CodeStack.Dev.Sw.AddIn
                 cmdGroup.HasMenu = true;
                 cmdGroup.Activate();
             }
+
+            return cmdGroup;
         }
         
         private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip, Enum[] cmds, bool isContextMenu)

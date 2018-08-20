@@ -35,7 +35,7 @@ namespace System
             return att;
         }
 
-        internal static bool TryGetAttribute<TAtt>(this Type type, Action<TAtt> attProc)
+        internal static bool TryGetAttribute<TAtt>(this Type type, Action<TAtt> attProc = null)
             where TAtt : Attribute
         {
             var atts = type.GetCustomAttributes(typeof(TAtt), false);
@@ -43,7 +43,7 @@ namespace System
             if (atts != null && atts.Any())
             {
                 var att = atts.First() as TAtt;
-                attProc.Invoke(att);
+                attProc?.Invoke(att);
                 return true;
             }
             else

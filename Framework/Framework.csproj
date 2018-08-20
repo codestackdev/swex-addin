@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\AutoRegisterAttribute.cs" />
     <Compile Include="Attributes\CommandGroupInfoAttribute.cs" />
     <Compile Include="Attributes\CommandItemInfoAttribute.cs" />
     <Compile Include="Attributes\IconAttribute.cs" />

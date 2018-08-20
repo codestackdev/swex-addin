@@ -39,21 +39,11 @@ namespace CodeStack.Dev.Sw.AddIn.Example
         Title = "Sample AddInEx",
         LoadAtStartup = true
     )]
+#if DEBUG
+    [AutoRegister("Sample AddInEx", "Sample AddInEx", true)]
+#endif
     public class SwSampleAddIn : SwAddInEx
     {
-#if DEBUG
-        [ComRegisterFunction]
-        public static void RegisterFunction(Type t)
-        {
-            RegistrationHelper.Register(t);
-        }
-
-        [ComUnregisterFunction]
-        public static void UnregisterFunction(Type t)
-        {
-            RegistrationHelper.Unregister(t);
-        }
-#endif
         protected override bool OnConnect()
         {
             AddCommandGroup<Commands_e>(OnCommandClick, OnCommandEnable);
