@@ -34,24 +34,17 @@ namespace CodeStack.Dev.Sw.AddIn.Example
     }
 
     [Guid("86EA567D-79FA-4E3B-B66E-EAB660DB3D47"), ComVisible(true)]
-    [SwAddin(
-        Description = "Sample AddInEx",
-        Title = "Sample AddInEx",
-        LoadAtStartup = true
-    )]
-#if DEBUG
     [AutoRegister("Sample AddInEx", "Sample AddInEx", true)]
-#endif
     public class SwSampleAddIn : SwAddInEx
     {
-        protected override bool OnConnect()
+        public override bool OnConnect()
         {
             AddCommandGroup<Commands_e>(OnCommandClick, OnCommandEnable);
-
+            
             return true;
         }
 
-        protected override bool OnDisconnect()
+        public override bool OnDisconnect()
         {
             return base.OnDisconnect();
         }

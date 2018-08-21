@@ -9,16 +9,14 @@ using CodeStack.Dev.Sw.AddIn.Attributes;
 using Microsoft.Win32;
 using SolidWorksTools;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace CodeStack.Dev.Sw.AddIn.Helpers
 {
     internal static class RegistrationHelper
     {
-        private const string ADDIN_REG_KEY_TEMPLATE = @"SOFTWARE\SolidWorks\Addins\{0}";
-        private const string ADDIN_STARTUP_REG_KEY_TEMPLATE = @"Software\SolidWorks\AddInsStartup\{0}";
+        private const string ADDIN_REG_KEY_TEMPLATE = @"SOFTWARE\SolidWorks\Addins\{{{0}}}";
+        private const string ADDIN_STARTUP_REG_KEY_TEMPLATE = @"Software\SolidWorks\AddInsStartup\{{{0}}}";
         private const string DESCRIPTION_REG_KEY_NAME = "Description";
         private const string TITLE_REG_KEY_NAME = "Title";
 

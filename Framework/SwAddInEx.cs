@@ -6,6 +6,7 @@
 //**********************
 
 using CodeStack.Dev.Sw.AddIn.Attributes;
+using CodeStack.Dev.Sw.AddIn.Base;
 using CodeStack.Dev.Sw.AddIn.Enums;
 using CodeStack.Dev.Sw.AddIn.Exceptions;
 using CodeStack.Dev.Sw.AddIn.Helpers;
@@ -26,15 +27,15 @@ using System.Threading.Tasks;
 
 namespace CodeStack.Dev.Sw.AddIn
 {
+    /// <inheritdoc/>
     [ComVisible(true)]
-    public abstract class SwAddInEx : ISwAddin
+    public abstract class SwAddInEx : ISwAddin, ISwAddInEx
     {
         #region Registration
 
         [ComRegisterFunction]
         public static void RegisterFunction(Type t)
         {
-            Debug.Assert(false);
             if (t.TryGetAttribute<AutoRegisterAttribute>())
             {
                 RegistrationHelper.Register(t);
@@ -174,18 +175,45 @@ namespace CodeStack.Dev.Sw.AddIn
             return res;
         }
 
-        protected virtual bool OnConnect()
+        /// <inheritdoc/>
+        public virtual bool OnConnect()
         {
             return true;
         }
 
-        protected virtual bool OnDisconnect()
+        /// <inheritdoc/>
+        public virtual bool OnDisconnect()
         {
             return true;
         }
 
-        internal protected CommandGroup AddCommandGroup<TCmdEnum>(Action<TCmdEnum> callback,
+        /// <inheritdoc/>
+        /// <exception cref="GroupIdAlreadyExistsException"/>
+        /// <exception cref="InvalidMenuToolbarOptionsException"/>
+        /// <exception cref="ArgumentException"/>
+        /// <exception cref="CallbackNotSpecifiedException"/>
+        public CommandGroup AddCommandGroup<TCmdEnum>(Action<TCmdEnum> callback,
             EnableMethodDelegate<TCmdEnum> enable = null)
+            where TCmdEnum : IComparable, IFormattable, IConvertible
+        {
+            return AddCommandGroupOrContextMenu(callback, enable, false, 0);
+        }
+
+        /// <inheritdoc/>
+        /// <exception cref="GroupIdAlreadyExistsException"/>
+        /// <exception cref="InvalidMenuToolbarOptionsException"/>
+        /// <exception cref="ArgumentException"/>
+        /// <exception cref="CallbackNotSpecifiedException"/>
+        public CommandGroup AddContextMenu<TCmdEnum>(Action<TCmdEnum> callback,
+            swSelectType_e contextMenuSelectType = swSelectType_e.swSelEVERYTHING,
+            EnableMethodDelegate<TCmdEnum> enable = null)
+            where TCmdEnum : IComparable, IFormattable, IConvertible
+        {
+            return AddCommandGroupOrContextMenu(callback, enable, true, contextMenuSelectType);
+        }
+
+        private CommandGroup AddCommandGroupOrContextMenu<TCmdEnum>(Action<TCmdEnum> callback,
+            EnableMethodDelegate<TCmdEnum> enable, bool isContextMenu, swSelectType_e contextMenuSelectType)
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
             if (!(typeof(TCmdEnum).IsEnum))
@@ -195,25 +223,47 @@ namespace CodeStack.Dev.Sw.AddIn
 
             if (callback == null)
             {
-                throw new NullReferenceException(nameof(callback));
+                throw new CallbackNotSpecifiedException();
             }
-            
+
             var cmdGroupType = typeof(TCmdEnum);
 
-            int groupId = -1;
-            swSelectType_e contextMenuSelectType = 0;
-            bool isContextMenu = false;
+            int groupId;
+            string title;
+            string toolTip;
 
-            if (!cmdGroupType.TryGetAttribute<CommandGroupInfoAttribute>(att =>
-             {
-                 if (att is ContextMenuInfoAttribute)
-                 {
-                     isContextMenu = true;
-                     contextMenuSelectType = (att as ContextMenuInfoAttribute).SelectType;
-                 }
+            GetCommandGroupAttribution(cmdGroupType, out groupId, out title, out toolTip);
 
-                 groupId = att.Id;
-             }))
+            var cmds = Enum.GetValues(cmdGroupType).Cast<Enum>().ToArray();
+
+            var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds, isContextMenu, contextMenuSelectType);
+
+            using (var iconsConv = new IconsConverter())
+            {
+                CreateIcons(cmdGroup, cmdGroupType, cmds, iconsConv);
+
+                CreateCommandItems(cmdGroup, groupId, cmds, callback, enable);
+
+                cmdGroup.HasToolbar = true;
+                cmdGroup.HasMenu = true;
+                cmdGroup.Activate();
+            }
+
+            return cmdGroup;
+        }
+
+        private void GetCommandGroupAttribution(Type cmdGroupType, out int groupId,
+            out string title, out string toolTip)
+        {
+            groupId = -1;
+
+            CommandGroupInfoAttribute grpInfoAtt;
+
+            if (cmdGroupType.TryGetAttribute(out grpInfoAtt))
+            {
+                groupId = grpInfoAtt.UserId;
+            }
+            else
             {
                 if (m_CommandGroupIds.Any())
                 {
@@ -233,46 +283,32 @@ namespace CodeStack.Dev.Sw.AddIn
             {
                 throw new GroupIdAlreadyExistsException(groupId);
             }
+            
+            DisplayNameAttribute dispNameAtt;
 
-            string title = "";
-            string toolTip = "";
-
-            if (!cmdGroupType.TryGetAttribute<DisplayNameAttribute>(
-                att => title = att.DisplayName))
+            if (cmdGroupType.TryGetAttribute(out dispNameAtt))
+            {
+                title = dispNameAtt.DisplayName;
+            }
+            else
             {
                 title = cmdGroupType.ToString();
             }
 
-            if (!cmdGroupType.TryGetAttribute<DescriptionAttribute>(
-                att => toolTip = att.Description))
+            DescriptionAttribute descAtt;
+
+            if (cmdGroupType.TryGetAttribute(out descAtt))
+            {
+                toolTip = descAtt.Description;
+            }
+            else
             {
                 toolTip = cmdGroupType.ToString();
             }
-
-            var cmds = Enum.GetValues(cmdGroupType).Cast<Enum>().ToArray();
-
-            var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds, isContextMenu);
-
-            using (var iconsConv = new IconsConverter())
-            {
-                CreateIcons(cmdGroup, cmdGroupType, cmds, iconsConv);
-
-                if (isContextMenu)
-                {
-                    cmdGroup.SelectType = (int)contextMenuSelectType;
-                }
-
-                CreateCommandItems(cmdGroup, groupId, cmds, callback, enable);
-
-                cmdGroup.HasToolbar = true;
-                cmdGroup.HasMenu = true;
-                cmdGroup.Activate();
-            }
-
-            return cmdGroup;
         }
-        
-        private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip, Enum[] cmds, bool isContextMenu)
+
+        private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip,
+            Enum[] cmds, bool isContextMenu, swSelectType_e contextMenuSelectType)
         {
             int cmdGroupErr = 0;
 
@@ -299,6 +335,7 @@ namespace CodeStack.Dev.Sw.AddIn
             if (isContextMenu)
             {
                 cmdGroup = m_CmdMgr.AddContextMenu(groupId, title);
+                cmdGroup.SelectType = (int)contextMenuSelectType;
             }
             else
             {
@@ -381,8 +418,7 @@ namespace CodeStack.Dev.Sw.AddIn
                 {
                     cmdToolTip = cmd.ToString();
                 }
-
-
+                
                 if (!cmd.TryGetAttribute<CommandItemInfoAttribute>(
                     att => 
                     {
@@ -401,6 +437,11 @@ namespace CodeStack.Dev.Sw.AddIn
                 {
                     menuToolbarOpts = swCommandItemType_e.swMenuItem | swCommandItemType_e.swToolbarItem;
                     suppWorkSpaces = swWorkspaceTypes_e.All;
+                }
+
+                if (menuToolbarOpts == 0)
+                {
+                    throw new InvalidMenuToolbarOptionsException(cmd);
                 }
                                 
                 var cmdId = Convert.ToInt32(cmd);

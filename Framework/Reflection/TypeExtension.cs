@@ -35,6 +35,15 @@ namespace System
             return att;
         }
 
+        internal static bool TryGetAttribute<TAtt>(this Type type, out TAtt att)
+            where TAtt : Attribute
+        {
+            TAtt thisAtt = null;
+            var res = TryGetAttribute<TAtt>(type, a => thisAtt = a);
+            att = thisAtt;
+            return res;
+        }
+
         internal static bool TryGetAttribute<TAtt>(this Type type, Action<TAtt> attProc = null)
             where TAtt : Attribute
         {

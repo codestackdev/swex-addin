@@ -14,23 +14,21 @@ using System.Threading.Tasks;
 
 namespace CodeStack.Dev.Sw.AddIn.Attributes
 {
+    /// <summary>
+    /// Provides the additional information about the command group
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Enum)]
     public class CommandGroupInfoAttribute : Attribute
     {
-        public int Id { get; private set; }
+        /// <summary>
+        /// User id for the command group
+        /// </summary>
+        /// <remarks>Must be unique per add-in</remarks>
+        public int UserId { get; private set; }
 
-        public CommandGroupInfoAttribute(int id)
+        public CommandGroupInfoAttribute(int userId)
         {
-            Id = id;
-        }
-    }
-
-    public class ContextMenuInfoAttribute : CommandGroupInfoAttribute
-    {
-        public swSelectType_e SelectType { get; private set; }
-
-        public ContextMenuInfoAttribute(int id, swSelectType_e selectType) : base(id)
-        {
-            SelectType = selectType;
+            UserId = userId;
         }
     }
 }

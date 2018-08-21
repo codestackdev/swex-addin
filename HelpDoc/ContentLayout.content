@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Topics>
+  <Topic id="5774ba56-c8a6-4435-92a9-a3ece336c8af" visible="True" isDefault="true" title="Welcome to the Sw.NET for Add-ins">
+    <HelpKeywords>
+      <HelpKeyword index="K" term="Welcome" />
+    </HelpKeywords>
+  </Topic>
+  <Topic id="1602f6f0-6119-49a5-a254-c7b346d32e3e" visible="True" isExpanded="true" isSelected="true" title="Version History">
+    <HelpKeywords>
+      <HelpKeyword index="K" term="version, history" />
+    </HelpKeywords>
+    <Topic id="cf3bcb32-79aa-4bfc-a4b3-424471370678" visible="True" title="Version 0.1.0">
+      <HelpKeywords>
+        <HelpKeyword index="K" term="version, 1.0.0.0" />
+      </HelpKeywords>
+    </Topic>
+  </Topic>
+</Topics>

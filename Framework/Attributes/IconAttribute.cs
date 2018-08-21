@@ -12,6 +12,9 @@ using System.Drawing;
 
 namespace CodeStack.Dev.Sw.AddIn.Attributes
 {
+    /// <summary>
+    /// Loads the icon information from the resources
+    /// </summary>
     [AttributeUsage(AttributeTargets.All)]
     public class IconAttribute : Attribute
     {
