@@ -1,5 +1,5 @@
 ﻿//**********************
-//Development tools for SOLIDWORKS add-ins
+//SwEx.AddIn - development tools for SOLIDWORKS add-ins
 //Copyright(C) 2018 www.codestack.net
 //License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
 //Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
@@ -19,11 +19,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeStack.SwEx.AddIn
 {

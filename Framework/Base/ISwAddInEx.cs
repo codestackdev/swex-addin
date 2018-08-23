@@ -1,5 +1,13 @@
-﻿using SolidWorks.Interop.sldworks;
+﻿//**********************
+//SwEx.AddIn - development tools for SOLIDWORKS add-ins
+//Copyright(C) 2018 www.codestack.net
+//License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
+//Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
+//**********************
+
+using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
+using SolidWorks.Interop.swpublished;
 using System;
 
 namespace CodeStack.SwEx.AddIn.Base

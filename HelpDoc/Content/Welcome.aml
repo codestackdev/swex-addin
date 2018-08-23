@@ -2,7 +2,7 @@
 <topic id="5774ba56-c8a6-4435-92a9-a3ece336c8af" revisionNumber="1">
 	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<introduction>
-			<para>Sw.NET for add-ins enables SOLIDWORKS add-in developers to develop robust applications simplifying the add-in creation process</para>
+			<para>SwEx.AddIn enables SOLIDWORKS add-in developers to develop robust applications simplifying the add-in creation process</para>
 		</introduction>
 
 		<section>
