@@ -5,7 +5,7 @@
 //Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
 //**********************
 
-namespace CodeStack.Dev.Sw.AddIn.Enums
+namespace CodeStack.SwEx.AddIn.Enums
 {
     public enum CommandItemEnableState_e
     {

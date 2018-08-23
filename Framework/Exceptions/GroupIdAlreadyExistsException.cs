@@ -1,7 +1,7 @@
-﻿using CodeStack.Dev.Sw.AddIn.Attributes;
+﻿using CodeStack.SwEx.AddIn.Attributes;
 using System;
 
-namespace CodeStack.Dev.Sw.AddIn.Exceptions
+namespace CodeStack.SwEx.AddIn.Exceptions
 {
     /// <summary>
     /// Exception indicates that specified group user id is already used

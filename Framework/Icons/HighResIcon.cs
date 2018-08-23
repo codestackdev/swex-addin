@@ -7,7 +7,7 @@
 
 using System.Drawing;
 
-namespace CodeStack.Dev.Sw.AddIn.Icons
+namespace CodeStack.SwEx.AddIn.Icons
 {
     internal class HighResIcon : IIcon
     {

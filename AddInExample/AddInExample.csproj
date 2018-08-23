@@ -7,8 +7,8 @@
     <ProjectGuid>{85F91A89-29A7-481F-9EE5-9D81BB8AFD0D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CodeStack.Dev.Sw.AddIn.Example</RootNamespace>
-    <AssemblyName>CodeStack.Dev.Sw.AddIn.Example</AssemblyName>
+    <RootNamespace>CodeStack.SwEx.AddIn.Example</RootNamespace>
+    <AssemblyName>CodeStack.SwEx.AddIn.Example</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -80,9 +80,16 @@
   <ItemGroup>
     <None Include="Resources\command-group-icon.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{451b36d1-79a5-48c4-af1f-79d6bff7f3e9}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"%25Windir%25\Microsoft.NET\Framework64\v4.0.30319\regasm" /codebase "$(TargetPath)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

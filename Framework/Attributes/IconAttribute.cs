@@ -5,12 +5,12 @@
 //Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
 //**********************
 
-using CodeStack.Dev.Sw.AddIn.Icons;
-using CodeStack.Dev.Sw.AddIn.Reflection;
+using CodeStack.SwEx.AddIn.Icons;
+using CodeStack.SwEx.AddIn.Reflection;
 using System;
 using System.Drawing;
 
-namespace CodeStack.Dev.Sw.AddIn.Attributes
+namespace CodeStack.SwEx.AddIn.Attributes
 {
     /// <summary>
     /// Loads the icon information from the resources

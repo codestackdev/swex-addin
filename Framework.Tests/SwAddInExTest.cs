@@ -2,10 +2,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Protected;
-using CodeStack.Dev.Sw.AddIn;
+using CodeStack.SwEx.AddIn;
 using SolidWorks.Interop.sldworks;
 using System.Collections.Generic;
-using CodeStack.Dev.Sw.AddIn.Attributes;
+using CodeStack.SwEx.AddIn.Attributes;
 
 namespace Framework.Tests
 {
@@ -24,7 +24,7 @@ namespace Framework.Tests
         {
             [Title("Command1")]
             [System.ComponentModel.Description("Command1 Desc")]
-            [CommandItemInfo(false, true, CodeStack.Dev.Sw.AddIn.Enums.swWorkspaceTypes_e.Assembly)]
+            [CommandItemInfo(false, true, CodeStack.SwEx.AddIn.Enums.swWorkspaceTypes_e.Assembly)]
             Cmd1,
         }
 

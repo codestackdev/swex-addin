@@ -5,9 +5,9 @@
 //Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
 //**********************
 
-using CodeStack.Dev.Sw.AddIn.Attributes;
-using CodeStack.Dev.Sw.AddIn.Enums;
-using CodeStack.Dev.Sw.AddIn.Icons;
+using CodeStack.SwEx.AddIn.Attributes;
+using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.AddIn.Icons;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

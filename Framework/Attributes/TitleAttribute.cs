@@ -8,7 +8,7 @@
 using System;
 using System.ComponentModel;
 
-namespace CodeStack.Dev.Sw.AddIn.Attributes
+namespace CodeStack.SwEx.AddIn.Attributes
 {
     [AttributeUsage(AttributeTargets.All)]
     public class TitleAttribute : DisplayNameAttribute

@@ -12,7 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeStack.Dev.Sw.AddIn.Reflection
+namespace CodeStack.SwEx.AddIn.Reflection
 {
     internal static class ResourceHelper
     {

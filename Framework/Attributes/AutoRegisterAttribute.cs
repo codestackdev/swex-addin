@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CodeStack.Dev.Sw.AddIn.Attributes
+namespace CodeStack.SwEx.AddIn.Attributes
 {
     /// <summary>
     /// Automatically adds the information about the add-in into the registry

@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeStack.Dev.Sw.AddIn.Icons
+namespace CodeStack.SwEx.AddIn.Icons
 {
     internal abstract class IIcon
     {

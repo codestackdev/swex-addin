@@ -1,9 +1,9 @@
 ﻿//icons by: http://icons8.com
 
-using CodeStack.Dev.Sw.AddIn.Attributes;
-using CodeStack.Dev.Sw.AddIn.Enums;
-using CodeStack.Dev.Sw.AddIn.Example.Properties;
-using CodeStack.Dev.Sw.AddIn.Helpers;
+using CodeStack.SwEx.AddIn.Attributes;
+using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.AddIn.Example.Properties;
+using CodeStack.SwEx.AddIn.Helpers;
 using SolidWorksTools;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace CodeStack.Dev.Sw.AddIn.Example
+namespace CodeStack.SwEx.AddIn.Example
 {
     [Title("AddInEx Commands")]
     [Description("Sample commands")]

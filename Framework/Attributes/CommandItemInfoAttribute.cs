@@ -5,10 +5,10 @@
 //Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
 //**********************
 
-using CodeStack.Dev.Sw.AddIn.Enums;
+using CodeStack.SwEx.AddIn.Enums;
 using System;
 
-namespace CodeStack.Dev.Sw.AddIn.Attributes
+namespace CodeStack.SwEx.AddIn.Attributes
 {
     /// <summary>
     /// Provides additional information about the item command

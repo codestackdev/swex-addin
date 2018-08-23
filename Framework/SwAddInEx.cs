@@ -5,12 +5,12 @@
 //Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
 //**********************
 
-using CodeStack.Dev.Sw.AddIn.Attributes;
-using CodeStack.Dev.Sw.AddIn.Base;
-using CodeStack.Dev.Sw.AddIn.Enums;
-using CodeStack.Dev.Sw.AddIn.Exceptions;
-using CodeStack.Dev.Sw.AddIn.Helpers;
-using CodeStack.Dev.Sw.AddIn.Icons;
+using CodeStack.SwEx.AddIn.Attributes;
+using CodeStack.SwEx.AddIn.Base;
+using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.AddIn.Exceptions;
+using CodeStack.SwEx.AddIn.Helpers;
+using CodeStack.SwEx.AddIn.Icons;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using SolidWorks.Interop.swpublished;
@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeStack.Dev.Sw.AddIn
+namespace CodeStack.SwEx.AddIn
 {
     /// <inheritdoc/>
     [ComVisible(true)]

@@ -7,7 +7,7 @@
 
 using System;
 
-namespace CodeStack.Dev.Sw.AddIn.Enums
+namespace CodeStack.SwEx.AddIn.Enums
 {
     /// <summary>
     /// Provides the enumeration of various workspaces in SOLIDWORKS

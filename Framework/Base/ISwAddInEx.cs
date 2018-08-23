@@ -2,7 +2,7 @@
 using SolidWorks.Interop.swconst;
 using System;
 
-namespace CodeStack.Dev.Sw.AddIn.Base
+namespace CodeStack.SwEx.AddIn.Base
 {
     /// <summary>
     /// Base interface for enabling the Framework for SOLIDWORKS add-ins

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CodeStack.Dev.Sw.AddIn.Exceptions
+namespace CodeStack.SwEx.AddIn.Exceptions
 {
     /// <summary>
     /// Indicates that the command doesn't have either menu or toolbar option set
