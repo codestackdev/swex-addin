@@ -27,7 +27,8 @@
       <Argument Key="maxVersionParts" Value="" xmlns="" />
     </TransformComponentArguments>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Framework\Framework.csproj" xmlns="" />
+      <DocumentationSource sourceFile="..\Framework\bin\Release\CodeStack.SwEx.AddIn.xml" />
+      <DocumentationSource sourceFile="..\Framework\bin\Release\CodeStack.SwEx.AddIn.dll" />
     </DocumentationSources>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
@@ -49,20 +50,28 @@
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <VisibleItems>InheritedMembers, EditorBrowsableNever, NonBrowsable</VisibleItems>
     <ApiFilter>
-      <Filter entryType="Namespace" fullName="CodeStack.Dev.Sw.AddIn" isExposed="False" xmlns="">
-        <Filter entryType="Delegate" fullName="CodeStack.Dev.Sw.AddIn.EnableMethodDelegate`1" filterName="EnableMethodDelegate`1" isExposed="True" />
-        <Filter entryType="Class" fullName="CodeStack.Dev.Sw.AddIn.SwAddInEx" filterName="SwAddInEx" isExposed="False">
-          <Filter entryType="Method" fullName="CodeStack.Dev.Sw.AddIn.SwAddInEx.AddCommandGroup" filterName="AddCommandGroup" isExposed="True" />
-          <Filter entryType="Method" fullName="CodeStack.Dev.Sw.AddIn.SwAddInEx.AddContextMenu" filterName="AddContextMenu" isExposed="True" />
-          <Filter entryType="Method" fullName="CodeStack.Dev.Sw.AddIn.SwAddInEx.OnConnect" filterName="OnConnect" isExposed="True" />
-          <Filter entryType="Method" fullName="CodeStack.Dev.Sw.AddIn.SwAddInEx.OnDisconnect" filterName="OnDisconnect" isExposed="True" />
-        </Filter>
-      </Filter>
+      <Filter entryType="Namespace" fullName="CodeStack.SwEx.AddIn" isExposed="False">
+  <Filter entryType="Delegate" fullName="CodeStack.SwEx.AddIn.EnableMethodDelegate`1" filterName="EnableMethodDelegate`1" isExposed="True" />
+  <Filter entryType="Class" fullName="CodeStack.SwEx.AddIn.SwAddInEx" filterName="SwAddInEx" isExposed="False">
+    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddCommandGroup" filterName="AddCommandGroup" isExposed="True" />
+    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddContextMenu" filterName="AddContextMenu" isExposed="True" />
+    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnConnect" filterName="OnConnect" isExposed="True" />
+    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnDisconnect" filterName="OnDisconnect" isExposed="True" />
+  </Filter>
+</Filter>
     </ApiFilter>
     <CopyrightHref>https://www.codestack.net</CopyrightHref>
-    <CopyrightText>codestack.net</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b CodeStack  2018</CopyrightText>
     <FeedbackEMailAddress>codestack.net%40gmail.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>Contact Us</FeedbackEMailLinkText>
+    <NamespaceSummaries>
+      <NamespaceSummaryItem name="(global)" isDocumented="False" />
+<NamespaceSummaryItem name="CodeStack.SwEx.AddIn" isDocumented="True">Framework classes end structures for the SwEx library</NamespaceSummaryItem>
+<NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Attributes" isDocumented="True">Collection of attributes for SwEx library</NamespaceSummaryItem>
+<NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Enums" isDocumented="True">Collection of enumerators for SwEx library</NamespaceSummaryItem>
+<NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Exceptions" isDocumented="True">Collection of exceptions for SwEx library</NamespaceSummaryItem>
+<NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Base" isDocumented="True">Base interfaces for SwEx framework</NamespaceSummaryItem></NamespaceSummaries>
+    <ProjectSummary>SwEx.AddIn is a library for developing SOLIDWORKS add-ins</ProjectSummary>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -92,6 +101,7 @@
     <None Include="Content\VersionHistory\v0.1.0.aml" />
     <None Include="Content\VersionHistory\VersionHistory.aml" />
     <None Include="Content\Welcome.aml" />
+    <None Include="favicon.ico" />
   </ItemGroup>
   <ItemGroup>
     <ContentLayout Include="ContentLayout.content" />

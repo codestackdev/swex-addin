@@ -2,11 +2,14 @@
 //SwEx.AddIn - development tools for SOLIDWORKS add-ins
 //Copyright(C) 2018 www.codestack.net
 //License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
-//Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
+//Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
 namespace CodeStack.SwEx.AddIn.Enums
 {
+    /// <summary>
+    /// Enumerates the possible states of the command (toolbar button or menu item) in SOLIDWORKS
+    /// </summary>
     public enum CommandItemEnableState_e
     {
         /// <summary>

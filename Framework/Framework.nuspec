@@ -7,7 +7,8 @@
     <authors>CodeStack</authors>
     <owners>CodeStack</owners>
     <licenseUrl>https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://www.codestack.net/labs/solidworks/swex-addin/</projectUrl>
+    <projectUrl>https://www.codestack.net/labs/solidworks/swex/add-in</projectUrl>
+    <iconUrl>https://www.codestack.net/labs/solidworks/swex/add-in/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Tools for development of SOLIDWORKS add-ins</description>
     <releaseNotes></releaseNotes>
@@ -16,8 +17,9 @@
   </metadata>
   <files>
     <file src="..\thirdpty\SolidWorks.Interop.sldworks.dll" target="lib\net40" />
-	<file src="..\thirdpty\SolidWorks.Interop.swconst.dll" target="lib\net40" />
-	<file src="..\thirdpty\SolidWorks.Interop.swpublished.dll" target="lib\net40" />
-	<file src="..\thirdpty\SolidWorksTools.dll" target="lib\net40" />
+    <file src="..\thirdpty\SolidWorks.Interop.swconst.dll" target="lib\net40" />
+    <file src="..\thirdpty\SolidWorks.Interop.swpublished.dll" target="lib\net40" />
+    <file src="..\thirdpty\SolidWorksTools.dll" target="lib\net40" />
+    <file src="Framework.targets" target="build\CodeStack.SwEx.AddIn.targets" />
   </files>
 </package>
