@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="v0-2-2" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        Version 0.2.2 was released on 25 Aug 2018.
+      </para>
+    </introduction>
+
+    <section>
+      <title>This is a second beta-release</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>Renamed to SwEx.AddIn</para>
+          </listItem>
+          <listItem>
+            <para>Added documentation and examples</para>
+          </listItem>
+          <listItem>
+            <para>Signed assembly with strong name</para>
+          </listItem>
+        </list>
+
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="version-history" />
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

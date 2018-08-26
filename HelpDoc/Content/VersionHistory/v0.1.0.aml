@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<topic id="cf3bcb32-79aa-4bfc-a4b3-424471370678" revisionNumber="1">
+<topic id="v0-1-0" revisionNumber="1">
 	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<introduction>
 			<para>Version 0.1.0 was released on 17 Aug 2018.
@@ -26,7 +26,7 @@
 		</section>
 
 		<relatedTopics>
-			<link xlink:href="1602f6f0-6119-49a5-a254-c7b346d32e3e" />
+			<link xlink:href="version-history" />
 		</relatedTopics>
 
 	</developerConceptualDocument>

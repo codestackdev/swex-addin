@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<topic id="5774ba56-c8a6-4435-92a9-a3ece336c8af" revisionNumber="1">
+<topic id="welcome" revisionNumber="1">
 	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
 		<introduction>
 			<para>SwEx.AddIn enables SOLIDWORKS add-in developers to develop robust applications simplifying the add-in creation process</para>
@@ -13,7 +13,7 @@
 		</section>
 
 		<relatedTopics>
-			<link xlink:href="1602f6f0-6119-49a5-a254-c7b346d32e3e" />
+			<link xlink:href="version-history" />
 		</relatedTopics>
 	</developerConceptualDocument>
 </topic>

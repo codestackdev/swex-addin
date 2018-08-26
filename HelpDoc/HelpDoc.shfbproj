@@ -45,20 +45,20 @@
     <RootNamespaceContainer>False</RootNamespaceContainer>
     <PresentationStyle>VS2013</PresentationStyle>
     <Preliminary>False</Preliminary>
-    <NamingMethod>Guid</NamingMethod>
+    <NamingMethod>MemberName</NamingMethod>
     <HelpTitle>SwEx.AddIn</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <VisibleItems>InheritedMembers, EditorBrowsableNever, NonBrowsable</VisibleItems>
     <ApiFilter>
       <Filter entryType="Namespace" fullName="CodeStack.SwEx.AddIn" isExposed="False">
-  <Filter entryType="Delegate" fullName="CodeStack.SwEx.AddIn.EnableMethodDelegate`1" filterName="EnableMethodDelegate`1" isExposed="True" />
-  <Filter entryType="Class" fullName="CodeStack.SwEx.AddIn.SwAddInEx" filterName="SwAddInEx" isExposed="False">
-    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddCommandGroup" filterName="AddCommandGroup" isExposed="True" />
-    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddContextMenu" filterName="AddContextMenu" isExposed="True" />
-    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnConnect" filterName="OnConnect" isExposed="True" />
-    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnDisconnect" filterName="OnDisconnect" isExposed="True" />
-  </Filter>
-</Filter>
+        <Filter entryType="Delegate" fullName="CodeStack.SwEx.AddIn.EnableMethodDelegate`1" filterName="EnableMethodDelegate`1" isExposed="True" />
+        <Filter entryType="Class" fullName="CodeStack.SwEx.AddIn.SwAddInEx" filterName="SwAddInEx" isExposed="False">
+          <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddCommandGroup" filterName="AddCommandGroup" isExposed="True" />
+          <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddContextMenu" filterName="AddContextMenu" isExposed="True" />
+          <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnConnect" filterName="OnConnect" isExposed="True" />
+          <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnDisconnect" filterName="OnDisconnect" isExposed="True" />
+        </Filter>
+      </Filter>
     </ApiFilter>
     <CopyrightHref>https://www.codestack.net</CopyrightHref>
     <CopyrightText>Copyright &amp;#169%3b CodeStack  2018</CopyrightText>
@@ -66,11 +66,12 @@
     <FeedbackEMailLinkText>Contact Us</FeedbackEMailLinkText>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" />
-<NamespaceSummaryItem name="CodeStack.SwEx.AddIn" isDocumented="True">Framework classes end structures for the SwEx library</NamespaceSummaryItem>
-<NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Attributes" isDocumented="True">Collection of attributes for SwEx library</NamespaceSummaryItem>
-<NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Enums" isDocumented="True">Collection of enumerators for SwEx library</NamespaceSummaryItem>
-<NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Exceptions" isDocumented="True">Collection of exceptions for SwEx library</NamespaceSummaryItem>
-<NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Base" isDocumented="True">Base interfaces for SwEx framework</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="CodeStack.SwEx.AddIn" isDocumented="True">Framework classes end structures for the SwEx library</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Attributes" isDocumented="True">Collection of attributes for SwEx library</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Enums" isDocumented="True">Collection of enumerators for SwEx library</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Exceptions" isDocumented="True">Collection of exceptions for SwEx library</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="CodeStack.SwEx.AddIn.Base" isDocumented="True">Base interfaces for SwEx framework</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <ProjectSummary>SwEx.AddIn is a library for developing SOLIDWORKS add-ins</ProjectSummary>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
@@ -98,6 +99,7 @@
     <Folder Include="media" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\VersionHistory\v0.2.2.aml" />
     <None Include="Content\VersionHistory\v0.1.0.aml" />
     <None Include="Content\VersionHistory\VersionHistory.aml" />
     <None Include="Content\Welcome.aml" />

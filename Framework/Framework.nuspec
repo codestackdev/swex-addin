@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CodeStack.SwEx.AddIn</id>
-    <version>0.2.0-beta</version>
+    <version>0.2.2-beta</version>
     <title>Development tools for SOLIDWORKS add-ins</title>
     <authors>CodeStack</authors>
     <owners>CodeStack</owners>
@@ -20,6 +20,6 @@
     <file src="..\thirdpty\SolidWorks.Interop.swconst.dll" target="lib\net40" />
     <file src="..\thirdpty\SolidWorks.Interop.swpublished.dll" target="lib\net40" />
     <file src="..\thirdpty\SolidWorksTools.dll" target="lib\net40" />
-    <file src="Framework.targets" target="build\CodeStack.SwEx.AddIn.targets" />
+    <!--<file src="Framework.targets" target="build\CodeStack.SwEx.AddIn.targets" />-->
   </files>
 </package>
