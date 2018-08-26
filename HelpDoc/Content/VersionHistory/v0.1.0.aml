@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="v0-1-0" revisionNumber="1">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction>
+			<para>Version 0.1.0 was released on 17 Aug 2018.
+			</para>
+		</introduction>
+
+		<section>
+			<title>This is an initial beta release</title>
+			<content>
+
+				<list class="bullet">
+					<listItem>
+						<para>Added the base add-in class</para>
+					</listItem>
+					<listItem>
+						<para>Added the interfaces to create command manager and context menu based on the enumerator</para>
+					</listItem>
+					<listItem>
+						<para>Added the helper class to register and unregister the add-in</para>
+					</listItem>
+				</list>
+
+			</content>
+		</section>
+
+		<relatedTopics>
+			<link xlink:href="version-history" />
+		</relatedTopics>
+
+	</developerConceptualDocument>
+</topic>

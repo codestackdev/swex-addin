@@ -1,72 +1,151 @@
 ﻿//**********************
-//Development tools for SOLIDWORKS add-ins
+//SwEx.AddIn - development tools for SOLIDWORKS add-ins
 //Copyright(C) 2018 www.codestack.net
 //License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
-//Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
+//Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
+using CodeStack.SwEx.AddIn.Attributes;
+using Microsoft.Win32;
 using SolidWorksTools;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 
-namespace CodeStack.Dev.Sw.AddIn.Helpers
+namespace CodeStack.SwEx.AddIn.Helpers
 {
-    public static class RegistrationHelper
+    internal static class RegistrationHelper
     {
-        public static bool Register(Type t)
+        private const string ADDIN_REG_KEY_TEMPLATE = @"SOFTWARE\SolidWorks\Addins\{{{0}}}";
+        private const string ADDIN_STARTUP_REG_KEY_TEMPLATE = @"Software\SolidWorks\AddInsStartup\{{{0}}}";
+        private const string DESCRIPTION_REG_KEY_NAME = "Description";
+        private const string TITLE_REG_KEY_NAME = "Title";
+
+        internal static bool Register(Type type)
         {
             try
             {
-                var att = t.GetCustomAttributes(false).OfType<SwAddinAttribute>().FirstOrDefault();
-
-                if (att == null)
+                //Visual Studio is usually a x32 process and using the 'Register for COM Interops'
+                //option will only register the dll in x32 environment
+                //Extending the behavior to force register in x64 environment
+                if (!Is64BitProcess)
                 {
-                    throw new NullReferenceException($"{typeof(SwAddinAttribute).FullName} is not set on {t.GetType().FullName}");
+                    RegisterAssembly(type);
                 }
+                
+                RegisterAddIn(type);
 
-                var hklm = Microsoft.Win32.Registry.LocalMachine;
-                var hkcu = Microsoft.Win32.Registry.CurrentUser;
-
-                var keyname = @"SOFTWARE\SolidWorks\Addins\{" + t.GUID.ToString() + "}";
-                Microsoft.Win32.RegistryKey addinkey = hklm.CreateSubKey(keyname);
-                addinkey.SetValue(null, 0);
-
-                addinkey.SetValue("Description", att.Description);
-                addinkey.SetValue("Title", att.Title);
-
-                keyname = @"Software\SolidWorks\AddInsStartup\{" + t.GUID.ToString() + "}";
-                addinkey = hkcu.CreateSubKey(keyname);
-                addinkey.SetValue(null, Convert.ToInt32(att.LoadAtStartup), Microsoft.Win32.RegistryValueKind.DWord);
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error while registering the addin: " + ex.Message);
+                Debug.Print("Error while registering the addin: " + ex.Message);
                 return false;
             }
         }
 
-        public static bool Unregister(Type t)
+        internal static bool Unregister(Type type)
         {
             try
             {
-                var hklm = Microsoft.Win32.Registry.LocalMachine;
-                var hkcu = Microsoft.Win32.Registry.CurrentUser;
+                if (!Is64BitProcess)
+                {
+                    UnregisterAssembly(type);
+                }
+                
+                UnregisterAddIn(type);
 
-                var keyname = @"SOFTWARE\SolidWorks\Addins\{" + t.GUID.ToString() + "}";
-                hklm.DeleteSubKey(keyname);
-
-                keyname = @"Software\SolidWorks\AddInsStartup\{" + t.GUID.ToString() + "}";
-                hkcu.DeleteSubKey(keyname);
                 return true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine("Error while unregistering the addin: " + e.Message);
+                Debug.Print("Error while unregistering the addin: " + ex.Message);
                 return false;
+            }
+        }
+
+        private static void RegisterAssembly(Type type)
+        {
+            RunRegAsm(type.Assembly.Location, true);
+        }
+
+        private static void UnregisterAssembly(Type type)
+        {
+            RunRegAsm(type.Assembly.Location, false);
+        }
+
+        private static void RunRegAsm(string dllPath, bool register)
+        {
+            var winDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+            var fw64 = @"Microsoft.NET\Framework64";
+            var vers = $"v{Environment.Version.ToString(3)}";
+
+            var frameworkDir = Path.Combine(winDir, fw64, vers);
+
+            var prcInfo = new ProcessStartInfo(Path.Combine(frameworkDir, "regasm.exe"),
+                $"/codebase \"{dllPath}\"" + (register ? "" : " /u"))
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            Process.Start(prcInfo);
+        }
+
+        private static void RegisterAddIn(Type type)
+        {
+            string title = "";
+            string desc = "";
+            bool loadAtStartup = true;
+
+            type.TryGetAttribute<AutoRegisterAttribute>(a =>
+            {
+                title = a.Title;
+                desc = a.Description;
+                loadAtStartup = a.LoadAtStartup;
+            });
+
+            type.TryGetAttribute<SwAddinAttribute>(a =>
+            {
+                title = a.Title;
+                desc = a.Description;
+                loadAtStartup = a.LoadAtStartup;
+            });
+
+            type.TryGetAttribute<DisplayNameAttribute>(a => title = a.DisplayName);
+            type.TryGetAttribute<DescriptionAttribute>(a => desc = a.Description);
+
+            if (string.IsNullOrEmpty(title))
+            {
+                title = type.Name;
+            }
+
+            var addInkey = Registry.LocalMachine.CreateSubKey(
+                string.Format(ADDIN_REG_KEY_TEMPLATE, type.GUID));
+            addInkey.SetValue(null, 0);
+
+            addInkey.SetValue(DESCRIPTION_REG_KEY_NAME, desc);
+            addInkey.SetValue(TITLE_REG_KEY_NAME, title);
+
+            addInkey = Registry.CurrentUser.CreateSubKey(
+                string.Format(ADDIN_STARTUP_REG_KEY_TEMPLATE, type.GUID));
+            addInkey.SetValue(null, Convert.ToInt32(loadAtStartup), RegistryValueKind.DWord);
+        }
+
+        private static void UnregisterAddIn(Type type)
+        {
+            Registry.LocalMachine.DeleteSubKey(string.Format(ADDIN_REG_KEY_TEMPLATE, type.GUID));
+            Registry.CurrentUser.DeleteSubKey(string.Format(ADDIN_STARTUP_REG_KEY_TEMPLATE, type.GUID));
+        }
+        
+        private static bool Is64BitProcess
+        {
+            get
+            {
+                return IntPtr.Size == 8;
             }
         }
     }

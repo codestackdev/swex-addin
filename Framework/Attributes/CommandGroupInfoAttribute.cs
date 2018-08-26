@@ -1,8 +1,8 @@
 ﻿//**********************
-//Development tools for SOLIDWORKS add-ins
+//SwEx.AddIn - development tools for SOLIDWORKS add-ins
 //Copyright(C) 2018 www.codestack.net
 //License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
-//Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
+//Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
 using SolidWorks.Interop.swconst;
@@ -12,25 +12,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeStack.Dev.Sw.AddIn.Attributes
+namespace CodeStack.SwEx.AddIn.Attributes
 {
+    /// <summary>
+    /// Provides the additional information about the command group
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Enum)]
     public class CommandGroupInfoAttribute : Attribute
     {
-        public int Id { get; private set; }
+        /// <summary>
+        /// User id for the command group
+        /// </summary>
+        /// <remarks>Must be unique per add-in</remarks>
+        public int UserId { get; private set; }
 
-        public CommandGroupInfoAttribute(int id)
+        public CommandGroupInfoAttribute(int userId)
         {
-            Id = id;
-        }
-    }
-
-    public class ContextMenuInfoAttribute : CommandGroupInfoAttribute
-    {
-        public swSelectType_e SelectType { get; private set; }
-
-        public ContextMenuInfoAttribute(int id, swSelectType_e selectType) : base(id)
-        {
-            SelectType = selectType;
+            UserId = userId;
         }
     }
 }

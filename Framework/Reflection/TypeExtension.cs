@@ -1,14 +1,11 @@
 ﻿//**********************
-//Development tools for SOLIDWORKS add-ins
+//SwEx.AddIn - development tools for SOLIDWORKS add-ins
 //Copyright(C) 2018 www.codestack.net
 //License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
-//Product URL: https://www.codestack.net/labs/solidworks/dev-tools-addin/
+//Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace System
 {
@@ -23,17 +20,41 @@ namespace System
         /// <exception cref="NullReferenceException"/>
         /// <remarks>This method throws an exception if attribute is missing</remarks>
         internal static TAtt GetAttribute<TAtt>(this Type type)
+                    where TAtt : Attribute
+        {
+            TAtt att = default(TAtt);
+
+            if (!TryGetAttribute<TAtt>(type, a => att = a))
+            {
+                throw new NullReferenceException($"Attribute of type {typeof(TAtt)} is not fond on {type.FullName}");
+            }
+
+            return att;
+        }
+
+        internal static bool TryGetAttribute<TAtt>(this Type type, out TAtt att)
+            where TAtt : Attribute
+        {
+            TAtt thisAtt = null;
+            var res = TryGetAttribute<TAtt>(type, a => thisAtt = a);
+            att = thisAtt;
+            return res;
+        }
+
+        internal static bool TryGetAttribute<TAtt>(this Type type, Action<TAtt> attProc = null)
             where TAtt : Attribute
         {
             var atts = type.GetCustomAttributes(typeof(TAtt), false);
 
             if (atts != null && atts.Any())
             {
-                return atts.First() as TAtt;
+                var att = atts.First() as TAtt;
+                attProc?.Invoke(att);
+                return true;
             }
             else
             {
-                throw new NullReferenceException($"Attribute of type {typeof(TAtt)} is not found on {type.FullName}");
+                return false;
             }
         }
 
