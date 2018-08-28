@@ -27,8 +27,7 @@
       <Argument Key="maxVersionParts" Value="" xmlns="" />
     </TransformComponentArguments>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Framework\bin\Release\CodeStack.SwEx.AddIn.xml" />
-      <DocumentationSource sourceFile="..\Framework\bin\Release\CodeStack.SwEx.AddIn.dll" />
+      <DocumentationSource sourceFile="..\Framework\Framework.csproj" />
     </DocumentationSources>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
