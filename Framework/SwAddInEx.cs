@@ -11,6 +11,8 @@ using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Exceptions;
 using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;
+using CodeStack.SwEx.Common.Icons;
+using CodeStack.SwEx.Common.Reflection;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using SolidWorks.Interop.swpublished;
@@ -58,6 +60,9 @@ namespace CodeStack.SwEx.AddIn
         private Dictionary<string, Tuple<Delegate, Enum>> m_EnableParams;
 
         private List<int> m_CommandGroupIds;
+
+        private readonly System.Drawing.Color m_CommandTransparencyKey 
+            = System.Drawing.Color.FromArgb(192, 192, 192);
 
         public bool ConnectToSW(object ThisSW, int cookie)
         {
@@ -234,7 +239,7 @@ namespace CodeStack.SwEx.AddIn
 
             var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds, isContextMenu, contextMenuSelectType);
 
-            using (var iconsConv = new IconsConverter())
+            using (var iconsConv = new IconsConverter(m_CommandTransparencyKey))
             {
                 CreateIcons(cmdGroup, cmdGroupType, cmds, iconsConv);
 

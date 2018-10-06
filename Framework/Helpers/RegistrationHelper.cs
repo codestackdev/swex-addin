@@ -6,6 +6,7 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Attributes;
+using CodeStack.SwEx.Common.Reflection;
 using Microsoft.Win32;
 using SolidWorksTools;
 using System;

@@ -6,7 +6,8 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Icons;
-using CodeStack.SwEx.AddIn.Reflection;
+using CodeStack.SwEx.Common.Icons;
+using CodeStack.SwEx.Common.Reflection;
 using System;
 using System.Drawing;
 

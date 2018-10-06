@@ -43,20 +43,23 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CodeStack.SwEx.Common">
+      <HintPath>..\thirdpty\CodeStack.SwEx.Common.dll</HintPath>
+    </Reference>
     <Reference Include="SolidWorks.Interop.sldworks">
       <HintPath>..\thirdpty\SolidWorks.Interop.sldworks.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
-	  <SpecificVersion>False</SpecificVersion>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="SolidWorks.Interop.swconst">
       <HintPath>..\thirdpty\SolidWorks.Interop.swconst.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
-	  <SpecificVersion>False</SpecificVersion>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="SolidWorks.Interop.swpublished">
       <HintPath>..\thirdpty\SolidWorks.Interop.swpublished.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
-	  <SpecificVersion>False</SpecificVersion>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="SolidWorksTools">
       <HintPath>..\thirdpty\SolidWorksTools.dll</HintPath>
@@ -83,18 +86,13 @@
     <Compile Include="Exceptions\GroupIdAlreadyExistsException.cs" />
     <Compile Include="Exceptions\InvalidMenuToolbarOptionsException.cs" />
     <Compile Include="Helpers\RegistrationHelper.cs" />
-    <Compile Include="Icons\Icon.cs" />
     <Compile Include="SwAddInEx.cs" />
     <Compile Include="Extensions\SldWorksExtension.cs" />
     <Compile Include="Icons\BasicIcon.cs" />
     <Compile Include="Icons\HighResIcon.cs" />
-    <Compile Include="Icons\IconsConverter.cs" />
     <Compile Include="Icons\MasterIcon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Attributes\TitleAttribute.cs" />
-    <Compile Include="Reflection\ResourceHelper.cs" />
-    <Compile Include="Reflection\TypeExtension.cs" />
-    <Compile Include="Reflection\EnumExtension.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
