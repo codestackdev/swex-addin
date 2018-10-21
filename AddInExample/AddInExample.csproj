@@ -32,19 +32,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SolidWorks.Interop.sldworks">
-      <HintPath>..\thirdpty\SolidWorks.Interop.sldworks.dll</HintPath>
+      <HintPath>..\..\swex-common-dev\thirdpty\SolidWorks.Interop.sldworks.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="SolidWorks.Interop.swconst">
-      <HintPath>..\thirdpty\SolidWorks.Interop.swconst.dll</HintPath>
+      <HintPath>..\..\swex-common-dev\thirdpty\SolidWorks.Interop.swconst.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="SolidWorks.Interop.swpublished">
-      <HintPath>..\thirdpty\SolidWorks.Interop.swpublished.dll</HintPath>
+      <HintPath>..\..\swex-common-dev\thirdpty\SolidWorks.Interop.swpublished.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="SolidWorksTools">
-      <HintPath>..\thirdpty\SolidWorksTools.dll</HintPath>
+      <HintPath>..\..\swex-common-dev\thirdpty\SolidWorksTools.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

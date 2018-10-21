@@ -23,14 +23,16 @@ namespace CodeStack.SwEx.AddIn.Example
         [Title("Command1")]
         [Description("Sample Command 1")]
         [Icon(typeof(Resources), nameof(Resources.command1_icon))]
-        [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments)]
+        [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
         Command1,
 
         [Title("Command 2")]
         [Description("Sample Command2")]
         [Icon(typeof(Resources), nameof(Resources.command2_icon))]
-        [CommandItemInfo(true, true, swWorkspaceTypes_e.All)]
+        [CommandItemInfo(true, true, swWorkspaceTypes_e.All, true)]
         Command2,
+
+        Command3
     }
 
     [Guid("86EA567D-79FA-4E3B-B66E-EAB660DB3D47"), ComVisible(true)]
@@ -59,6 +61,10 @@ namespace CodeStack.SwEx.AddIn.Example
 
                 case Commands_e.Command2:
                     m_App.SendMsgToUser("Command2 clicked!");
+                    break;
+
+                case Commands_e.Command3:
+                    m_App.SendMsgToUser("Command3 clicked!");
                     break;
             }
         }

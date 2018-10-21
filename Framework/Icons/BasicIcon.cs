@@ -11,12 +11,12 @@ using System.Drawing;
 
 namespace CodeStack.SwEx.AddIn.Icons
 {
-    internal class BasicIcon : IIcon
+    internal class BasicIcon : CommandGroupIcon
     {
         public Image Size16x16 { get; set; }
         public Image Size24x24 { get; set; }
 
-        public IEnumerable<IconSizeInfo> GetHighResolutionIconSizes()
+        public override IEnumerable<IconSizeInfo> GetHighResolutionIconSizes()
         {
             yield return new IconSizeInfo(Size16x16, new Size(20, 20));
             yield return new IconSizeInfo(Size24x24, new Size(32, 32));
@@ -26,7 +26,7 @@ namespace CodeStack.SwEx.AddIn.Icons
             yield return new IconSizeInfo(Size24x24, new Size(128, 128));
         }
 
-        public IEnumerable<IconSizeInfo> GetIconSizes()
+        public override IEnumerable<IconSizeInfo> GetIconSizes()
         {
             yield return new IconSizeInfo(Size16x16, new Size(16, 16));
             yield return new IconSizeInfo(Size24x24, new Size(24, 24));

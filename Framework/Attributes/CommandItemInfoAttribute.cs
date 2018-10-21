@@ -6,6 +6,7 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Enums;
+using SolidWorks.Interop.swconst;
 using System;
 
 namespace CodeStack.SwEx.AddIn.Attributes
@@ -26,17 +27,33 @@ namespace CodeStack.SwEx.AddIn.Attributes
         /// </summary>
         public bool HasMenu { get; private set; }
 
+        public bool ShowInCommandTabBox { get; private set; }
+        public swCommandTabButtonTextDisplay_e CommandTabBoxDisplayStyle { get; private set; }
+
         /// <summary>
         /// Indicates the workspaces where this command is enabled
         /// </summary>
         /// <remarks>This information is used in the default command enable handler</remarks>
         public swWorkspaceTypes_e SupportedWorkspaces { get; private set; }
 
+        public CommandItemInfoAttribute(swWorkspaceTypes_e suppWorkspaces)
+            : this(true, true, suppWorkspaces)
+        {
+        }
+
         public CommandItemInfoAttribute(bool hasMenu, bool hasToolbar, swWorkspaceTypes_e suppWorkspaces)
+            : this (hasMenu, hasToolbar, suppWorkspaces, false)
+        {
+        }
+
+        public CommandItemInfoAttribute(bool hasMenu, bool hasToolbar, swWorkspaceTypes_e suppWorkspaces,
+            bool showInCmdTabBox, swCommandTabButtonTextDisplay_e textStyle = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow)
         {
             HasMenu = hasMenu;
             HasToolbar = hasToolbar;
             SupportedWorkspaces = suppWorkspaces;
+            ShowInCommandTabBox = showInCmdTabBox;
+            CommandTabBoxDisplayStyle = textStyle;
         }
     }
 }
