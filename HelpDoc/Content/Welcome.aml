@@ -5,13 +5,6 @@
 			<para>SwEx.AddIn enables SOLIDWORKS add-in developers to develop robust applications simplifying the add-in creation process</para>
 		</introduction>
 
-		<section>
-			<title>Getting Started</title>
-			<content>
-				<para></para>
-			</content>
-		</section>
-
 		<relatedTopics>
 			<link xlink:href="version-history" />
 		</relatedTopics>

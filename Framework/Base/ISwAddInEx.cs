@@ -5,6 +5,7 @@
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
+using CodeStack.SwEx.AddIn.Attributes;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using SolidWorks.Interop.swpublished;
@@ -26,6 +27,7 @@ namespace CodeStack.SwEx.AddIn.Base
         /// <remarks>Use this method to load the command manager using the
         /// <see cref="AddCommandGroup{TCmdEnum}(Action{TCmdEnum}, EnableMethodDelegate{TCmdEnum})"/>
         /// or <see cref="AddContextMenu{TCmdEnum}(Action{TCmdEnum}, swSelectType_e, EnableMethodDelegate{TCmdEnum})"/> methods</remarks>
+        /// Access the pointer to application via m_App field
         bool OnConnect();
 
         /// <summary>
@@ -54,11 +56,11 @@ namespace CodeStack.SwEx.AddIn.Base
         /// </summary>
         /// <typeparam name="TCmdEnum">Enumerator with commands</typeparam>
         /// <param name="callback">Callback function for the commands</param>
-        /// <param name="contextMenuSelectType">Selection type where the menu is enabled</param>
+        /// <param name="contextMenuSelectType">Selection type where the menu is enabled as defined in <see href="https://help.solidworks.com/2012/english/api/swconst/solidworks.interop.swconst~solidworks.interop.swconst.swselecttype_e.html">swSelectType_e</see></param>
         /// <param name="enable">Optional enable method for the commands.
         /// If this method is not used than command will be enabled according to the workspace
         /// defined in the <see cref="CommandItemInfoAttribute.SupportedWorkspaces"/> for this command</param>
-        /// <returns>Newly created command group</returns>
+        /// <returns>Newly created <see href="https://help.solidworks.com/2012/english/api/sldworksapi/SolidWorks.Interop.sldworks~SolidWorks.Interop.sldworks.ICommandGroup.html">CommandGroup</see></returns>
         /// <remarks>It is only possible to specify single selection group for the context menu.
         /// If it is required to enable the menu for multiple selection elements
         /// use <see cref="swSelectType_e.swSelEVERYTHING"/> option and <paramref name="enable"/> parameter

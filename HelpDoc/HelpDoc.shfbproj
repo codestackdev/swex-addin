@@ -27,8 +27,7 @@
       <Argument Key="maxVersionParts" Value="" xmlns="" />
     </TransformComponentArguments>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Framework\bin\Release\CodeStack.SwEx.AddIn.xml" />
-      <DocumentationSource sourceFile="..\Framework\bin\Release\CodeStack.SwEx.AddIn.dll" />
+      <DocumentationSource sourceFile="..\Framework\Framework.csproj" />
     </DocumentationSources>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
@@ -48,17 +47,20 @@
     <NamingMethod>MemberName</NamingMethod>
     <HelpTitle>SwEx.AddIn</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
-    <VisibleItems>InheritedMembers, EditorBrowsableNever, NonBrowsable</VisibleItems>
+    <VisibleItems>InheritedMembers, Protected, EditorBrowsableNever, NonBrowsable</VisibleItems>
     <ApiFilter>
       <Filter entryType="Namespace" fullName="CodeStack.SwEx.AddIn" isExposed="False">
-        <Filter entryType="Delegate" fullName="CodeStack.SwEx.AddIn.EnableMethodDelegate`1" filterName="EnableMethodDelegate`1" isExposed="True" />
-        <Filter entryType="Class" fullName="CodeStack.SwEx.AddIn.SwAddInEx" filterName="SwAddInEx" isExposed="False">
-          <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddCommandGroup" filterName="AddCommandGroup" isExposed="True" />
-          <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddContextMenu" filterName="AddContextMenu" isExposed="True" />
-          <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnConnect" filterName="OnConnect" isExposed="True" />
-          <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnDisconnect" filterName="OnDisconnect" isExposed="True" />
-        </Filter>
-      </Filter>
+  <Filter entryType="Delegate" fullName="CodeStack.SwEx.AddIn.EnableMethodDelegate`1" filterName="EnableMethodDelegate`1" isExposed="True" />
+  <Filter entryType="Class" fullName="CodeStack.SwEx.AddIn.SwAddInEx" filterName="SwAddInEx" isExposed="False">
+    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddCommandGroup" filterName="AddCommandGroup" isExposed="True" />
+    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddContextMenu" filterName="AddContextMenu" isExposed="True" />
+    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnConnect" filterName="OnConnect" isExposed="True" />
+    <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnDisconnect" filterName="OnDisconnect" isExposed="True" />
+    <Filter entryType="Field" fullName="CodeStack.SwEx.AddIn.SwAddInEx.m_AddInCookie" filterName="m_AddInCookie" isExposed="True" />
+    <Filter entryType="Field" fullName="CodeStack.SwEx.AddIn.SwAddInEx.m_App" filterName="m_App" isExposed="True" />
+    <Filter entryType="Field" fullName="CodeStack.SwEx.AddIn.SwAddInEx.m_CmdMgr" filterName="m_CmdMgr" isExposed="True" />
+  </Filter>
+</Filter>
     </ApiFilter>
     <CopyrightHref>https://www.codestack.net</CopyrightHref>
     <CopyrightText>Copyright &amp;#169%3b CodeStack  2018</CopyrightText>
@@ -103,6 +105,7 @@
     <None Include="Content\VersionHistory\v0.1.0.aml" />
     <None Include="Content\VersionHistory\VersionHistory.aml" />
     <None Include="Content\Welcome.aml" />
+    <None Include="Content\VersionHistory\v0.3.0.aml" />
     <None Include="favicon.ico" />
   </ItemGroup>
   <ItemGroup>

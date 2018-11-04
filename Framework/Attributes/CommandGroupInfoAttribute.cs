@@ -5,12 +5,7 @@
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
-using SolidWorks.Interop.swconst;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeStack.SwEx.AddIn.Attributes
 {

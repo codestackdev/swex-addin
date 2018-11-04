@@ -6,6 +6,7 @@ using CodeStack.SwEx.AddIn;
 using SolidWorks.Interop.sldworks;
 using System.Collections.Generic;
 using CodeStack.SwEx.AddIn.Attributes;
+using SolidWorks.Interop.swconst;
 
 namespace Framework.Tests
 {
@@ -118,9 +119,10 @@ namespace Framework.Tests
                     });
 
                     var cmdMgrMock = new Mock<CommandManager>();
+                    var cmdGrpRes = (int)swCreateCommandGroupErrors.swCreateCommandGroup_Success;
                     cmdMgrMock.Setup(m => m.CreateCommandGroup2(
                         It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(),
-                        It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), ref It.Ref<int>.IsAny))
+                        It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), ref cmdGrpRes))
                         .Returns(createCommandGroupMockObjectFunc.Invoke());
                     
                     var swMock = new Mock<ISldWorks>();

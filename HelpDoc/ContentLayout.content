@@ -11,12 +11,17 @@
     </HelpKeywords>
     <Topic id="v0-1-0" visible="True" title="Version 0.1.0">
       <HelpKeywords>
-        <HelpKeyword index="K" term="version, 1.0.0.0" />
+        <HelpKeyword index="K" term="version, 0.1.0" />
       </HelpKeywords>
     </Topic>
     <Topic id="v0-2-2" visible="True" title="Version 0.2.2">
       <HelpKeywords>
-        <HelpKeyword index="K" term="version, 1.0.0.0" />
+        <HelpKeyword index="K" term="version, 0.2.2" />
+      </HelpKeywords>
+    </Topic>
+    <Topic id="v0-3-0" visible="True" isSelected="true" title="Version 0.3.0">
+      <HelpKeywords>
+        <HelpKeyword index="K" term="version, 0.3.0" />
       </HelpKeywords>
     </Topic>
   </Topic>
