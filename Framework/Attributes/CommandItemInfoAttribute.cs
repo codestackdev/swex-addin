@@ -27,7 +27,15 @@ namespace CodeStack.SwEx.AddIn.Attributes
         /// </summary>
         public bool HasMenu { get; private set; }
 
+        /// <summary>
+        /// Indicates that this command should be added to command tab box in command manager (ribbon)
+        /// </summary>
         public bool ShowInCommandTabBox { get; private set; }
+
+        /// <summary>
+        /// Text display type for command in command tab box as defined in <see href="https://help.solidworks.com/2012/English/api/swconst/SolidWorks.Interop.swconst~SolidWorks.Interop.swconst.swCommandTabButtonTextDisplay_e.html?id=3d6975f51c4648378ad4beaf4d3144ca"/>
+        /// </summary>
+        /// <remarks>This option is applicable when <see cref="ShowInCommandTabBox"/> is set to true</remarks>
         public swCommandTabButtonTextDisplay_e CommandTabBoxDisplayStyle { get; private set; }
 
         /// <summary>

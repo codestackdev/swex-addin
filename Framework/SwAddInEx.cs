@@ -52,8 +52,19 @@ namespace CodeStack.SwEx.AddIn
 
         #endregion
 
+        /// <summary>
+        /// Pointer to SOLIDWORKS application
+        /// </summary>
         protected ISldWorks m_App = null;
+
+        /// <summary>
+        /// Pointer to command group which holding the add-in commands
+        /// </summary>
         protected ICommandManager m_CmdMgr = null;
+
+        /// <summary>
+        /// Add-ins cookie (id)
+        /// </summary>
         protected int m_AddInCookie = 0;
 
         private Dictionary<string, swWorkspaceTypes_e> m_CachedCmdsEnable;
@@ -62,6 +73,8 @@ namespace CodeStack.SwEx.AddIn
 
         private List<int> m_CommandGroupIds;
         
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ConnectToSW(object ThisSW, int cookie)
         {
             m_App = ThisSW as ISldWorks;
@@ -79,6 +92,8 @@ namespace CodeStack.SwEx.AddIn
             return OnConnect();
         }
 
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void OnCommandClick(string cmdId)
         {
             Tuple<Delegate, Enum> callbackData;
@@ -93,6 +108,8 @@ namespace CodeStack.SwEx.AddIn
             }
         }
 
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public int OnCommandEnable(string cmdId)
         {
             var supportedSpaces = m_CachedCmdsEnable[cmdId];
@@ -143,6 +160,8 @@ namespace CodeStack.SwEx.AddIn
             return (int)state;
         }
 
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool DisconnectFromSW()
         {
             foreach (var grpId in m_CommandGroupIds)

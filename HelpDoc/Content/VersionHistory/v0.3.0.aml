@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="v0-3-0" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        Version 0.3.0 was released on 04 Nov 2018.
+      </para>
+    </introduction>
+
+    <section>
+      <title>This is a third release</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>Implemented ability to add commands into command tab boxes (issue #3)</para>
+          </listItem>
+          <listItem>
+            <para>Added the default template for command item (issue #2)</para>
+          </listItem>
+        </list>
+
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="version-history" />
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

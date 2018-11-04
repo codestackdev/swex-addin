@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddInExample", "AddInExample\AddInExample.csproj", "{85F91A89-29A7-481F-9EE5-9D81BB8AFD0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{451B36D1-79A5-48C4-AF1F-79D6BFF7F3E9}"
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "HelpDoc", "HelpDoc\HelpDoc.shfbproj", "{0F501FB9-E643-43CE-A1C4-C72F0C511ED9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85F91A89-29A7-481F-9EE5-9D81BB8AFD0D} = {85F91A89-29A7-481F-9EE5-9D81BB8AFD0D}
+		{451B36D1-79A5-48C4-AF1F-79D6BFF7F3E9} = {451B36D1-79A5-48C4-AF1F-79D6BFF7F3E9}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
