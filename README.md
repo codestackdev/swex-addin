@@ -1,9 +1,9 @@
+[![Documentation](https://img.shields.io/badge/-Documentation-green.svg)](https://www.codestack.net/labs/solidworks/swex/add-in/)
+[![NuGet](https://img.shields.io/nuget/v/CodeStack.SwEx.AddIn.svg)](https://www.nuget.org/packages/CodeStack.SwEx.AddIn/)
+[![Issues](https://img.shields.io/github/issues/codestack-net-dev/sw-dev-tools-addin.svg)](https://github.com/codestack-net-dev/sw-dev-tools-addin/issues)
+
 # SwEx.AddIn
 SwEx.AddIn enables SOLIDWORKS add-in developers to develop robust applications using SOLIDWORKS API significantly simplifying the add-in creation process
-
-## Links
-[NuGet](https://www.nuget.org/packages/CodeStack.SwEx.AddIn)
-[Documentation](https://www.codestack.net/labs/solidworks/swex/add-in/)
 
 ## Getting started
 
@@ -28,4 +28,10 @@ End Class
 
 * Overload [OnConnect](https://docs.codestack.net/swex/add-in/html/M_CodeStack_SwEx_AddIn_SwAddInEx_OnConnect.htm) method to initiate the add-in. Access the pointer to the SLDWORKS application via [m_App](https://docs.codestack.net/swex/add-in/html/F_CodeStack_SwEx_AddIn_SwAddInEx_m_App.htm) field.
 
-* Add command manager with commands and handlers via [AddCommandGroup](https://docs.codestack.net/swex/add-in/html/M_CodeStack_SwEx_AddIn_SwAddInEx_AddCommandGroup__1.htm) method by defining the enumeration of commands.
+## Adding commands
+
+![Command manager](https://www.codestack.net/labs/solidworks/swex/add-in/commands-manager/adding-command-group/commands-menu.png)
+
+Framework allows to create commands and their handlers by simply defining them in the enumeration and providing the handler function via [AddCommandGroup](https://docs.codestack.net/swex/add-in/html/M_CodeStack_SwEx_AddIn_SwAddInEx_AddCommandGroup__1.htm) method.
+
+Commands can be decorated with the attributes to provide their title and icon. Framework will automatically generate the icons in correct sizes and formats.
