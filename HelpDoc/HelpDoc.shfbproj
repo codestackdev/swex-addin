@@ -56,9 +56,9 @@
     <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddContextMenu" filterName="AddContextMenu" isExposed="True" />
     <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnConnect" filterName="OnConnect" isExposed="True" />
     <Filter entryType="Method" fullName="CodeStack.SwEx.AddIn.SwAddInEx.OnDisconnect" filterName="OnDisconnect" isExposed="True" />
-    <Filter entryType="Field" fullName="CodeStack.SwEx.AddIn.SwAddInEx.m_AddInCookie" filterName="m_AddInCookie" isExposed="True" />
-    <Filter entryType="Field" fullName="CodeStack.SwEx.AddIn.SwAddInEx.m_App" filterName="m_App" isExposed="True" />
-    <Filter entryType="Field" fullName="CodeStack.SwEx.AddIn.SwAddInEx.m_CmdMgr" filterName="m_CmdMgr" isExposed="True" />
+    <Filter entryType="Property" fullName="CodeStack.SwEx.AddIn.SwAddInEx.AddInCookie" filterName="AddInCookie" isExposed="True" />
+    <Filter entryType="Property" fullName="CodeStack.SwEx.AddIn.SwAddInEx.App" filterName="App" isExposed="True" />
+    <Filter entryType="Property" fullName="CodeStack.SwEx.AddIn.SwAddInEx.CmdMgr" filterName="CmdMgr" isExposed="True" />
   </Filter>
 </Filter>
     </ApiFilter>
@@ -106,6 +106,7 @@
     <None Include="Content\VersionHistory\VersionHistory.aml" />
     <None Include="Content\Welcome.aml" />
     <None Include="Content\VersionHistory\v0.3.0.aml" />
+    <None Include="Content\VersionHistory\v0.3.1.aml" />
     <None Include="favicon.ico" />
   </ItemGroup>
   <ItemGroup>

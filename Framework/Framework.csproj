@@ -24,6 +24,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>
     </DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -34,6 +35,8 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>bin\Release\CodeStack.SwEx.AddIn.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CS1573</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CodeStack.SwEx.Common, Version=0.9.0.0, Culture=neutral, PublicKeyToken=a46023996d4724e7, processorArchitecture=MSIL">
@@ -79,6 +82,7 @@
     <Compile Include="Exceptions\GroupIdAlreadyExistsException.cs" />
     <Compile Include="Exceptions\InvalidMenuToolbarOptionsException.cs" />
     <Compile Include="Helpers\RegistrationHelper.cs" />
+    <Compile Include="Helpers\Trace.cs" />
     <Compile Include="Icons\CommandGroupIcon.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

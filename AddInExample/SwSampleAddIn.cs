@@ -32,7 +32,7 @@ namespace CodeStack.SwEx.AddIn.Example
         [CommandItemInfo(true, true, swWorkspaceTypes_e.All, true)]
         Command2,
 
-        Command3
+        Command3,
     }
 
     [Guid("86EA567D-79FA-4E3B-B66E-EAB660DB3D47"), ComVisible(true)]
@@ -56,15 +56,15 @@ namespace CodeStack.SwEx.AddIn.Example
             switch (cmd)
             {
                 case Commands_e.Command1:
-                    m_App.SendMsgToUser("Command1 clicked!");
+                    App.SendMsgToUser("Command1 clicked!");
                     break;
 
                 case Commands_e.Command2:
-                    m_App.SendMsgToUser("Command2 clicked!");
+                    App.SendMsgToUser("Command2 clicked!");
                     break;
 
                 case Commands_e.Command3:
-                    m_App.SendMsgToUser("Command3 clicked!");
+                    App.SendMsgToUser("Command3 clicked!");
                     break;
             }
         }
@@ -75,7 +75,7 @@ namespace CodeStack.SwEx.AddIn.Example
             {
                 if (state == CommandItemEnableState_e.DeselectEnable)
                 {
-                    if (m_App.IActiveDoc2?.ISelectionManager?.GetSelectedObjectCount2(-1) == 0)
+                    if (App.IActiveDoc2?.ISelectionManager?.GetSelectedObjectCount2(-1) == 0)
                     {
                         state = CommandItemEnableState_e.DeselectDisable;
                     }

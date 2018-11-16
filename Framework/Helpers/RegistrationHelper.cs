@@ -27,12 +27,15 @@ namespace CodeStack.SwEx.AddIn.Helpers
         {
             try
             {
+                Trace.Log($"Registering add-in (is x64 = {Is64BitProcess})");
+
                 //Visual Studio is usually a x32 process and using the 'Register for COM Interops'
                 //option will only register the dll in x32 environment
                 //Extending the behavior to force register in x64 environment
                 if (!Is64BitProcess)
                 {
-                    RegisterAssembly(type);
+                    Trace.Log("Invoking 64-bit registration");
+                    return RegisterAssembly(type);
                 }
                 
                 RegisterAddIn(type);
@@ -41,7 +44,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
             catch (Exception ex)
             {
-                Debug.Print("Error while registering the addin: " + ex.Message);
+                Trace.Log("Error while registering the addin: " + ex.Message);
                 return false;
             }
         }
@@ -50,9 +53,12 @@ namespace CodeStack.SwEx.AddIn.Helpers
         {
             try
             {
+                Trace.Log($"Unregistering add-in (is x64 = {Is64BitProcess})");
+
                 if (!Is64BitProcess)
                 {
-                    UnregisterAssembly(type);
+                    Trace.Log("Invoking 64-bit unregistration");
+                    return UnregisterAssembly(type);
                 }
                 
                 UnregisterAddIn(type);
@@ -61,22 +67,22 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
             catch (Exception ex)
             {
-                Debug.Print("Error while unregistering the addin: " + ex.Message);
+                Trace.Log("Error while unregistering the addin: " + ex.Message);
                 return false;
             }
         }
 
-        private static void RegisterAssembly(Type type)
+        private static bool RegisterAssembly(Type type)
         {
-            RunRegAsm(type.Assembly.Location, true);
+            return RunRegAsm(type.Assembly.Location, true);
         }
 
-        private static void UnregisterAssembly(Type type)
+        private static bool UnregisterAssembly(Type type)
         {
-            RunRegAsm(type.Assembly.Location, false);
+            return RunRegAsm(type.Assembly.Location, false);
         }
 
-        private static void RunRegAsm(string dllPath, bool register)
+        private static bool RunRegAsm(string dllPath, bool register)
         {
             var winDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
             var fw64 = @"Microsoft.NET\Framework64";
@@ -84,8 +90,12 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
             var frameworkDir = Path.Combine(winDir, fw64, vers);
 
-            var prcInfo = new ProcessStartInfo(Path.Combine(frameworkDir, "regasm.exe"),
-                $"/codebase \"{dllPath}\"" + (register ? "" : " /u"))
+            var regAsmPath = Path.Combine(frameworkDir, "regasm.exe");
+            var args = $"/codebase \"{dllPath}\"" + (register ? "" : " /u");
+
+            Trace.Log($"Invoking: \"{regAsmPath}\" {args}");
+
+            var prcInfo = new ProcessStartInfo(regAsmPath, args)
             {
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -93,7 +103,15 @@ namespace CodeStack.SwEx.AddIn.Helpers
                 CreateNoWindow = true
             };
 
-            Process.Start(prcInfo);
+            var prc = Process.Start(prcInfo);
+
+            while (!prc.StandardOutput.EndOfStream)
+            {
+                var line = prc.StandardOutput.ReadLine();
+                Trace.Log(line);
+            }
+
+            return prc.ExitCode == 0;
         }
 
         private static void RegisterAddIn(Type type)
@@ -124,22 +142,38 @@ namespace CodeStack.SwEx.AddIn.Helpers
                 title = type.Name;
             }
 
-            var addInkey = Registry.LocalMachine.CreateSubKey(
+            var addInKey = Registry.LocalMachine.CreateSubKey(
                 string.Format(ADDIN_REG_KEY_TEMPLATE, type.GUID));
-            addInkey.SetValue(null, 0);
+            addInKey.SetValue(null, 0);
 
-            addInkey.SetValue(DESCRIPTION_REG_KEY_NAME, desc);
-            addInkey.SetValue(TITLE_REG_KEY_NAME, title);
+            Trace.Log($"Created HKLM\\{addInKey}");
 
-            addInkey = Registry.CurrentUser.CreateSubKey(
+            addInKey.SetValue(DESCRIPTION_REG_KEY_NAME, desc);
+            addInKey.SetValue(TITLE_REG_KEY_NAME, title);
+
+            var addInStartupKey = Registry.CurrentUser.CreateSubKey(
                 string.Format(ADDIN_STARTUP_REG_KEY_TEMPLATE, type.GUID));
-            addInkey.SetValue(null, Convert.ToInt32(loadAtStartup), RegistryValueKind.DWord);
+            addInStartupKey.SetValue(null, Convert.ToInt32(loadAtStartup), RegistryValueKind.DWord);
+
+            Trace.Log($"Created HKCU\\{addInStartupKey}");
         }
 
         private static void UnregisterAddIn(Type type)
         {
-            Registry.LocalMachine.DeleteSubKey(string.Format(ADDIN_REG_KEY_TEMPLATE, type.GUID));
-            Registry.CurrentUser.DeleteSubKey(string.Format(ADDIN_STARTUP_REG_KEY_TEMPLATE, type.GUID));
+            var addInKey = string.Format(ADDIN_REG_KEY_TEMPLATE, type.GUID);
+            var addInStartupKey = string.Format(ADDIN_STARTUP_REG_KEY_TEMPLATE, type.GUID);
+
+            if (Registry.LocalMachine.OpenSubKey(addInKey, false) != null)
+            {
+                Registry.LocalMachine.DeleteSubKey(addInKey);
+                Trace.Log($"Deleting: HKLM\\{addInKey}");
+            }
+
+            if (Registry.CurrentUser.OpenSubKey(addInStartupKey, false) != null)
+            {
+                Registry.CurrentUser.DeleteSubKey(addInStartupKey);
+                Trace.Log($"Deleting: HKCU\\{addInStartupKey}");
+            }
         }
         
         private static bool Is64BitProcess

@@ -43,21 +43,16 @@ namespace CodeStack.SwEx.AddIn.Attributes
     [AttributeUsage(AttributeTargets.Class)]
     public class AutoRegisterAttribute : Attribute
     {
-        /// <summary>
-        /// Title of the add-in.
-        /// </summary>
-        public string Title { get; private set; }
+        internal string Title { get; private set; }
+        internal string Description { get; private set; }
+        internal bool LoadAtStartup { get; private set; }
 
         /// <summary>
-        /// Description of the add-in
+        /// Constructor for adding the parameters for add-in registration
         /// </summary>
-        public string Description { get; private set; }
-
-        /// <summary>
-        /// Indicates if the add-in should be loaded at startup
-        /// </summary>
-        public bool LoadAtStartup { get; private set; }
-
+        /// <param name="title">Title of the add-in</param>
+        /// <param name="desc">Description of the add-in</param>
+        /// <param name="loadAtStartup">Indicates if the add-in should be loaded at startup</param>
         public AutoRegisterAttribute(string title = "", string desc = "", bool loadAtStartup = true)
         {
             Title = title;

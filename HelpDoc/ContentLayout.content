@@ -24,5 +24,6 @@
         <HelpKeyword index="K" term="version, 0.3.0" />
       </HelpKeywords>
     </Topic>
+    <Topic id="v0-3-1" visible="True" title="Version 0.3.1" />
   </Topic>
 </Topics>
