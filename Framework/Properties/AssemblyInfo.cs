@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("CodeStack.SwEx.AddIn")]
@@ -15,5 +14,5 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("451b36d1-79a5-48c4-af1f-79d6bff7f3e9")]
 
-[assembly: AssemblyVersion("0.3.0.0")]
-[assembly: AssemblyFileVersion("0.3.0.0")]
+[assembly: AssemblyVersion("0.3.1.0")]
+[assembly: AssemblyFileVersion("0.3.1.0")]

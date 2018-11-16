@@ -19,6 +19,16 @@
               <link xlink:href="v0-2-2" />
             </para>
           </listItem>
+          <listItem>
+            <para>
+              <link xlink:href="v0-3-0" />
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <link xlink:href="v0-3-1" />
+            </para>
+          </listItem>
 				</list>
 
 			</content>

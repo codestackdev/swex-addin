@@ -3,6 +3,7 @@
 [![Issues](https://img.shields.io/github/issues/codestack-net-dev/sw-dev-tools-addin.svg)](https://github.com/codestack-net-dev/sw-dev-tools-addin/issues)
 
 # SwEx.AddIn
+![SwEx.AddIn](https://www.codestack.net/labs/solidworks/swex/add-in/logo.png)
 SwEx.AddIn enables SOLIDWORKS add-in developers to develop robust applications using SOLIDWORKS API significantly simplifying the add-in creation process
 
 ## Getting started

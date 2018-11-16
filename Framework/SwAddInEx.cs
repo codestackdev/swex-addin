@@ -20,7 +20,6 @@ using SolidWorks.Interop.swpublished;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -32,6 +31,10 @@ namespace CodeStack.SwEx.AddIn
     {
         #region Registration
 
+        /// <summary>
+        /// COM Registration entry function
+        /// </summary>
+        /// <param name="t">Type</param>
         [ComRegisterFunction]
         public static void RegisterFunction(Type t)
         {
@@ -41,6 +44,10 @@ namespace CodeStack.SwEx.AddIn
             }
         }
 
+        /// <summary>
+        /// COM Unregistration entry function
+        /// </summary>
+        /// <param name="t">Type</param>
         [ComUnregisterFunction]
         public static void UnregisterFunction(Type t)
         {
@@ -53,49 +60,92 @@ namespace CodeStack.SwEx.AddIn
         #endregion
 
         /// <summary>
+        /// Deprecated. Use App property instead
+        /// </summary>
+        [Obsolete("Deprecated. Use App property instead")]
+        protected ISldWorks m_App = null;
+
+        /// <summary>
+        /// Deprecated. Use CmdMgr property instead
+        /// </summary>
+        [Obsolete("Deprecated. Use CmdMgr property instead")]
+        protected ICommandManager m_CmdMgr = null;
+
+        /// <summary>
+        /// Deprecated. Use AddInCookie property instead
+        /// </summary>
+        [Obsolete("Deprecated. Use AddInCookie property instead")]
+        protected int m_AddInCookie = 0;
+
+        /// <summary>
         /// Pointer to SOLIDWORKS application
         /// </summary>
-        protected ISldWorks m_App = null;
+        protected ISldWorks App { get; private set; }
 
         /// <summary>
         /// Pointer to command group which holding the add-in commands
         /// </summary>
-        protected ICommandManager m_CmdMgr = null;
+        protected ICommandManager CmdMgr { get; private set; }
 
         /// <summary>
         /// Add-ins cookie (id)
         /// </summary>
-        protected int m_AddInCookie = 0;
-
+        protected int AddInCookie { get; private set; }
+        
         private Dictionary<string, swWorkspaceTypes_e> m_CachedCmdsEnable;
         private Dictionary<string, Tuple<Delegate, Enum>> m_CallbacksParams;
         private Dictionary<string, Tuple<Delegate, Enum>> m_EnableParams;
 
         private List<int> m_CommandGroupIds;
-        
+
+        /// <summary>SOLIDWORKS add-in entry function</summary>
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ConnectToSW(object ThisSW, int cookie)
         {
-            m_App = ThisSW as ISldWorks;
-            m_AddInCookie = cookie;
+            Trace.Log("Loading add-in");
 
-            m_App.SetAddinCallbackInfo(0, this, m_AddInCookie);
+            try
+            {
+                App = ThisSW as ISldWorks;
+                AddInCookie = cookie;
 
-            m_CmdMgr = m_App.GetCommandManager(cookie);
+                App.SetAddinCallbackInfo(0, this, AddInCookie);
 
-            m_CachedCmdsEnable = new Dictionary<string, swWorkspaceTypes_e>();
-            m_CallbacksParams = new Dictionary<string, Tuple<Delegate, Enum>>();
-            m_EnableParams = new Dictionary<string, Tuple<Delegate, Enum>>();
-            m_CommandGroupIds = new List<int>();
+                CmdMgr = App.GetCommandManager(AddInCookie);
 
-            return OnConnect();
+                //TODO: legacy - to be removed
+#pragma warning disable CS0618
+                m_App = App;
+                m_CmdMgr = CmdMgr;
+                m_AddInCookie = AddInCookie;
+#pragma warning restore CS0618
+                //----
+
+                m_CachedCmdsEnable = new Dictionary<string, swWorkspaceTypes_e>();
+                m_CallbacksParams = new Dictionary<string, Tuple<Delegate, Enum>>();
+                m_EnableParams = new Dictionary<string, Tuple<Delegate, Enum>>();
+                m_CommandGroupIds = new List<int>();
+
+                return OnConnect();
+            }
+            catch(Exception ex)
+            {
+                Trace.Log(ex);
+                throw;
+            }
         }
 
+        /// <summary>
+        /// Command click callback
+        /// </summary>
+        /// <param name="cmdId">Command tag</param>
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void OnCommandClick(string cmdId)
         {
+            Trace.Log($"Command clicked: {cmdId}");
+
             Tuple<Delegate, Enum> callbackData;
 
             if (m_CallbacksParams.TryGetValue(cmdId, out callbackData))
@@ -104,10 +154,15 @@ namespace CodeStack.SwEx.AddIn
             }
             else
             {
-                Debug.Assert(false, "All callbacks must be registered");
+                System.Diagnostics.Debug.Assert(false, "All callbacks must be registered");
             }
         }
 
+        /// <summary>
+        /// Command enable callback
+        /// </summary>
+        /// <param name="cmdId">Command tag</param>
+        /// <returns>State</returns>
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public int OnCommandEnable(string cmdId)
@@ -116,13 +171,13 @@ namespace CodeStack.SwEx.AddIn
 
             var curSpace = swWorkspaceTypes_e.NoDocuments;
 
-            if (m_App.IActiveDoc2 == null)
+            if (App.IActiveDoc2 == null)
             {
                 curSpace = swWorkspaceTypes_e.NoDocuments;
             }
             else
             {
-                switch ((swDocumentTypes_e)m_App.IActiveDoc2.GetType())
+                switch ((swDocumentTypes_e)App.IActiveDoc2.GetType())
                 {
                     case swDocumentTypes_e.swDocPART:
                         curSpace = swWorkspaceTypes_e.Part;
@@ -160,37 +215,53 @@ namespace CodeStack.SwEx.AddIn
             return (int)state;
         }
 
+        /// <summary>
+        /// SOLIDWORKS unload add-in callback
+        /// </summary>
+        /// <returns></returns>
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool DisconnectFromSW()
         {
-            foreach (var grpId in m_CommandGroupIds)
+            Trace.Log("Unloading add-in");
+
+            try
             {
-                m_CmdMgr.RemoveCommandGroup(0);
+                foreach (var grpId in m_CommandGroupIds)
+                {
+                    Trace.Log($"Removing group: {grpId}");
+                    CmdMgr.RemoveCommandGroup(grpId);
+                }
+
+                var res = OnDisconnect();
+
+                if (Marshal.IsComObject(CmdMgr))
+                {
+                    Marshal.ReleaseComObject(CmdMgr);
+                }
+
+                CmdMgr = null;
+
+                if (Marshal.IsComObject(App))
+                {
+                    Marshal.ReleaseComObject(App);
+                }
+
+                App = null;
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                return res;
             }
-
-            var res = OnDisconnect();
-
-            if (Marshal.IsComObject(m_CmdMgr))
+            catch(Exception ex)
             {
-                Marshal.ReleaseComObject(m_CmdMgr);
+                Trace.Log(ex);
+                throw;
             }
-            m_CmdMgr = null;
-
-            if (Marshal.IsComObject(m_App))
-            {
-                Marshal.ReleaseComObject(m_App);
-            }
-
-            m_App = null;
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-
-            return res;
         }
 
         /// <inheritdoc/>
@@ -234,6 +305,8 @@ namespace CodeStack.SwEx.AddIn
             EnableMethodDelegate<TCmdEnum> enable, bool isContextMenu, swSelectType_e contextMenuSelectType)
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
+            Trace.Log("Creating command group");
+
             if (!(typeof(TCmdEnum).IsEnum))
             {
                 throw new ArgumentException($"{typeof(TCmdEnum)} must be an Enum");
@@ -255,6 +328,8 @@ namespace CodeStack.SwEx.AddIn
             var cmds = Enum.GetValues(cmdGroupType).Cast<Enum>().ToArray();
 
             bool isCmdsChanged;
+
+            Trace.Log($"Creating group: {groupId}");
 
             var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds, isContextMenu,
                 contextMenuSelectType, out isCmdsChanged);
@@ -331,34 +406,36 @@ namespace CodeStack.SwEx.AddIn
         {
             int cmdGroupErr = 0;
 
-            bool ignorePrevious = false;
+            isChanged = false;
 
             object registryIDs;
 
             isChanged = true;
 
-            if (m_CmdMgr.GetGroupDataFromRegistry(groupId, out registryIDs))
+            if (CmdMgr.GetGroupDataFromRegistry(groupId, out registryIDs))
             {
                 var knownIDs = cmds.Select(c => Convert.ToInt32(c));
-                
-                ignorePrevious = !CompareIDs(registryIDs as int[], knownIDs);
 
-                isChanged = ignorePrevious;
+                isChanged = !CompareIDs(registryIDs as int[], knownIDs);
             }
+
+            Trace.Log($"Command ids changed: {isChanged}");
 
             CommandGroup cmdGroup;
 
             if (isContextMenu)
             {
-                cmdGroup = m_CmdMgr.AddContextMenu(groupId, title);
+                cmdGroup = CmdMgr.AddContextMenu(groupId, title);
                 cmdGroup.SelectType = (int)contextMenuSelectType;
             }
             else
             {
-                cmdGroup = m_CmdMgr.CreateCommandGroup2(groupId, title, toolTip,
-                    toolTip, -1, ignorePrevious, ref cmdGroupErr);
+                cmdGroup = CmdMgr.CreateCommandGroup2(groupId, title, toolTip,
+                    toolTip, -1, isChanged, ref cmdGroupErr);
 
-                Debug.Assert(cmdGroupErr == (int)swCreateCommandGroupErrors.swCreateCommandGroup_Success);
+                Trace.Log($"Command group creation result: {(swCreateCommandGroupErrors)cmdGroupErr}");
+
+                System.Diagnostics.Debug.Assert(cmdGroupErr == (int)swCreateCommandGroupErrors.swCreateCommandGroup_Success);
             }
             
             return cmdGroup;
@@ -383,7 +460,7 @@ namespace CodeStack.SwEx.AddIn
                 return cmdIcon;
             }).ToArray();
 
-            if (m_App.SupportsHighResIcons())
+            if (App.SupportsHighResIcons())
             {
                 var iconsList = iconsConv.ConvertIcon(mainIcon, true);
                 cmdGroup.MainIconList = iconsList;
@@ -477,6 +554,8 @@ namespace CodeStack.SwEx.AddIn
                     (int)menuToolbarOpts);
 
                 createdCmds.Add(cmd, cmdIndex);
+
+                Trace.Log($"Created command {cmdIndex} for {cmd}");
             }
 
             cmdGroup.HasToolbar = true;
@@ -488,6 +567,8 @@ namespace CodeStack.SwEx.AddIn
 
         private void CreateCommandTabBox(CommandGroup cmdGroup, Dictionary<Enum, int> commands, bool removePrevious)
         {
+            Trace.Log($"Creating command tab box");
+
             var tabCommands = new List<Tuple<swDocumentTypes_e, int, swCommandTabButtonTextDisplay_e>>();
 
             var ignoredCmds = new List<int>();
@@ -533,7 +614,7 @@ namespace CodeStack.SwEx.AddIn
             {
                 var docType = cmdGrp.Key;
 
-                var cmdTab = m_CmdMgr.GetCommandTab((int)docType, cmdGroup.Name);
+                var cmdTab = CmdMgr.GetCommandTab((int)docType, cmdGroup.Name);
 
                 //NOTE: checking if command group is changed or any of the commands has changed the
                 //option to be added to command tab box - as this can be changed without changing the command group
@@ -543,9 +624,9 @@ namespace CodeStack.SwEx.AddIn
                     || ContainsCommands(cmdTab, ignoredCmds).Any(c => c)
                     ))
                 {
-                    if (!m_CmdMgr.RemoveCommandTab(cmdTab))
+                    if (!CmdMgr.RemoveCommandTab(cmdTab))
                     {
-                        Debug.Assert(false, "Failed to remove command tab");
+                        System.Diagnostics.Debug.Assert(false, "Failed to remove command tab");
                     }
 
                     cmdTab = null;
@@ -553,7 +634,7 @@ namespace CodeStack.SwEx.AddIn
 
                 if (cmdTab == null)
                 {
-                    cmdTab = m_CmdMgr.AddCommandTab((int)docType, cmdGroup.Name);
+                    cmdTab = CmdMgr.AddCommandTab((int)docType, cmdGroup.Name);
 
                     var cmdBox = cmdTab.AddCommandTabBox();
 
@@ -561,7 +642,7 @@ namespace CodeStack.SwEx.AddIn
                     var txtTypes = cmdGrp.Select(c => (int)c.Item3).ToArray();
                     if (!cmdBox.AddCommands(cmdIds, txtTypes))
                     {
-                        Debug.Assert(false, "Failed to add commands to the command box");
+                        System.Diagnostics.Debug.Assert(false, "Failed to add commands to the command box");
                     }
                 }
             }

@@ -17,43 +17,34 @@ namespace CodeStack.SwEx.AddIn.Attributes
     [AttributeUsage(AttributeTargets.Field)]
     public class CommandItemInfoAttribute : Attribute
     {
-        /// <summary>
-        /// Indicates if this command should be displayed in the toolbar
-        /// </summary>
-        public bool HasToolbar { get; private set; }
+        
+        internal bool HasToolbar { get; private set; }
+        internal bool HasMenu { get; private set; }
+        internal bool ShowInCommandTabBox { get; private set; }
+        internal swCommandTabButtonTextDisplay_e CommandTabBoxDisplayStyle { get; private set; }
+        internal swWorkspaceTypes_e SupportedWorkspaces { get; private set; }
 
         /// <summary>
-        /// Indicates if this command should be displayed in the menu
+        /// Construtor for specifying additional information about command item
         /// </summary>
-        public bool HasMenu { get; private set; }
-
-        /// <summary>
-        /// Indicates that this command should be added to command tab box in command manager (ribbon)
-        /// </summary>
-        public bool ShowInCommandTabBox { get; private set; }
-
-        /// <summary>
-        /// Text display type for command in command tab box as defined in <see href="https://help.solidworks.com/2012/English/api/swconst/SolidWorks.Interop.swconst~SolidWorks.Interop.swconst.swCommandTabButtonTextDisplay_e.html?id=3d6975f51c4648378ad4beaf4d3144ca"/>
-        /// </summary>
-        /// <remarks>This option is applicable when <see cref="ShowInCommandTabBox"/> is set to true</remarks>
-        public swCommandTabButtonTextDisplay_e CommandTabBoxDisplayStyle { get; private set; }
-
-        /// <summary>
-        /// Indicates the workspaces where this command is enabled
-        /// </summary>
-        /// <remarks>This information is used in the default command enable handler</remarks>
-        public swWorkspaceTypes_e SupportedWorkspaces { get; private set; }
-
+        /// <param name="suppWorkspaces">Indicates the workspaces where this command is enabled. This information is used in the default command enable handler</param>
         public CommandItemInfoAttribute(swWorkspaceTypes_e suppWorkspaces)
             : this(true, true, suppWorkspaces)
         {
         }
 
+        /// <inheritdoc cref="CommandItemInfoAttribute(swWorkspaceTypes_e)"/>
+        /// <param name="hasMenu">Indicates if this command should be displayed in the menu</param>
+        /// <param name="hasToolbar">Indicates if this command should be displayed in the toolbar</param>
         public CommandItemInfoAttribute(bool hasMenu, bool hasToolbar, swWorkspaceTypes_e suppWorkspaces)
             : this (hasMenu, hasToolbar, suppWorkspaces, false)
         {
         }
 
+        /// <inheritdoc cref="CommandItemInfoAttribute(bool, bool, swWorkspaceTypes_e)"/>
+        /// <param name="showInCmdTabBox">Indicates that this command should be added to command tab box in command manager (ribbon)</param>
+        /// <param name="textStyle">Text display type for command in command tab box as defined in <see href="https://help.solidworks.com/2012/English/api/swconst/SolidWorks.Interop.swconst~SolidWorks.Interop.swconst.swCommandTabButtonTextDisplay_e.html?id=3d6975f51c4648378ad4beaf4d3144ca">swCommandTabButtonTextDisplay_e Enumeration</see>.
+        /// This option is applicable when 'showInCmdTabBox' is set to true</param>
         public CommandItemInfoAttribute(bool hasMenu, bool hasToolbar, swWorkspaceTypes_e suppWorkspaces,
             bool showInCmdTabBox, swCommandTabButtonTextDisplay_e textStyle = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow)
         {
