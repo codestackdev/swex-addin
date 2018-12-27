@@ -24,9 +24,9 @@ namespace CodeStack.SwEx.AddIn.Helpers
         private const string DESCRIPTION_REG_KEY_NAME = "Description";
         private const string TITLE_REG_KEY_NAME = "Title";
 
-        private readonly ModuleLogger m_Logger;
+        private readonly ILogger m_Logger;
 
-        internal RegistrationHelper(ModuleLogger logger)
+        internal RegistrationHelper(ILogger logger)
         {
             m_Logger = logger;
         }
@@ -52,7 +52,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
             catch (Exception ex)
             {
-                m_Logger.LogException(ex);
+                m_Logger.Log(ex);
                 return false;
             }
         }
@@ -75,7 +75,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
             catch (Exception ex)
             {
-                m_Logger.LogException(ex);
+                m_Logger.Log(ex);
                 return false;
             }
         }

@@ -37,7 +37,7 @@ namespace CodeStack.SwEx.AddIn
 
         private static RegistrationHelper GetRegistrationHelper(Type moduleType)
         {
-            return m_RegHelper ?? (m_RegHelper = new RegistrationHelper(new ModuleLogger(moduleType)));
+            return m_RegHelper ?? (m_RegHelper = new RegistrationHelper(LoggerFactory.Create(moduleType)));
         }
 
         /// <summary>
@@ -115,11 +115,11 @@ namespace CodeStack.SwEx.AddIn
 
         private List<int> m_CommandGroupIds;
 
-        private readonly ModuleLogger m_Logger;
+        private readonly ILogger m_Logger;
 
         public SwAddInEx()
         {
-            m_Logger = new ModuleLogger(this);
+            m_Logger = LoggerFactory.Create(this);
         }
 
         /// <summary>SOLIDWORKS add-in entry function</summary>
@@ -127,7 +127,7 @@ namespace CodeStack.SwEx.AddIn
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ConnectToSW(object ThisSW, int cookie)
         {
-            m_Logger.Log("Loading add-in");
+            Logger.Log("Loading add-in");
 
             try
             {
@@ -155,7 +155,7 @@ namespace CodeStack.SwEx.AddIn
             }
             catch(Exception ex)
             {
-                m_Logger.LogException(ex);
+                Logger.Log(ex);
                 throw;
             }
         }
@@ -168,7 +168,7 @@ namespace CodeStack.SwEx.AddIn
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void OnCommandClick(string cmdId)
         {
-            m_Logger.Log($"Command clicked: {cmdId}");
+            Logger.Log($"Command clicked: {cmdId}");
 
             Tuple<Delegate, Enum> callbackData;
 
@@ -247,13 +247,13 @@ namespace CodeStack.SwEx.AddIn
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool DisconnectFromSW()
         {
-            m_Logger.Log("Unloading add-in");
+            Logger.Log("Unloading add-in");
 
             try
             {
                 foreach (var grpId in m_CommandGroupIds)
                 {
-                    m_Logger.Log($"Removing group: {grpId}");
+                    Logger.Log($"Removing group: {grpId}");
                     CmdMgr.RemoveCommandGroup(grpId);
                 }
 
@@ -283,7 +283,7 @@ namespace CodeStack.SwEx.AddIn
             }
             catch(Exception ex)
             {
-                m_Logger.LogException(ex);
+                Logger.Log(ex);
                 throw;
             }
         }
@@ -329,7 +329,7 @@ namespace CodeStack.SwEx.AddIn
             EnableMethodDelegate<TCmdEnum> enable, bool isContextMenu, swSelectType_e contextMenuSelectType)
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
-            m_Logger.Log("Creating command group");
+            Logger.Log("Creating command group");
 
             if (!(typeof(TCmdEnum).IsEnum))
             {
@@ -353,7 +353,7 @@ namespace CodeStack.SwEx.AddIn
 
             bool isCmdsChanged;
 
-            m_Logger.Log($"Creating group: {groupId}");
+            Logger.Log($"Creating group: {groupId}");
 
             var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds, isContextMenu,
                 contextMenuSelectType, out isCmdsChanged);
@@ -443,7 +443,7 @@ namespace CodeStack.SwEx.AddIn
                 isChanged = !CompareIDs(registryIDs as int[], knownIDs);
             }
 
-            m_Logger.Log($"Command ids changed: {isChanged}");
+            Logger.Log($"Command ids changed: {isChanged}");
 
             CommandGroup cmdGroup;
 
@@ -457,7 +457,7 @@ namespace CodeStack.SwEx.AddIn
                 cmdGroup = CmdMgr.CreateCommandGroup2(groupId, title, toolTip,
                     toolTip, -1, isChanged, ref cmdGroupErr);
 
-                m_Logger.Log($"Command group creation result: {(swCreateCommandGroupErrors)cmdGroupErr}");
+                Logger.Log($"Command group creation result: {(swCreateCommandGroupErrors)cmdGroupErr}");
 
                 Debug.Assert(cmdGroupErr == (int)swCreateCommandGroupErrors.swCreateCommandGroup_Success);
             }
@@ -593,7 +593,7 @@ namespace CodeStack.SwEx.AddIn
 
                 createdCmds.Add(cmd, cmdIndex);
 
-                m_Logger.Log($"Created command {cmdIndex} for {cmd}");
+                Logger.Log($"Created command {cmdIndex} for {cmd}");
             }
 
             cmdGroup.HasToolbar = true;
@@ -605,7 +605,7 @@ namespace CodeStack.SwEx.AddIn
 
         private void CreateCommandTabBox(CommandGroup cmdGroup, Dictionary<Enum, int> commands, bool removePrevious)
         {
-            m_Logger.Log($"Creating command tab box");
+            Logger.Log($"Creating command tab box");
 
             var tabCommands = new List<Tuple<swDocumentTypes_e, int, swCommandTabButtonTextDisplay_e>>();
 
