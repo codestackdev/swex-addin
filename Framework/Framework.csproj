@@ -74,7 +74,14 @@
     <Compile Include="Attributes\CommandGroupInfoAttribute.cs" />
     <Compile Include="Attributes\CommandItemInfoAttribute.cs" />
     <Compile Include="Attributes\CommandIconAttribute.cs" />
+    <Compile Include="Base\ICommand.cs" />
+    <Compile Include="Base\ICommandBar.cs" />
+    <Compile Include="Base\ICommandBase.cs" />
     <Compile Include="Base\ISwAddInEx.cs" />
+    <Compile Include="Core\Command.cs" />
+    <Compile Include="Core\CommandBar.cs" />
+    <Compile Include="Core\EnumCommand.cs" />
+    <Compile Include="Core\EnumCommandBar.cs" />
     <Compile Include="Delegates\EnableMethodDelegate.cs" />
     <Compile Include="Enums\CommandItemEnableState_e.cs" />
     <Compile Include="Enums\swWorkspaceTypes_e.cs" />
@@ -82,7 +89,6 @@
     <Compile Include="Exceptions\GroupIdAlreadyExistsException.cs" />
     <Compile Include="Exceptions\InvalidMenuToolbarOptionsException.cs" />
     <Compile Include="Helpers\RegistrationHelper.cs" />
-    <Compile Include="Helpers\Trace.cs" />
     <Compile Include="Icons\CommandGroupIcon.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

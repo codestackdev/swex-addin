@@ -80,33 +80,20 @@ namespace CodeStack.SwEx.AddIn.Attributes
 
         private CommandIconAttribute(Image icon)
         {
-            Icon = new MasterIcon()
-            {
-                Icon = icon
-            };
+            Icon = new MasterIcon(icon);
         }
 
         private CommandIconAttribute(Image size16x16, Image size24x24)
         {
-            Icon = new BasicIcon()
-            {
-                Size16x16 = size16x16,
-                Size24x24 = size24x24
-            };
+            Icon = new BasicIcon(size16x16, size24x24);
         }
 
         private CommandIconAttribute(Image size20x20, Image size32x32, 
             Image size40x40, Image size64x64, Image size96x96, Image size128x128)
         {
-            Icon = new HighResIcon()
-            {
-                Size20x20 = size20x20,
-                Size32x32 = size32x32,
-                Size40x40 = size40x40,
-                Size64x64 = size64x64,
-                Size96x96 = size96x96, 
-                Size128x128 = size128x128
-            };
+            Icon = new HighResIcon(
+                size20x20, size32x32, size40x40,
+                size64x64, size96x96, size128x128);
         }
     }
 }

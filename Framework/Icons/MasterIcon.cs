@@ -7,28 +7,35 @@
 
 using CodeStack.SwEx.Common.Icons;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 
 namespace CodeStack.SwEx.AddIn.Icons
 {
-    internal class MasterIcon : CommandGroupIcon
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public class MasterIcon : CommandGroupIcon
     {
-        internal Image Icon { get; set; }
+        private readonly Image m_Icon;
+
+        public MasterIcon(Image icon)
+        {
+            m_Icon = icon;
+        }
 
         public override IEnumerable<IconSizeInfo> GetHighResolutionIconSizes()
         {
-            yield return new IconSizeInfo(Icon, new Size(20, 20));
-            yield return new IconSizeInfo(Icon, new Size(32, 32));
-            yield return new IconSizeInfo(Icon, new Size(40, 40));
-            yield return new IconSizeInfo(Icon, new Size(64, 64));
-            yield return new IconSizeInfo(Icon, new Size(96, 96));
-            yield return new IconSizeInfo(Icon, new Size(128, 128));
+            yield return new IconSizeInfo(m_Icon, new Size(20, 20));
+            yield return new IconSizeInfo(m_Icon, new Size(32, 32));
+            yield return new IconSizeInfo(m_Icon, new Size(40, 40));
+            yield return new IconSizeInfo(m_Icon, new Size(64, 64));
+            yield return new IconSizeInfo(m_Icon, new Size(96, 96));
+            yield return new IconSizeInfo(m_Icon, new Size(128, 128));
         }
 
         public override IEnumerable<IconSizeInfo> GetIconSizes()
         {
-            yield return new IconSizeInfo(Icon, new Size(16, 16));
-            yield return new IconSizeInfo(Icon, new Size(24, 24));
+            yield return new IconSizeInfo(m_Icon, new Size(16, 16));
+            yield return new IconSizeInfo(m_Icon, new Size(24, 24));
         }
     }
 }

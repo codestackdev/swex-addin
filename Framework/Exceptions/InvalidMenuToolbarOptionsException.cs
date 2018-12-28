@@ -5,6 +5,7 @@
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
+using CodeStack.SwEx.AddIn.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +18,8 @@ namespace CodeStack.SwEx.AddIn.Exceptions
     /// </summary>
     public class InvalidMenuToolbarOptionsException : InvalidOperationException
     {
-        internal InvalidMenuToolbarOptionsException(Enum cmd) 
-            : base($"Neither toolbar nor menu option is specified for {cmd} command. Use")
+        internal InvalidMenuToolbarOptionsException(ICommand cmd) 
+            : base($"Neither toolbar nor menu option is specified for {cmd.Title} ({cmd.UserId}) command. Use")
         {
         }
     }
