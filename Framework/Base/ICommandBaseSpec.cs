@@ -1,4 +1,5 @@
-﻿using CodeStack.SwEx.Common.Icons;
+﻿using CodeStack.SwEx.AddIn.Icons;
+using CodeStack.SwEx.Common.Icons;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,10 +9,10 @@ using System.Text;
 namespace CodeStack.SwEx.AddIn.Base
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public interface ICommandBase
+    public interface ICommandBaseSpec
     {
         string Title { get; }
         string Tooltip { get; }
-        IIcon Icon { get; }
+        CommandGroupIcon Icon { get; }
     }
 }

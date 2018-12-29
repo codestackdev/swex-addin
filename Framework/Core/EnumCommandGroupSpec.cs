@@ -11,10 +11,10 @@ using System.Text;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
-    internal class EnumCommandBar<TCmdEnum> : CommandBar
+    internal class EnumCommandGroupSpec<TCmdEnum> : CommandGroupSpec
             where TCmdEnum : IComparable, IFormattable, IConvertible
     {
-        internal EnumCommandBar(ISldWorks app, Action<TCmdEnum> callback,
+        internal EnumCommandGroupSpec(ISldWorks app, Action<TCmdEnum> callback,
             EnableMethodDelegate<TCmdEnum> enable, int nextGroupId)
         {
             if (!(typeof(TCmdEnum).IsEnum))
@@ -74,7 +74,7 @@ namespace CodeStack.SwEx.AddIn.Core
             }
 
             Commands = Enum.GetValues(cmdGroupType).Cast<TCmdEnum>().Select(
-                c => new EnumCommand<TCmdEnum>(app, c, callback, enable)).ToArray();
+                c => new EnumCommandSpec<TCmdEnum>(app, c, callback, enable)).ToArray();
         }
     }
 }

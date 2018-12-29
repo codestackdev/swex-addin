@@ -1,5 +1,6 @@
 ﻿using CodeStack.SwEx.AddIn.Base;
 using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.AddIn.Icons;
 using CodeStack.SwEx.Common.Icons;
 using SolidWorks.Interop.swconst;
 using System;
@@ -11,11 +12,11 @@ using System.Text;
 namespace CodeStack.SwEx.AddIn.Core
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public class Command : ICommand
+    public class CommandSpec : ICommandSpec
     {
         public string Title { get; protected set; }
         public string Tooltip { get; protected set; }
-        public IIcon Icon { get; protected set; }
+        public CommandGroupIcon Icon { get; protected set; }
 
         public swWorkspaceTypes_e SupportedWorkspace { get; protected set; }
         public bool HasMenu { get; protected set; }

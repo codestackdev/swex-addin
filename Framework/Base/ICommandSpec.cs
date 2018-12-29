@@ -9,7 +9,7 @@ using System.Text;
 namespace CodeStack.SwEx.AddIn.Base
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public interface ICommand : ICommandBase
+    public interface ICommandSpec : ICommandBaseSpec
     {
         swWorkspaceTypes_e SupportedWorkspace { get; }
         bool HasMenu { get; }

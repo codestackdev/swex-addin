@@ -13,7 +13,7 @@ using System.Text;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
-    internal class EnumCommand<TCmdEnum> : Command
+    internal class EnumCommandSpec<TCmdEnum> : CommandSpec
             where TCmdEnum : IComparable, IFormattable, IConvertible
     {
         private readonly ISldWorks m_App;
@@ -21,7 +21,7 @@ namespace CodeStack.SwEx.AddIn.Core
         private readonly Action<TCmdEnum> m_Callback;
         private readonly EnableMethodDelegate<TCmdEnum> m_Enable;
 
-        internal EnumCommand(ISldWorks app, TCmdEnum cmd, Action<TCmdEnum> callback,
+        internal EnumCommandSpec(ISldWorks app, TCmdEnum cmd, Action<TCmdEnum> callback,
             EnableMethodDelegate<TCmdEnum> enable)
         {
             if (!(typeof(TCmdEnum).IsEnum))

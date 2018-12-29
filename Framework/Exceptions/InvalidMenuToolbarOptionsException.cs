@@ -18,7 +18,7 @@ namespace CodeStack.SwEx.AddIn.Exceptions
     /// </summary>
     public class InvalidMenuToolbarOptionsException : InvalidOperationException
     {
-        internal InvalidMenuToolbarOptionsException(ICommand cmd) 
+        internal InvalidMenuToolbarOptionsException(ICommandSpec cmd) 
             : base($"Neither toolbar nor menu option is specified for {cmd.Title} ({cmd.UserId}) command. Use")
         {
         }

@@ -7,9 +7,9 @@ using System.Text;
 namespace CodeStack.SwEx.AddIn.Base
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public interface ICommandBar : ICommandBase
+    public interface ICommandGroupSpec : ICommandBaseSpec
     {
         int Id { get; }
-        ICommand[] Commands { get; }
+        ICommandSpec[] Commands { get; }
     }
 }

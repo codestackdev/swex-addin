@@ -110,16 +110,16 @@ namespace CodeStack.SwEx.AddIn
             }
         }
 
-        private readonly List<ICommandBar> m_CommandGroups;
-        private readonly Dictionary<string, ICommand> m_Commands;
+        private readonly List<ICommandGroupSpec> m_CommandGroups;
+        private readonly Dictionary<string, ICommandSpec> m_Commands;
 
         private readonly ILogger m_Logger;
 
         public SwAddInEx()
         {
             m_Logger = LoggerFactory.Create(this);
-            m_Commands = new Dictionary<string, ICommand>();
-            m_CommandGroups = new List<ICommandBar>();
+            m_Commands = new Dictionary<string, ICommandSpec>();
+            m_CommandGroups = new List<ICommandGroupSpec>();
         }
 
         /// <summary>SOLIDWORKS add-in entry function</summary>
@@ -165,7 +165,7 @@ namespace CodeStack.SwEx.AddIn
         {
             Logger.Log($"Command clicked: {cmdId}");
 
-            ICommand cmd;
+            ICommandSpec cmd;
 
             if (m_Commands.TryGetValue(cmdId, out cmd))
             {
@@ -186,7 +186,7 @@ namespace CodeStack.SwEx.AddIn
         [EditorBrowsable(EditorBrowsableState.Never)]
         public int OnCommandEnable(string cmdId)
         {
-            ICommand cmd;
+            ICommandSpec cmd;
 
             if (m_Commands.TryGetValue(cmdId, out cmd))
             {
@@ -271,7 +271,7 @@ namespace CodeStack.SwEx.AddIn
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
             return AddCommandGroup(
-                new EnumCommandBar<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId()));
+                new EnumCommandGroupSpec<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId()));
         }
 
         /// <inheritdoc/>
@@ -285,19 +285,19 @@ namespace CodeStack.SwEx.AddIn
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
             return AddContextMenu(
-                new EnumCommandBar<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId()),
+                new EnumCommandGroupSpec<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId()),
                 contextMenuSelectType);
         }
 
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public CommandGroup AddCommandGroup(ICommandBar cmdBar)
+        public CommandGroup AddCommandGroup(ICommandGroupSpec cmdBar)
         {
             return AddCommandGroupOrContextMenu(
                cmdBar, false, 0);
         }
 
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public CommandGroup AddContextMenu(ICommandBar cmdBar,
+        public CommandGroup AddContextMenu(ICommandGroupSpec cmdBar,
             swSelectType_e contextMenuSelectType = swSelectType_e.swSelEVERYTHING)
         {
             return AddCommandGroupOrContextMenu(
@@ -316,7 +316,7 @@ namespace CodeStack.SwEx.AddIn
             }
         }
 
-        private CommandGroup AddCommandGroupOrContextMenu(ICommandBar cmdBar,
+        private CommandGroup AddCommandGroupOrContextMenu(ICommandGroupSpec cmdBar,
             bool isContextMenu, swSelectType_e contextMenuSelectType)
         {
             Logger.Log($"Creating command group: {cmdBar.Id}");
@@ -386,7 +386,7 @@ namespace CodeStack.SwEx.AddIn
             return cmdGroup;
         }
 
-        private void CreateIcons(CommandGroup cmdGroup, ICommandBar cmdBar, IconsConverter iconsConv)
+        private void CreateIcons(CommandGroup cmdGroup, ICommandGroupSpec cmdBar, IconsConverter iconsConv)
         {
             var mainIcon = cmdBar.Icon;
 
@@ -417,9 +417,9 @@ namespace CodeStack.SwEx.AddIn
             }
         }
 
-        private Dictionary<ICommand, int> CreateCommandItems(CommandGroup cmdGroup, int groupId, ICommand[] cmds)
+        private Dictionary<ICommandSpec, int> CreateCommandItems(CommandGroup cmdGroup, int groupId, ICommandSpec[] cmds)
         {
-            var createdCmds = new Dictionary<ICommand, int>();
+            var createdCmds = new Dictionary<ICommandSpec, int>();
 
             var callbackMethodName = nameof(OnCommandClick);
             var enableMethodName = nameof(OnCommandEnable);
@@ -468,7 +468,7 @@ namespace CodeStack.SwEx.AddIn
             return createdCmds.ToDictionary(p => p.Key, p => cmdGroup.CommandID[p.Value]);
         }
 
-        private void CreateCommandTabBox(CommandGroup cmdGroup, Dictionary<ICommand, int> commands, bool removePrevious)
+        private void CreateCommandTabBox(CommandGroup cmdGroup, Dictionary<ICommandSpec, int> commands, bool removePrevious)
         {
             Logger.Log($"Creating command tab box");
 

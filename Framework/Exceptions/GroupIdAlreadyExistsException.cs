@@ -19,7 +19,7 @@ namespace CodeStack.SwEx.AddIn.Exceptions
     /// In this case framework is attempting to generate next user id which might be already taken by explicit declaration</remarks>
     public class GroupIdAlreadyExistsException : Exception
     {
-        internal GroupIdAlreadyExistsException(ICommandBar cmdBar) 
+        internal GroupIdAlreadyExistsException(ICommandGroupSpec cmdBar) 
             : base($"Group {cmdBar.Title} id ({cmdBar.Id}) already exists. Make sure that all group enumerators decorated with {typeof(CommandGroupInfoAttribute)} have unique values for id")
         {
         }

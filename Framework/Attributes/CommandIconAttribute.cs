@@ -42,7 +42,7 @@ namespace CodeStack.SwEx.AddIn.Attributes
     [AttributeUsage(AttributeTargets.All)]
     public class CommandIconAttribute : Attribute
     {
-        internal IIcon Icon { get; private set; }
+        internal CommandGroupIcon Icon { get; private set; }
 
         /// <param name="resType">Type of the static class (usually Resources)</param>
         /// <param name="masterResName">Resource name of the master icon</param>
