@@ -6,6 +6,8 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Attributes;
+using CodeStack.SwEx.Common.Attributes;
+using CodeStack.SwEx.Common.Base;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using SolidWorks.Interop.swpublished;
@@ -16,7 +18,8 @@ namespace CodeStack.SwEx.AddIn.Base
     /// <summary>
     /// Base interface for enabling the Framework for SOLIDWORKS add-ins
     /// </summary>
-    public interface ISwAddInEx
+    [ModuleInfo("SwEx.AddIn")]
+    public interface ISwAddInEx : IModule
     {
         /// <summary>
         /// Overload to initialize the data. This method is called

@@ -14,21 +14,21 @@ using System.Text;
 
 namespace CodeStack.SwEx.AddIn.Example
 {
-    [Title("AddInEx Commands")]
+    [Common.Attributes.Title("AddInEx Commands")]
     [Description("Sample commands")]
-    [Icon(typeof(Resources), nameof(Resources.command_group_icon))]
+    [Common.Attributes.Icon(typeof(Resources), nameof(Resources.command_group_icon))]
     [CommandGroupInfo(0)]
     public enum Commands_e
     {
-        [Title("Command1")]
+        [Common.Attributes.Title("Command1")]
         [Description("Sample Command 1")]
-        [Icon(typeof(Resources), nameof(Resources.command1_icon))]
+        [Common.Attributes.Icon(typeof(Resources), nameof(Resources.command1_icon))]
         [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
         Command1,
 
-        [Title("Command 2")]
+        [Common.Attributes.Title("Command 2")]
         [Description("Sample Command2")]
-        [Icon(typeof(Resources), nameof(Resources.command2_icon))]
+        [CommandIcon(typeof(Resources), nameof(Resources.command2_icon), nameof(Resources.command2_icon))]
         [CommandItemInfo(true, true, swWorkspaceTypes_e.All, true)]
         Command2,
 

@@ -16,21 +16,16 @@ namespace CodeStack.SwEx.AddIn.Attributes
     /// </summary>
     /// <remarks>Can be applied to can be applied to command group (defined as enumeration) and items within the group (defined as enumeration value)</remarks>
     [AttributeUsage(AttributeTargets.All)]
-    public class TitleAttribute : DisplayNameAttribute
+    [Obsolete("Deprecated. Use CodeStack.SwEx.Common.Attributes.TitleAttribute instead")]
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public class TitleAttribute : CodeStack.SwEx.Common.Attributes.TitleAttribute
     {
-        /// <summary>
-        /// Construcotr for element titile
-        /// </summary>
-        /// <param name="dispName">Display name of the element</param>
         public TitleAttribute(string dispName) : base(dispName)
         {
         }
 
-        /// <inheritdoc cref="TitleAttribute(String)"/>
-        /// <param name="resType">Type of the static class (usually Resources)</param>
-        /// <param name="dispNameResName">Resource name of the string for display name</param>
         public TitleAttribute(Type resType, string dispNameResName)
-            : this(ResourceHelper.GetResource<string>(resType, dispNameResName))
+            : base(ResourceHelper.GetResource<string>(resType, dispNameResName))
         {
         }
     }
