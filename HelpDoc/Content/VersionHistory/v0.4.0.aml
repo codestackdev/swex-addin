@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="v0-4-0" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        Version 0.4.0 was released on December 31 2018.
+      </para>
+    </introduction>
+
+    <section>
+      <title>Minor enhancements implementation</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 7</linkText>
+                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/7</linkUri>
+              </externalLink> Need a way to create commands without enumeration (dynamically)
+            </para>
+          </listItem>
+        </list>
+
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="version-history" />
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

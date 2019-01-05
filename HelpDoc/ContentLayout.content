@@ -19,11 +19,12 @@
         <HelpKeyword index="K" term="version, 0.2.2" />
       </HelpKeywords>
     </Topic>
-    <Topic id="v0-3-0" visible="True" isSelected="true" title="Version 0.3.0">
+    <Topic id="v0-3-0" visible="True" title="Version 0.3.0">
       <HelpKeywords>
         <HelpKeyword index="K" term="version, 0.3.0" />
       </HelpKeywords>
     </Topic>
     <Topic id="v0-3-1" visible="True" title="Version 0.3.1" />
+    <Topic id="v0-4-0" visible="True" isSelected="true" title="Version 0.4.0" />
   </Topic>
 </Topics>
