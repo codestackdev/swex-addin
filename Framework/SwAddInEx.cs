@@ -7,11 +7,13 @@
 
 using CodeStack.SwEx.AddIn.Attributes;
 using CodeStack.SwEx.AddIn.Base;
+using CodeStack.SwEx.AddIn.Core;
 using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Exceptions;
 using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;
 using CodeStack.SwEx.AddIn.Properties;
+using CodeStack.SwEx.Common.Diagnostics;
 using CodeStack.SwEx.Common.Icons;
 using CodeStack.SwEx.Common.Reflection;
 using SolidWorks.Interop.sldworks;
@@ -20,6 +22,7 @@ using SolidWorks.Interop.swpublished;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -31,6 +34,13 @@ namespace CodeStack.SwEx.AddIn
     {
         #region Registration
 
+        private static RegistrationHelper m_RegHelper;
+
+        private static RegistrationHelper GetRegistrationHelper(Type moduleType)
+        {
+            return m_RegHelper ?? (m_RegHelper = new RegistrationHelper(LoggerFactory.Create(moduleType)));
+        }
+
         /// <summary>
         /// COM Registration entry function
         /// </summary>
@@ -40,7 +50,7 @@ namespace CodeStack.SwEx.AddIn
         {
             if (t.TryGetAttribute<AutoRegisterAttribute>() != null)
             {
-                RegistrationHelper.Register(t);
+                GetRegistrationHelper(t).Register(t);
             }
         }
 
@@ -53,7 +63,7 @@ namespace CodeStack.SwEx.AddIn
         {
             if (t.TryGetAttribute<AutoRegisterAttribute>() != null)
             {
-                RegistrationHelper.Unregister(t);
+                GetRegistrationHelper(t).Unregister(t);
             }
         }
 
@@ -91,19 +101,33 @@ namespace CodeStack.SwEx.AddIn
         /// Add-ins cookie (id)
         /// </summary>
         protected int AddInCookie { get; private set; }
-        
-        private Dictionary<string, swWorkspaceTypes_e> m_CachedCmdsEnable;
-        private Dictionary<string, Tuple<Delegate, Enum>> m_CallbacksParams;
-        private Dictionary<string, Tuple<Delegate, Enum>> m_EnableParams;
 
-        private List<int> m_CommandGroupIds;
+        public ILogger Logger
+        {
+            get
+            {
+                return m_Logger;
+            }
+        }
+
+        private readonly List<ICommandGroupSpec> m_CommandGroups;
+        private readonly Dictionary<string, ICommandSpec> m_Commands;
+
+        private readonly ILogger m_Logger;
+
+        public SwAddInEx()
+        {
+            m_Logger = LoggerFactory.Create(this);
+            m_Commands = new Dictionary<string, ICommandSpec>();
+            m_CommandGroups = new List<ICommandGroupSpec>();
+        }
 
         /// <summary>SOLIDWORKS add-in entry function</summary>
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ConnectToSW(object ThisSW, int cookie)
         {
-            Trace.Log("Loading add-in");
+            Logger.Log("Loading add-in");
 
             try
             {
@@ -122,16 +146,11 @@ namespace CodeStack.SwEx.AddIn
 #pragma warning restore CS0618
                 //----
 
-                m_CachedCmdsEnable = new Dictionary<string, swWorkspaceTypes_e>();
-                m_CallbacksParams = new Dictionary<string, Tuple<Delegate, Enum>>();
-                m_EnableParams = new Dictionary<string, Tuple<Delegate, Enum>>();
-                m_CommandGroupIds = new List<int>();
-
                 return OnConnect();
             }
             catch(Exception ex)
             {
-                Trace.Log(ex);
+                Logger.Log(ex);
                 throw;
             }
         }
@@ -144,17 +163,17 @@ namespace CodeStack.SwEx.AddIn
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void OnCommandClick(string cmdId)
         {
-            Trace.Log($"Command clicked: {cmdId}");
+            Logger.Log($"Command clicked: {cmdId}");
 
-            Tuple<Delegate, Enum> callbackData;
+            ICommandSpec cmd;
 
-            if (m_CallbacksParams.TryGetValue(cmdId, out callbackData))
+            if (m_Commands.TryGetValue(cmdId, out cmd))
             {
-                callbackData.Item1.DynamicInvoke(callbackData.Item2);
+                cmd.OnClick();
             }
             else
             {
-                System.Diagnostics.Debug.Assert(false, "All callbacks must be registered");
+                Debug.Assert(false, "All callbacks must be registered");
             }
         }
 
@@ -167,52 +186,18 @@ namespace CodeStack.SwEx.AddIn
         [EditorBrowsable(EditorBrowsableState.Never)]
         public int OnCommandEnable(string cmdId)
         {
-            var supportedSpaces = m_CachedCmdsEnable[cmdId];
+            ICommandSpec cmd;
 
-            var curSpace = swWorkspaceTypes_e.NoDocuments;
-
-            if (App.IActiveDoc2 == null)
+            if (m_Commands.TryGetValue(cmdId, out cmd))
             {
-                curSpace = swWorkspaceTypes_e.NoDocuments;
+                return (int)cmd.OnEnable();
             }
             else
             {
-                switch ((swDocumentTypes_e)App.IActiveDoc2.GetType())
-                {
-                    case swDocumentTypes_e.swDocPART:
-                        curSpace = swWorkspaceTypes_e.Part;
-                        break;
-
-                    case swDocumentTypes_e.swDocASSEMBLY:
-                        curSpace = swWorkspaceTypes_e.Assembly;
-                        break;
-
-                    case swDocumentTypes_e.swDocDRAWING:
-                        curSpace = swWorkspaceTypes_e.Drawing;
-                        break;
-                }
+                Debug.Assert(false, "All callbacks must be registered");
             }
 
-            CommandItemEnableState_e state;
-
-            if (supportedSpaces.HasFlag(curSpace))
-            {
-                state = CommandItemEnableState_e.DeselectEnable;
-            }
-            else
-            {
-                state = CommandItemEnableState_e.DeselectDisable;
-            }
-
-            Tuple<Delegate, Enum> enable;
-            if (m_EnableParams.TryGetValue(cmdId, out enable))
-            {
-                var args = new object[] { enable.Item2, state };
-                enable.Item1.DynamicInvoke(args);
-                state = (CommandItemEnableState_e)args[1];
-            }
-
-            return (int)state;
+            return (int)CommandItemEnableState_e.DeselectDisable;
         }
 
         /// <summary>
@@ -223,14 +208,14 @@ namespace CodeStack.SwEx.AddIn
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool DisconnectFromSW()
         {
-            Trace.Log("Unloading add-in");
+            Logger.Log("Unloading add-in");
 
             try
             {
-                foreach (var grpId in m_CommandGroupIds)
+                foreach (var grp in m_CommandGroups)
                 {
-                    Trace.Log($"Removing group: {grpId}");
-                    CmdMgr.RemoveCommandGroup(grpId);
+                    Logger.Log($"Removing group: {grp.Id}");
+                    CmdMgr.RemoveCommandGroup(grp.Id);
                 }
 
                 var res = OnDisconnect();
@@ -259,7 +244,7 @@ namespace CodeStack.SwEx.AddIn
             }
             catch(Exception ex)
             {
-                Trace.Log(ex);
+                Logger.Log(ex);
                 throw;
             }
         }
@@ -285,7 +270,8 @@ namespace CodeStack.SwEx.AddIn
             EnableMethodDelegate<TCmdEnum> enable = null)
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
-            return AddCommandGroupOrContextMenu(callback, enable, false, 0);
+            return AddCommandGroup(
+                new EnumCommandGroupSpec<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId()));
         }
 
         /// <inheritdoc/>
@@ -298,111 +284,72 @@ namespace CodeStack.SwEx.AddIn
             EnableMethodDelegate<TCmdEnum> enable = null)
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
-            return AddCommandGroupOrContextMenu(callback, enable, true, contextMenuSelectType);
+            return AddContextMenu(
+                new EnumCommandGroupSpec<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId()),
+                contextMenuSelectType);
         }
 
-        private CommandGroup AddCommandGroupOrContextMenu<TCmdEnum>(Action<TCmdEnum> callback,
-            EnableMethodDelegate<TCmdEnum> enable, bool isContextMenu, swSelectType_e contextMenuSelectType)
-            where TCmdEnum : IComparable, IFormattable, IConvertible
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        public CommandGroup AddCommandGroup(ICommandGroupSpec cmdBar)
         {
-            Trace.Log("Creating command group");
+            return AddCommandGroupOrContextMenu(
+               cmdBar, false, 0);
+        }
 
-            if (!(typeof(TCmdEnum).IsEnum))
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        public CommandGroup AddContextMenu(ICommandGroupSpec cmdBar,
+            swSelectType_e contextMenuSelectType = swSelectType_e.swSelEVERYTHING)
+        {
+            return AddCommandGroupOrContextMenu(
+               cmdBar, true, contextMenuSelectType);
+        }
+
+        private int GetNextAvailableGroupId()
+        {
+            if (m_CommandGroups.Any())
             {
-                throw new ArgumentException($"{typeof(TCmdEnum)} must be an Enum");
+                return m_CommandGroups.Max(g => g.Id) + 1;
             }
-
-            if (callback == null)
+            else
             {
-                throw new CallbackNotSpecifiedException();
+                return 0;
             }
+        }
 
-            var cmdGroupType = typeof(TCmdEnum);
+        private CommandGroup AddCommandGroupOrContextMenu(ICommandGroupSpec cmdBar,
+            bool isContextMenu, swSelectType_e contextMenuSelectType)
+        {
+            Logger.Log($"Creating command group: {cmdBar.Id}");
 
-            int groupId;
-            string title;
-            string toolTip;
-
-            GetCommandGroupAttribution(cmdGroupType, out groupId, out title, out toolTip);
-
-            var cmds = Enum.GetValues(cmdGroupType).Cast<Enum>().ToArray();
+            if (m_CommandGroups.FirstOrDefault(g=>g.Id == cmdBar.Id) == null)
+            {
+                m_CommandGroups.Add(cmdBar);
+            }
+            else
+            {
+                throw new GroupIdAlreadyExistsException(cmdBar);
+            }
 
             bool isCmdsChanged;
 
-            Trace.Log($"Creating group: {groupId}");
-
-            var cmdGroup = CreateCommandGroup(groupId, title, toolTip, cmds, isContextMenu,
+            var cmdGroup = CreateCommandGroup(cmdBar.Id, cmdBar.Title, cmdBar.Tooltip,
+                cmdBar.Commands.Select(c => c.UserId).ToArray(), isContextMenu,
                 contextMenuSelectType, out isCmdsChanged);
             
             using (var iconsConv = new IconsConverter())
             {
-                CreateIcons(cmdGroup, cmdGroupType, cmds, iconsConv);
+                CreateIcons(cmdGroup, cmdBar, iconsConv);
 
-                var createdCmds = CreateCommandItems(cmdGroup, groupId, cmds, callback, enable);
+                var createdCmds = CreateCommandItems(cmdGroup, cmdBar.Id, cmdBar.Commands);
                 
                 CreateCommandTabBox(cmdGroup, createdCmds, isCmdsChanged);
             }
 
             return cmdGroup;
         }
-
-        private void GetCommandGroupAttribution(Type cmdGroupType, out int groupId,
-            out string title, out string toolTip)
-        {
-            groupId = -1;
-
-            CommandGroupInfoAttribute grpInfoAtt;
-
-            if (cmdGroupType.TryGetAttribute(out grpInfoAtt))
-            {
-                groupId = grpInfoAtt.UserId;
-            }
-            else
-            {
-                if (m_CommandGroupIds.Any())
-                {
-                    groupId = m_CommandGroupIds.Max() + 1;
-                }
-                else
-                {
-                    groupId = 0;
-                }
-            }
-
-            if (!m_CommandGroupIds.Contains(groupId))
-            {
-                m_CommandGroupIds.Add(groupId);
-            }
-            else
-            {
-                throw new GroupIdAlreadyExistsException(groupId);
-            }
-            
-            DisplayNameAttribute dispNameAtt;
-
-            if (cmdGroupType.TryGetAttribute(out dispNameAtt))
-            {
-                title = dispNameAtt.DisplayName;
-            }
-            else
-            {
-                title = cmdGroupType.ToString();
-            }
-
-            DescriptionAttribute descAtt;
-
-            if (cmdGroupType.TryGetAttribute(out descAtt))
-            {
-                toolTip = descAtt.Description;
-            }
-            else
-            {
-                toolTip = cmdGroupType.ToString();
-            }
-        }
-
+        
         private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip,
-            Enum[] cmds, bool isContextMenu, swSelectType_e contextMenuSelectType, out bool isChanged)
+            int[] knownCmdIDs, bool isContextMenu, swSelectType_e contextMenuSelectType, out bool isChanged)
         {
             int cmdGroupErr = 0;
 
@@ -414,12 +361,10 @@ namespace CodeStack.SwEx.AddIn
 
             if (CmdMgr.GetGroupDataFromRegistry(groupId, out registryIDs))
             {
-                var knownIDs = cmds.Select(c => Convert.ToInt32(c));
-
-                isChanged = !CompareIDs(registryIDs as int[], knownIDs);
+                isChanged = !CompareIDs(registryIDs as int[], knownCmdIDs);
             }
 
-            Trace.Log($"Command ids changed: {isChanged}");
+            Logger.Log($"Command ids changed: {isChanged}");
 
             CommandGroup cmdGroup;
 
@@ -433,32 +378,19 @@ namespace CodeStack.SwEx.AddIn
                 cmdGroup = CmdMgr.CreateCommandGroup2(groupId, title, toolTip,
                     toolTip, -1, isChanged, ref cmdGroupErr);
 
-                Trace.Log($"Command group creation result: {(swCreateCommandGroupErrors)cmdGroupErr}");
+                Logger.Log($"Command group creation result: {(swCreateCommandGroupErrors)cmdGroupErr}");
 
-                System.Diagnostics.Debug.Assert(cmdGroupErr == (int)swCreateCommandGroupErrors.swCreateCommandGroup_Success);
+                Debug.Assert(cmdGroupErr == (int)swCreateCommandGroupErrors.swCreateCommandGroup_Success);
             }
             
             return cmdGroup;
         }
 
-        private void CreateIcons(CommandGroup cmdGroup, Type cmdGroupType, Enum[] cmds, IconsConverter iconsConv)
+        private void CreateIcons(CommandGroup cmdGroup, ICommandGroupSpec cmdBar, IconsConverter iconsConv)
         {
-            IIcon mainIcon = null;
+            var mainIcon = cmdBar.Icon;
 
-            if (!cmdGroupType.TryGetAttribute<IconAttribute>(a => mainIcon = a.Icon))
-            {
-                mainIcon = new MasterIcon() { Icon = Resources.swex_addin_default };
-            }
-
-            var iconList = cmds.Select(c =>
-            {
-                IIcon cmdIcon = null;
-                if (!c.TryGetAttribute<IconAttribute>(a => cmdIcon = a.Icon))
-                {
-                    cmdIcon = new MasterIcon() { Icon = Resources.swex_addin_default };
-                }
-                return cmdIcon;
-            }).ToArray();
+            var iconList = cmdBar.Commands.Select(c => c.Icon).ToArray();
 
             if (App.SupportsHighResIcons())
             {
@@ -485,10 +417,9 @@ namespace CodeStack.SwEx.AddIn
             }
         }
 
-        private Dictionary<Enum, int> CreateCommandItems(CommandGroup cmdGroup, int groupId, Enum[] cmds, 
-            Delegate callbackMethod, Delegate enableMethod)
+        private Dictionary<ICommandSpec, int> CreateCommandItems(CommandGroup cmdGroup, int groupId, ICommandSpec[] cmds)
         {
-            var createdCmds = new Dictionary<Enum, int>();
+            var createdCmds = new Dictionary<ICommandSpec, int>();
 
             var callbackMethodName = nameof(OnCommandClick);
             var enableMethodName = nameof(OnCommandEnable);
@@ -496,35 +427,15 @@ namespace CodeStack.SwEx.AddIn
             for (int i = 0; i < cmds.Length; i++)
             {
                 var cmd = cmds[i];
-
-                var cmdTitle = "";
-                var cmdToolTip = "";
-                swCommandItemType_e menuToolbarOpts = 0;
-                swWorkspaceTypes_e suppWorkSpaces = 0;
-
-                if (!cmd.TryGetAttribute<DisplayNameAttribute>(
-                    att => cmdTitle = att.DisplayName))
-                {
-                    cmdTitle = cmd.ToString();
-                }
                 
-                if (!cmd.TryGetAttribute<DescriptionAttribute>(
-                    att=> cmdToolTip = att.Description))
-                {
-                    cmdToolTip = cmd.ToString();
-                }
-
-                bool hasMenu;
-                bool hasToolbar;
-
-                GetCommandInfo(cmd, out hasMenu, out hasToolbar, out suppWorkSpaces);
-
-                if (hasMenu)
+                swCommandItemType_e menuToolbarOpts = 0;
+                
+                if (cmd.HasMenu)
                 {
                     menuToolbarOpts |= swCommandItemType_e.swMenuItem;
                 }
 
-                if (hasToolbar)
+                if (cmd.HasToolbar)
                 {
                     menuToolbarOpts |= swCommandItemType_e.swToolbarItem;
                 }
@@ -533,29 +444,21 @@ namespace CodeStack.SwEx.AddIn
                 {
                     throw new InvalidMenuToolbarOptionsException(cmd);
                 }
-                                
-                var cmdUserId = Convert.ToInt32(cmd);
+                
+                var cmdName = $"{groupId}.{cmd.UserId}";
 
-                var cmdName = $"{groupId}.{cmdUserId}";
-
-                m_CachedCmdsEnable.Add(cmdName, suppWorkSpaces);
-                m_CallbacksParams.Add(cmdName, new Tuple<Delegate, Enum>(callbackMethod, cmd));
-
-                if (enableMethod != null)
-                {
-                    m_EnableParams.Add(cmdName, new Tuple<Delegate, Enum>(enableMethod, cmd));
-                }
-
+                m_Commands.Add(cmdName, cmd);
+                
                 var callbackFunc = $"{callbackMethodName}({cmdName})";
                 var enableFunc = $"{enableMethodName}({cmdName})";
 
-                var cmdIndex = cmdGroup.AddCommandItem2(cmdTitle, -1, cmdToolTip,
-                    cmdTitle, i, callbackFunc, enableFunc, cmdUserId,
+                var cmdIndex = cmdGroup.AddCommandItem2(cmd.Title, -1, cmd.Tooltip,
+                    cmd.Title, i, callbackFunc, enableFunc, cmd.UserId,
                     (int)menuToolbarOpts);
 
                 createdCmds.Add(cmd, cmdIndex);
 
-                Trace.Log($"Created command {cmdIndex} for {cmd}");
+                Logger.Log($"Created command {cmdIndex} for {cmd}");
             }
 
             cmdGroup.HasToolbar = true;
@@ -565,44 +468,41 @@ namespace CodeStack.SwEx.AddIn
             return createdCmds.ToDictionary(p => p.Key, p => cmdGroup.CommandID[p.Value]);
         }
 
-        private void CreateCommandTabBox(CommandGroup cmdGroup, Dictionary<Enum, int> commands, bool removePrevious)
+        private void CreateCommandTabBox(CommandGroup cmdGroup, Dictionary<ICommandSpec, int> commands, bool removePrevious)
         {
-            Trace.Log($"Creating command tab box");
+            Logger.Log($"Creating command tab box");
 
             var tabCommands = new List<Tuple<swDocumentTypes_e, int, swCommandTabButtonTextDisplay_e>>();
 
             var ignoredCmds = new List<int>();
 
-            foreach (var cmd in commands)
+            foreach (var cmdData in commands)
             {
-                var cmdId = cmd.Value;
-                swWorkspaceTypes_e workSpace;
-                swCommandTabButtonTextDisplay_e style;
-                bool hasTabBox;
-                GetCommandInfo(cmd.Key, out workSpace, out hasTabBox, out style);
-
-                if (hasTabBox)
+                var cmd = cmdData.Key;
+                var cmdId = cmdData.Value;
+                
+                if (cmd.HasTabBox)
                 {
                     var docTypes = new List<swDocumentTypes_e>();
 
-                    if (workSpace.HasFlag(swWorkspaceTypes_e.Part))
+                    if (cmd.SupportedWorkspace.HasFlag(swWorkspaceTypes_e.Part))
                     {
                         docTypes.Add(swDocumentTypes_e.swDocPART);
                     }
 
-                    if (workSpace.HasFlag(swWorkspaceTypes_e.Assembly))
+                    if (cmd.SupportedWorkspace.HasFlag(swWorkspaceTypes_e.Assembly))
                     {
                         docTypes.Add(swDocumentTypes_e.swDocASSEMBLY);
                     }
 
-                    if (workSpace.HasFlag(swWorkspaceTypes_e.Drawing))
+                    if (cmd.SupportedWorkspace.HasFlag(swWorkspaceTypes_e.Drawing))
                     {
                         docTypes.Add(swDocumentTypes_e.swDocDRAWING);
                     }
 
                     tabCommands.AddRange(docTypes.Select(
                         t => new Tuple<swDocumentTypes_e, int, swCommandTabButtonTextDisplay_e>(
-                            t, cmdId, style)));
+                            t, cmdId, cmd.TabBoxStyle)));
                 }
                 else
                 {
@@ -626,7 +526,7 @@ namespace CodeStack.SwEx.AddIn
                 {
                     if (!CmdMgr.RemoveCommandTab(cmdTab))
                     {
-                        System.Diagnostics.Debug.Assert(false, "Failed to remove command tab");
+                        Debug.Assert(false, "Failed to remove command tab");
                     }
 
                     cmdTab = null;
@@ -642,7 +542,7 @@ namespace CodeStack.SwEx.AddIn
                     var txtTypes = cmdGrp.Select(c => (int)c.Item3).ToArray();
                     if (!cmdBox.AddCommands(cmdIds, txtTypes))
                     {
-                        System.Diagnostics.Debug.Assert(false, "Failed to add commands to the command box");
+                        Debug.Assert(false, "Failed to add commands to the command box");
                     }
                 }
             }
@@ -674,50 +574,6 @@ namespace CodeStack.SwEx.AddIn
             {
                 return Enumerable.Empty<bool>();
             }
-        }
-
-        private void GetCommandInfo(Enum cmd, out bool hasMenu, out bool hasToolbar,
-            out swWorkspaceTypes_e suppWorkSpaces)
-        {
-            bool hasTabBox;
-            swCommandTabButtonTextDisplay_e tabBoxStyle;
-
-            GetCommandInfo(cmd, out hasMenu, out hasToolbar, out suppWorkSpaces, out hasTabBox, out tabBoxStyle);
-        }
-
-        private void GetCommandInfo(Enum cmd,
-            out swWorkspaceTypes_e suppWorkSpaces, out bool hasTabBox, out swCommandTabButtonTextDisplay_e tabBoxStyle)
-        {
-            bool hasMenu;
-            bool hasToolbar;
-
-            GetCommandInfo(cmd, out hasMenu, out hasToolbar, out suppWorkSpaces, out hasTabBox, out tabBoxStyle);
-        }
-
-        private void GetCommandInfo(Enum cmd, out bool hasMenu, out bool hasToolbar,
-            out swWorkspaceTypes_e suppWorkSpaces, out bool hasTabBox, out swCommandTabButtonTextDisplay_e tabBoxStyle)
-        {
-            var localHasMenu = true;
-            var localHasToolbar = true;
-            var localSuppWorkSpaces = swWorkspaceTypes_e.All;
-            var localHasTabBox = false;
-            var localTabBoxStyle = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow;
-
-            cmd.TryGetAttribute<CommandItemInfoAttribute>(
-                att =>
-                {
-                    localHasMenu = att.HasMenu;
-                    localHasToolbar = att.HasToolbar;
-                    localSuppWorkSpaces = att.SupportedWorkspaces;
-                    localHasTabBox = att.ShowInCommandTabBox;
-                    localTabBoxStyle = att.CommandTabBoxDisplayStyle;
-                });
-
-            hasMenu = localHasMenu;
-            hasToolbar = localHasToolbar;
-            suppWorkSpaces = localSuppWorkSpaces;
-            hasTabBox = localHasTabBox;
-            tabBoxStyle = localTabBoxStyle;
         }
         
         private bool CompareIDs(IEnumerable<int> storedIDs, IEnumerable<int> addinIDs)

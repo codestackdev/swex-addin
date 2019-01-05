@@ -6,6 +6,7 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Attributes;
+using CodeStack.SwEx.Common.Diagnostics;
 using CodeStack.SwEx.Common.Reflection;
 using Microsoft.Win32;
 using SolidWorksTools;
@@ -16,25 +17,32 @@ using System.IO;
 
 namespace CodeStack.SwEx.AddIn.Helpers
 {
-    internal static class RegistrationHelper
+    internal class RegistrationHelper
     {
         private const string ADDIN_REG_KEY_TEMPLATE = @"SOFTWARE\SolidWorks\Addins\{{{0}}}";
         private const string ADDIN_STARTUP_REG_KEY_TEMPLATE = @"Software\SolidWorks\AddInsStartup\{{{0}}}";
         private const string DESCRIPTION_REG_KEY_NAME = "Description";
         private const string TITLE_REG_KEY_NAME = "Title";
 
-        internal static bool Register(Type type)
+        private readonly ILogger m_Logger;
+
+        internal RegistrationHelper(ILogger logger)
+        {
+            m_Logger = logger;
+        }
+
+        internal bool Register(Type type)
         {
             try
             {
-                Trace.Log($"Registering add-in (is x64 = {Is64BitProcess})");
+                m_Logger.Log($"Registering add-in (is x64 = {Is64BitProcess})");
 
                 //Visual Studio is usually a x32 process and using the 'Register for COM Interops'
                 //option will only register the dll in x32 environment
                 //Extending the behavior to force register in x64 environment
                 if (!Is64BitProcess)
                 {
-                    Trace.Log("Invoking 64-bit registration");
+                    m_Logger.Log("Invoking 64-bit registration");
                     return RegisterAssembly(type);
                 }
                 
@@ -44,20 +52,20 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
             catch (Exception ex)
             {
-                Trace.Log("Error while registering the addin: " + ex.Message);
+                m_Logger.Log(ex);
                 return false;
             }
         }
 
-        internal static bool Unregister(Type type)
+        internal bool Unregister(Type type)
         {
             try
             {
-                Trace.Log($"Unregistering add-in (is x64 = {Is64BitProcess})");
+                m_Logger.Log($"Unregistering add-in (is x64 = {Is64BitProcess})");
 
                 if (!Is64BitProcess)
                 {
-                    Trace.Log("Invoking 64-bit unregistration");
+                    m_Logger.Log("Invoking 64-bit unregistration");
                     return UnregisterAssembly(type);
                 }
                 
@@ -67,22 +75,22 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
             catch (Exception ex)
             {
-                Trace.Log("Error while unregistering the addin: " + ex.Message);
+                m_Logger.Log(ex);
                 return false;
             }
         }
 
-        private static bool RegisterAssembly(Type type)
+        private bool RegisterAssembly(Type type)
         {
             return RunRegAsm(type.Assembly.Location, true);
         }
 
-        private static bool UnregisterAssembly(Type type)
+        private bool UnregisterAssembly(Type type)
         {
             return RunRegAsm(type.Assembly.Location, false);
         }
 
-        private static bool RunRegAsm(string dllPath, bool register)
+        private bool RunRegAsm(string dllPath, bool register)
         {
             var winDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
             var fw64 = @"Microsoft.NET\Framework64";
@@ -93,7 +101,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             var regAsmPath = Path.Combine(frameworkDir, "regasm.exe");
             var args = $"/codebase \"{dllPath}\"" + (register ? "" : " /u");
 
-            Trace.Log($"Invoking: \"{regAsmPath}\" {args}");
+            m_Logger.Log($"Invoking: \"{regAsmPath}\" {args}");
 
             var prcInfo = new ProcessStartInfo(regAsmPath, args)
             {
@@ -108,13 +116,13 @@ namespace CodeStack.SwEx.AddIn.Helpers
             while (!prc.StandardOutput.EndOfStream)
             {
                 var line = prc.StandardOutput.ReadLine();
-                Trace.Log(line);
+                m_Logger.Log(line);
             }
 
             return prc.ExitCode == 0;
         }
 
-        private static void RegisterAddIn(Type type)
+        private void RegisterAddIn(Type type)
         {
             string title = "";
             string desc = "";
@@ -146,7 +154,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
                 string.Format(ADDIN_REG_KEY_TEMPLATE, type.GUID));
             addInKey.SetValue(null, 0);
 
-            Trace.Log($"Created HKLM\\{addInKey}");
+            m_Logger.Log($"Created HKLM\\{addInKey}");
 
             addInKey.SetValue(DESCRIPTION_REG_KEY_NAME, desc);
             addInKey.SetValue(TITLE_REG_KEY_NAME, title);
@@ -155,10 +163,10 @@ namespace CodeStack.SwEx.AddIn.Helpers
                 string.Format(ADDIN_STARTUP_REG_KEY_TEMPLATE, type.GUID));
             addInStartupKey.SetValue(null, Convert.ToInt32(loadAtStartup), RegistryValueKind.DWord);
 
-            Trace.Log($"Created HKCU\\{addInStartupKey}");
+            m_Logger.Log($"Created HKCU\\{addInStartupKey}");
         }
 
-        private static void UnregisterAddIn(Type type)
+        private void UnregisterAddIn(Type type)
         {
             var addInKey = string.Format(ADDIN_REG_KEY_TEMPLATE, type.GUID);
             var addInStartupKey = string.Format(ADDIN_STARTUP_REG_KEY_TEMPLATE, type.GUID);
@@ -166,13 +174,13 @@ namespace CodeStack.SwEx.AddIn.Helpers
             if (Registry.LocalMachine.OpenSubKey(addInKey, false) != null)
             {
                 Registry.LocalMachine.DeleteSubKey(addInKey);
-                Trace.Log($"Deleting: HKLM\\{addInKey}");
+                m_Logger.Log($"Deleting: HKLM\\{addInKey}");
             }
 
             if (Registry.CurrentUser.OpenSubKey(addInStartupKey, false) != null)
             {
                 Registry.CurrentUser.DeleteSubKey(addInStartupKey);
-                Trace.Log($"Deleting: HKCU\\{addInStartupKey}");
+                m_Logger.Log($"Deleting: HKCU\\{addInStartupKey}");
             }
         }
         
