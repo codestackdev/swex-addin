@@ -26,5 +26,6 @@
     </Topic>
     <Topic id="v0-3-1" visible="True" title="Version 0.3.1" />
     <Topic id="v0-4-0" visible="True" isSelected="true" title="Version 0.4.0" />
+    <Topic id="v0-4-1" visible="True" title="Version 0.4.1" />
   </Topic>
 </Topics>

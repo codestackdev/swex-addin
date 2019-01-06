@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CodeStack.SwEx.AddIn</id>
-    <version>0.4.0</version>
+    <version>0.4.1</version>
     <title>Development tools for SOLIDWORKS add-ins</title>
     <authors>CodeStack</authors>
     <owners>CodeStack</owners>
@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Tools for development of SOLIDWORKS add-ins</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright © CodeStack 2018</copyright>
+    <copyright>Copyright © CodeStack 2019</copyright>
     <tags>SOLIDWORKS addin commands</tags>
   </metadata>
 </package>
