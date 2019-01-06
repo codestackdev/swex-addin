@@ -63,7 +63,7 @@
       </Filter>
     </ApiFilter>
     <CopyrightHref>https://www.codestack.net</CopyrightHref>
-    <CopyrightText>Copyright &amp;#169%3b CodeStack  2018</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b CodeStack  2019</CopyrightText>
     <FeedbackEMailAddress>codestack.net%40gmail.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>Contact Us</FeedbackEMailLinkText>
     <NamespaceSummaries>
@@ -108,6 +108,7 @@
     <None Include="Content\VersionHistory\v0.3.0.aml" />
     <None Include="Content\VersionHistory\v0.3.1.aml" />
     <None Include="Content\VersionHistory\v0.4.0.aml" />
+    <None Include="Content\VersionHistory\v0.4.1.aml" />
     <None Include="favicon.ico" />
     <Content Include="icons\favicon.ico" />
   </ItemGroup>

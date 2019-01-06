@@ -390,13 +390,28 @@ namespace CodeStack.SwEx.AddIn
         {
             var mainIcon = cmdBar.Icon;
 
-            var iconList = cmdBar.Commands.Select(c => c.Icon).ToArray();
+            CommandGroupIcon[] iconList = null;
+
+            if (cmdBar.Commands != null)
+            {
+                iconList = cmdBar.Commands.Select(c => c.Icon).ToArray();
+            }
+
+            //NOTE: if commands are not used, main icon will fail if toolbar commands image list is not specified, so it is required to specify it explicitly
 
             if (App.SupportsHighResIcons())
             {
                 var iconsList = iconsConv.ConvertIcon(mainIcon, true);
                 cmdGroup.MainIconList = iconsList;
-                cmdGroup.IconList = iconsConv.ConvertIconsGroup(iconList, true);
+
+                if (iconList != null && iconList.Any())
+                {
+                    cmdGroup.IconList = iconsConv.ConvertIconsGroup(iconList, true);
+                }
+                else
+                {
+                    cmdGroup.IconList = iconsList;
+                }
             }
             else
             {
@@ -408,12 +423,20 @@ namespace CodeStack.SwEx.AddIn
                 cmdGroup.SmallMainIcon = smallIcon;
                 cmdGroup.LargeMainIcon = largeIcon;
 
-                var iconListPath = iconsConv.ConvertIconsGroup(iconList, true);
-                var smallIconList = iconListPath[0];
-                var largeIconList = iconListPath[1];
+                if (iconList != null && iconList.Any())
+                {
+                    var iconListPath = iconsConv.ConvertIconsGroup(iconList, true);
+                    var smallIconList = iconListPath[0];
+                    var largeIconList = iconListPath[1];
 
-                cmdGroup.SmallIconList = smallIconList;
-                cmdGroup.LargeIconList = largeIconList;
+                    cmdGroup.SmallIconList = smallIconList;
+                    cmdGroup.LargeIconList = largeIconList;
+                }
+                else
+                {
+                    cmdGroup.SmallIconList = smallIcon;
+                    cmdGroup.LargeIconList = largeIcon;
+                }
             }
         }
 
