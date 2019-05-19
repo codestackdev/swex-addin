@@ -16,6 +16,7 @@ using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using CodeStack.SwEx.AddIn.Base;
 using System.Xml.Serialization;
+using CodeStack.SwEx.Common.Attributes;
 
 namespace CodeStack.SwEx.AddIn.Example
 {
@@ -25,19 +26,28 @@ namespace CodeStack.SwEx.AddIn.Example
     [CommandGroupInfo(0)]
     public enum Commands_e
     {
-        [Common.Attributes.Title("Command1")]
+        [Title("Command One")]
         [Description("Sample Command 1")]
-        [Common.Attributes.Icon(typeof(Resources), nameof(Resources.command1_icon))]
+        [Icon(typeof(Resources), nameof(Resources.command1_icon))]
         [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
         Command1,
 
-        [Common.Attributes.Title("Command 2")]
+        [Title("Command Two")]
         [Description("Sample Command2")]
         [CommandIcon(typeof(Resources), nameof(Resources.command2_icon), nameof(Resources.command2_icon))]
         [CommandItemInfo(true, true, swWorkspaceTypes_e.All, true)]
         Command2,
 
         Command3,
+    }
+
+    public enum TaskPaneCommands_e
+    {
+        [Title("Task Pane Command 1")]
+        [Icon(typeof(Resources), nameof(Resources.command1_icon))]
+        Command1,
+
+        Command2
     }
 
     public class SimpleDocHandler : DocumentHandler
@@ -116,7 +126,7 @@ namespace CodeStack.SwEx.AddIn.Example
                 {
                     using (var subStorage = storageHandler.Storage.TryOpenStorage(path[1], false))
                     {
-                        foreach (var subStreamName in subStorage.EnumSubStreams())
+                        foreach (var subStreamName in subStorage.EnumSubStreamNames())
                         {
                             using (var str = subStorage.TryOpenStream(subStreamName, false))
                             {
@@ -187,6 +197,9 @@ namespace CodeStack.SwEx.AddIn.Example
 
             m_DocsHandler = CreateDocumentsHandler<SimpleDocHandler>();
 
+            TaskPaneControl ctrl;
+            var taskPaneView = CreateTaskPane<TaskPaneControl, TaskPaneCommands_e>(OnTaskPaneCommandClick, out ctrl);
+
             return true;
         }
 
@@ -209,6 +222,20 @@ namespace CodeStack.SwEx.AddIn.Example
 
                 case Commands_e.Command3:
                     App.SendMsgToUser("Command3 clicked!");
+                    break;
+            }
+        }
+
+        private void OnTaskPaneCommandClick(TaskPaneCommands_e cmd)
+        {
+            switch (cmd)
+            {
+                case TaskPaneCommands_e.Command1:
+                    App.SendMsgToUser("TaskPane Command1 clicked!");
+                    break;
+
+                case TaskPaneCommands_e.Command2:
+                    App.SendMsgToUser("TaskPane Command2 clicked!");
                     break;
             }
         }

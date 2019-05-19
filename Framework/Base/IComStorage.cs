@@ -10,7 +10,7 @@ namespace CodeStack.SwEx.AddIn.Base
         IStorage Storage { get; }
         IComStorage TryOpenStorage(string storageName, bool createIfNotExist);
         ComStream TryOpenStream(string streamName, bool createIfNotExist);
-        IEnumerable<string> EnumSubStreams();
-        IEnumerable<string> EnumSubStorages();
+        IEnumerable<string> EnumSubStreamNames();
+        IEnumerable<string> EnumSubStorageNames();
     }
 }

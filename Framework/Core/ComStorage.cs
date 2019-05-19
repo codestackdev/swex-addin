@@ -156,14 +156,14 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
-        public IEnumerable<string> EnumSubStreams()
+        public IEnumerable<string> EnumSubStreamNames()
         {
             return EnumElements()
                 .Where(e => e.type == (int)STGTY.STGTY_STREAM)
                 .Select(e => e.pwcsName);
         }
 
-        public IEnumerable<string> EnumSubStorages()
+        public IEnumerable<string> EnumSubStorageNames()
         {
             return EnumElements()
                 .Where(e => e.type == (int)STGTY.STGTY_STORAGE)

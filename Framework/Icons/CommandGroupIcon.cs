@@ -14,7 +14,7 @@ namespace CodeStack.SwEx.AddIn.Icons
         private static readonly Color m_CommandTransparencyKey
             = Color.FromArgb(192, 192, 192);
 
-        public Color TransparencyKey
+        public virtual Color TransparencyKey
         {
             get
             {

@@ -1,5 +1,6 @@
 ﻿using CodeStack.SwEx.AddIn.Attributes;
 using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;
 using CodeStack.SwEx.AddIn.Properties;
 using CodeStack.SwEx.Common.Reflection;
@@ -127,17 +128,10 @@ namespace CodeStack.SwEx.AddIn.Core
                 Tooltip = cmd.ToString();
             }
 
-            if (!cmdEnum.TryGetAttribute<CommandIconAttribute>(a => Icon = a.Icon))
-            {
-                var icon = cmdEnum.TryGetAttribute<Common.Attributes.IconAttribute>()?.Icon;
-
-                if (icon == null)
-                {
-                    icon = Resources.swex_addin_default;
-                }
-
-                Icon = new MasterIcon(icon);
-            }
+            Icon = DisplayInfoExtractor.ExtractCommandDisplayIcon<CommandIconAttribute, CommandGroupIcon>(
+                cmdEnum,
+                i => new MasterIcon(i),
+                a => a.Icon);
         }
     }
 }

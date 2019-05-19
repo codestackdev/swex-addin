@@ -64,6 +64,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -75,6 +76,7 @@
     <Compile Include="Attributes\CommandGroupInfoAttribute.cs" />
     <Compile Include="Attributes\CommandItemInfoAttribute.cs" />
     <Compile Include="Attributes\CommandIconAttribute.cs" />
+    <Compile Include="Attributes\TaskPaneIconAttribute.cs" />
     <Compile Include="Base\ICommandSpec.cs" />
     <Compile Include="Base\ICommandGroupSpec.cs" />
     <Compile Include="Base\ICommandBaseSpec.cs" />
@@ -101,9 +103,13 @@
     <Compile Include="Exceptions\GroupIdAlreadyExistsException.cs" />
     <Compile Include="Exceptions\InvalidMenuToolbarOptionsException.cs" />
     <Compile Include="Extensions\ModelDocExtension.cs" />
+    <Compile Include="Helpers\DisplayInfoExtractor.cs" />
     <Compile Include="Helpers\DocumentHandlerWrapper.cs" />
     <Compile Include="Helpers\RegistrationHelper.cs" />
+    <Compile Include="Helpers\TaskPaneHandler.cs" />
     <Compile Include="Icons\CommandGroupIcon.cs" />
+    <Compile Include="Icons\TaskPaneHighResIcon.cs" />
+    <Compile Include="Icons\TaskPaneMasterIcon.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

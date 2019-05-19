@@ -18,7 +18,7 @@ namespace CodeStack.SwEx.AddIn.Icons
         private readonly Image m_Size16x16;
         private readonly Image m_Size24x24;
 
-        public BasicIcon(Image size16x16, Image size24x24)
+        internal BasicIcon(Image size16x16, Image size24x24)
         {
             m_Size16x16 = size16x16;
             m_Size24x24 = size24x24;
