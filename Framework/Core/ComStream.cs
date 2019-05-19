@@ -11,6 +11,14 @@ namespace CodeStack.SwEx.AddIn.Core
 
         private bool m_IsWritable;
 
+        public IStream Stream
+        {
+            get
+            {
+                return m_ComStream;
+            }
+        }
+
         public override bool CanRead
         {
             get
@@ -83,26 +91,10 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
-        //public unsafe override int Read(byte[] buffer, int offset, int count)
-        //{
-        //    if (offset != 0)
-        //    {
-        //        throw new NotSupportedException("Offset is not supported");
-        //    }
-
-        //    int bytesRead;
-
-        //    var address = new IntPtr(&bytesRead);
-
-        //    m_ComStream.Read(buffer, count, address);
-
-        //    return bytesRead;
-        //}
-
         public override int Read(byte[] buffer, int offset, int count)
         {
             int bytesRead = 0;
-            var boxBytesRead = bytesRead;
+            object boxBytesRead = bytesRead; //must be boxed otherwise - will fail
             var hObject = default(System.Runtime.InteropServices.GCHandle);
 
             try
@@ -136,21 +128,10 @@ namespace CodeStack.SwEx.AddIn.Core
             return bytesRead;
         }
 
-        //public unsafe override long Seek(long offset, SeekOrigin origin)
-        //{
-        //    long position = 0;
-
-        //    var address = new IntPtr(&position);
-
-        //    m_ComStream.Seek(offset, (int)origin, address);
-
-        //    return position;
-        //}
-
         public override long Seek(long offset, SeekOrigin origin)
         {
             long curPosition = 0;
-            var boxCurPosition = curPosition;
+            var boxCurPosition = curPosition; //must be boxed otherwise - will fail
             var hObject = default(System.Runtime.InteropServices.GCHandle);
 
             try
@@ -173,7 +154,6 @@ namespace CodeStack.SwEx.AddIn.Core
 
             return curPosition;
         }
-
 
         public override void SetLength(long value)
         {

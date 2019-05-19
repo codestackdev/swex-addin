@@ -72,5 +72,8 @@ namespace CodeStack.SwEx.AddIn.Base
             swSelectType_e contextMenuSelectType = swSelectType_e.swSelEVERYTHING,
             EnableMethodDelegate<TCmdEnum> enable = null)
             where TCmdEnum : IComparable, IFormattable, IConvertible;
+
+        IDocumentsHandler CreateDocumentsHandler<TDocHandler>()
+            where TDocHandler : IDocumentHandler, new();
     }
 }

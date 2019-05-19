@@ -121,7 +121,7 @@ namespace CodeStack.SwEx.AddIn
 
                 return OnConnect();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Log(ex);
                 throw;
@@ -215,7 +215,7 @@ namespace CodeStack.SwEx.AddIn
 
                 return res;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Log(ex);
                 throw;
@@ -275,6 +275,12 @@ namespace CodeStack.SwEx.AddIn
         {
             return AddCommandGroupOrContextMenu(
                cmdBar, true, contextMenuSelectType);
+        }
+        
+        public IDocumentsHandler CreateDocumentsHandler<TDocHandler>()
+            where TDocHandler : IDocumentHandler, new()
+        {
+            return new DocumentsHandler<TDocHandler>(App, m_Logger);
         }
 
         private int GetNextAvailableGroupId()

@@ -82,7 +82,17 @@ namespace CodeStack.SwEx.AddIn.Core
 
     #endregion
 
-    public class ComStorage : IDisposable
+    public interface IComStorage : IDisposable
+    {
+        IStorage Storage { get; }
+        IStorage OpenStorage(string storageName, STGM mode = STGM.STGM_SHARE_EXCLUSIVE);
+        IStream OpenStream(string streamName, STGM mode = STGM.STGM_SHARE_EXCLUSIVE);
+        IStream CreateStream(string streamName);
+        IStorage CreateStorage(string streamName);
+        IEnumerable<System.Runtime.InteropServices.ComTypes.STATSTG> EnumElements();
+    }
+
+    public class ComStorage : IComStorage
     {
         [DllImport("ole32.dll")]
         public static extern int StgOpenStorage(
@@ -95,6 +105,14 @@ namespace CodeStack.SwEx.AddIn.Core
 
         private IStorage m_Storage;
         private bool m_IsWritable;
+
+        public IStorage Storage
+        {
+            get
+            {
+                return m_Storage;
+            }
+        }
 
         public ComStorage(IStorage storage, bool writable)
         {
