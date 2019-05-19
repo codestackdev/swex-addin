@@ -33,6 +33,8 @@ namespace CodeStack.SwEx.AddIn.Core
         
         public void Dispose()
         {
+            Storage?.Dispose();
+
             if (!m_Model.Extension.IRelease3rdPartyStorageStore(m_Name))
             {
                 if (Storage != null)//returns false when storage didn't exist on read

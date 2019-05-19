@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CodeStack.SwEx.AddIn.Base;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 
@@ -82,30 +84,11 @@ namespace CodeStack.SwEx.AddIn.Core
 
     #endregion
 
-    public interface IComStorage : IDisposable
-    {
-        IStorage Storage { get; }
-        IStorage OpenStorage(string storageName, STGM mode = STGM.STGM_SHARE_EXCLUSIVE);
-        IStream OpenStream(string streamName, STGM mode = STGM.STGM_SHARE_EXCLUSIVE);
-        IStream CreateStream(string streamName);
-        IStorage CreateStorage(string streamName);
-        IEnumerable<System.Runtime.InteropServices.ComTypes.STATSTG> EnumElements();
-    }
-
     public class ComStorage : IComStorage
     {
-        [DllImport("ole32.dll")]
-        public static extern int StgOpenStorage(
-            [MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-            IStorage pstgPriority,
-            int grfMode,
-            IntPtr snbExclude,
-            uint reserved,
-            out IStorage ppstgOpen);
-
         private IStorage m_Storage;
         private bool m_IsWritable;
-
+        
         public IStorage Storage
         {
             get
@@ -125,27 +108,69 @@ namespace CodeStack.SwEx.AddIn.Core
             m_Storage = storage;
         }
 
-        public IStorage OpenStorage(string storageName, STGM mode = STGM.STGM_SHARE_EXCLUSIVE)
+        public IComStorage TryOpenStorage(string storageName, bool createIfNotExist)
         {
-            IStorage storage;
+            try
+            {
+                IStorage storage;
 
-            m_Storage.OpenStorage(storageName, null,
-                (uint)mode, IntPtr.Zero, 0, out storage);
+                m_Storage.OpenStorage(storageName, null,
+                    (uint)Mode, IntPtr.Zero, 0, out storage);
 
-            return storage;
+                return new ComStorage(storage, m_IsWritable);
+            }
+            catch
+            {
+                if (createIfNotExist)
+                {
+                    return CreateStorage(storageName);
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
 
-        public IStream OpenStream(string streamName, STGM mode = STGM.STGM_SHARE_EXCLUSIVE)
+        public ComStream TryOpenStream(string streamName, bool createIfNotExist)
         {
-            IStream stream = null;
+            try
+            {
+                IStream stream = null;
 
-            m_Storage.OpenStream(streamName,
-                IntPtr.Zero, (uint)mode, 0, out stream);
+                m_Storage.OpenStream(streamName,
+                    IntPtr.Zero, (uint)Mode, 0, out stream);
 
-            return stream;
+                return new ComStream(stream, m_IsWritable);
+            }
+            catch
+            {
+                if (createIfNotExist)
+                {
+                    return CreateStream(streamName);
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
 
-        public IStream CreateStream(string streamName)
+        public IEnumerable<string> EnumSubStreams()
+        {
+            return EnumElements()
+                .Where(e => e.type == (int)STGTY.STGTY_STREAM)
+                .Select(e => e.pwcsName);
+        }
+
+        public IEnumerable<string> EnumSubStorages()
+        {
+            return EnumElements()
+                .Where(e => e.type == (int)STGTY.STGTY_STORAGE)
+                .Select(e => e.pwcsName);
+        }
+        
+        private ComStream CreateStream(string streamName)
         {
             IStream stream = null;
 
@@ -153,26 +178,26 @@ namespace CodeStack.SwEx.AddIn.Core
                 (uint)STGM.STGM_CREATE | (uint)STGM.STGM_SHARE_EXCLUSIVE | (uint)STGM.STGM_WRITE,
                 0, 0, out stream);
 
-            return stream;
+            return new ComStream(stream, m_IsWritable);
         }
 
-        public IStorage CreateStorage(string streamName)
+        private IComStorage CreateStorage(string storageName)
         {
             IStorage storage = null;
 
-            m_Storage.CreateStorage(streamName,
+            m_Storage.CreateStorage(storageName,
                 (uint)STGM.STGM_CREATE | (uint)STGM.STGM_SHARE_EXCLUSIVE | (uint)STGM.STGM_WRITE,
                 0, 0, out storage);
 
-            return storage;
+            return new ComStorage(storage, m_IsWritable);
         }
 
-        public IEnumerable<System.Runtime.InteropServices.ComTypes.STATSTG> EnumElements()
+        private IEnumerable<System.Runtime.InteropServices.ComTypes.STATSTG> EnumElements()
         {
             IEnumSTATSTG ssenum = null;
 
             m_Storage.EnumElements(0, IntPtr.Zero, 0, out ssenum);
-
+            
             var ssstruct = new System.Runtime.InteropServices.ComTypes.STATSTG[1];
 
             uint numReturned;
@@ -200,6 +225,21 @@ namespace CodeStack.SwEx.AddIn.Core
                 Marshal.ReleaseComObject(m_Storage);
                 m_Storage = null;
                 GC.SuppressFinalize(this);
+            }
+        }
+
+        private STGM Mode
+        {
+            get
+            {
+                var mode = STGM.STGM_SHARE_EXCLUSIVE;
+
+                if (m_IsWritable)
+                {
+                    mode |= STGM.STGM_READWRITE;
+                }
+
+                return mode;
             }
         }
 

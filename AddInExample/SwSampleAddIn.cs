@@ -49,7 +49,9 @@ namespace CodeStack.SwEx.AddIn.Example
         }
 
         private const string STREAM_NAME = "_CodeStackStream_";
-        private const string SUB_STORAGE_STREAM = "_CodeStackStorage1_\\SubStorage2\\Stream1";
+        private const string SUB_STORAGE_PATH = "_CodeStackStorage1_\\SubStorage2";
+        private const string TIME_STAMP_STREAM_NAME = "TimeStampStream";
+        private const string USER_NAME_STREAM_NAME = "UserName";
 
         private RevData m_RevData;
 
@@ -106,36 +108,62 @@ namespace CodeStack.SwEx.AddIn.Example
 
         public override void OnLoadFromStorageStore()
         {
-            using (var streamHandler = Model.Access3rdPartyStream(SUB_STORAGE_STREAM, false))
+            var path = SUB_STORAGE_PATH.Split('\\');
+
+            using (var storageHandler = Model.Access3rdPartyStorageStore(path[0], false))
             {
-                if (streamHandler.Stream != null)
+                if (storageHandler.Storage != null)
                 {
-                    using (var str = streamHandler.Stream)
+                    using (var subStorage = storageHandler.Storage.TryOpenStorage(path[1], false))
                     {
-                        var buffer = new byte[str.Length];
+                        foreach (var subStreamName in subStorage.EnumSubStreams())
+                        {
+                            using (var str = subStorage.TryOpenStream(subStreamName, false))
+                            {
+                                if (str != null)
+                                {
+                                    var buffer = new byte[str.Length];
 
-                        str.Read(buffer, 0, buffer.Length);
+                                    str.Read(buffer, 0, buffer.Length);
 
-                        var timeStamp = Encoding.UTF8.GetString(buffer);
+                                    var timeStamp = Encoding.UTF8.GetString(buffer);
 
-                        ShowMessage($"Timestamp of {Model.GetTitle()}: {timeStamp}");
+                                    ShowMessage($"Metadata stamp of {Model.GetTitle()}: {timeStamp}");
+                                }
+                                else
+                                {
+                                    ShowMessage($"No metadata stamp stream in {Model.GetTitle()}");
+                                }
+                            }
+                        }
                     }
                 }
                 else
                 {
-                    ShowMessage($"No timestamp in {Model.GetTitle()}");
+                    ShowMessage($"No metadata storage in {Model.GetTitle()}");
                 }
             }
         }
 
         public override void OnSaveToStorageStore()
         {
-            using (var streamHandler = Model.Access3rdPartyStream(SUB_STORAGE_STREAM, true))
+            var path = SUB_STORAGE_PATH.Split('\\');
+
+            using (var storageHandler = Model.Access3rdPartyStorageStore(path[0], true))
             {
-                using (var str = streamHandler.Stream)
+                using (var subStorage = storageHandler.Storage.TryOpenStorage(path[1], true))
                 {
-                    var buffer = Encoding.UTF8.GetBytes(DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss"));
-                    str.Write(buffer, 0, buffer.Length);
+                    using (var str = subStorage.TryOpenStream(TIME_STAMP_STREAM_NAME, true))
+                    {
+                        var buffer = Encoding.UTF8.GetBytes(DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss"));
+                        str.Write(buffer, 0, buffer.Length);
+                    }
+
+                    using (var str = subStorage.TryOpenStream(USER_NAME_STREAM_NAME, true))
+                    {
+                        var buffer = Encoding.UTF8.GetBytes(System.Environment.UserName);
+                        str.Write(buffer, 0, buffer.Length);
+                    }
                 }
             }
         }

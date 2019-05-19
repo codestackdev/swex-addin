@@ -78,6 +78,7 @@
     <Compile Include="Base\ICommandSpec.cs" />
     <Compile Include="Base\ICommandGroupSpec.cs" />
     <Compile Include="Base\ICommandBaseSpec.cs" />
+    <Compile Include="Base\IComStorage.cs" />
     <Compile Include="Base\IDocumentHandler.cs" />
     <Compile Include="Base\IDocumentsHandler.cs" />
     <Compile Include="Base\ISwAddInEx.cs" />
