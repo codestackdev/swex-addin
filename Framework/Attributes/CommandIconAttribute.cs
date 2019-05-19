@@ -14,27 +14,6 @@ using System.Drawing;
 
 namespace CodeStack.SwEx.AddIn.Attributes
 {
-    [Obsolete]
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public class IconAttribute : CommandIconAttribute
-    {
-        public IconAttribute(Type resType, string masterResName)
-            : base(resType, masterResName)
-        {
-        }
-
-        public IconAttribute(Type resType, string size16x16ResName, string size24x24ResName)
-            : base(resType, size16x16ResName, size24x24ResName)
-        {
-        }
-
-        public IconAttribute(Type resType, string size20x20ResName, string size32x32ResName,
-            string size40x40ResName, string size64x64ResName, string size96x96ResName, string size128x128ResName)
-            : base(resType, size20x20ResName, size32x32ResName, size40x40ResName, size64x64ResName, size96x96ResName, size128x128ResName)
-        {
-        }
-    }
-
     /// <summary>
     /// Loads the icon information from the resources
     /// </summary>

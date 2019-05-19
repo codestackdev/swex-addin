@@ -12,7 +12,6 @@ using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Exceptions;
 using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;
-using CodeStack.SwEx.AddIn.Properties;
 using CodeStack.SwEx.Common.Diagnostics;
 using CodeStack.SwEx.Common.Icons;
 using CodeStack.SwEx.Common.Reflection;
@@ -70,24 +69,6 @@ namespace CodeStack.SwEx.AddIn
         #endregion
 
         /// <summary>
-        /// Deprecated. Use App property instead
-        /// </summary>
-        [Obsolete("Deprecated. Use App property instead")]
-        protected ISldWorks m_App = null;
-
-        /// <summary>
-        /// Deprecated. Use CmdMgr property instead
-        /// </summary>
-        [Obsolete("Deprecated. Use CmdMgr property instead")]
-        protected ICommandManager m_CmdMgr = null;
-
-        /// <summary>
-        /// Deprecated. Use AddInCookie property instead
-        /// </summary>
-        [Obsolete("Deprecated. Use AddInCookie property instead")]
-        protected int m_AddInCookie = 0;
-
-        /// <summary>
         /// Pointer to SOLIDWORKS application
         /// </summary>
         protected ISldWorks App { get; private set; }
@@ -137,14 +118,6 @@ namespace CodeStack.SwEx.AddIn
                 App.SetAddinCallbackInfo(0, this, AddInCookie);
 
                 CmdMgr = App.GetCommandManager(AddInCookie);
-
-                //TODO: legacy - to be removed
-#pragma warning disable CS0618
-                m_App = App;
-                m_CmdMgr = CmdMgr;
-                m_AddInCookie = AddInCookie;
-#pragma warning restore CS0618
-                //----
 
                 return OnConnect();
             }

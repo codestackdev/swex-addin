@@ -77,17 +77,22 @@
     <Compile Include="Base\ICommandSpec.cs" />
     <Compile Include="Base\ICommandGroupSpec.cs" />
     <Compile Include="Base\ICommandBaseSpec.cs" />
+    <Compile Include="Base\IEventsManager.cs" />
     <Compile Include="Base\ISwAddInEx.cs" />
     <Compile Include="Core\CommandSpec.cs" />
     <Compile Include="Core\CommandGroupSpec.cs" />
+    <Compile Include="Core\ComStorage.cs" />
+    <Compile Include="Core\ComStream.cs" />
     <Compile Include="Core\EnumCommandSpec.cs" />
     <Compile Include="Core\EnumCommandGroupSpec.cs" />
+    <Compile Include="Core\EventsManager.cs" />
     <Compile Include="Delegates\EnableMethodDelegate.cs" />
     <Compile Include="Enums\CommandItemEnableState_e.cs" />
     <Compile Include="Enums\swWorkspaceTypes_e.cs" />
     <Compile Include="Exceptions\CallbackNotSpecifiedException.cs" />
     <Compile Include="Exceptions\GroupIdAlreadyExistsException.cs" />
     <Compile Include="Exceptions\InvalidMenuToolbarOptionsException.cs" />
+    <Compile Include="Extensions\ModelDocExtension.cs" />
     <Compile Include="Helpers\RegistrationHelper.cs" />
     <Compile Include="Icons\CommandGroupIcon.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -101,7 +106,6 @@
     <Compile Include="Icons\HighResIcon.cs" />
     <Compile Include="Icons\MasterIcon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Attributes\TitleAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
