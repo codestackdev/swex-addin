@@ -1,11 +1,12 @@
-﻿using CodeStack.SwEx.AddIn.Base;
+﻿//**********************
+//SwEx.AddIn - development tools for SOLIDWORKS add-ins
+//Copyright(C) 2019 www.codestack.net
+//License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
+//Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
+//**********************
+
+using CodeStack.SwEx.AddIn.Base;
 using CodeStack.SwEx.AddIn.Core;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 
 namespace SolidWorks.Interop.sldworks
 {
