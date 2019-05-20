@@ -23,6 +23,23 @@ namespace CodeStack.SwEx.AddIn.Core
         private readonly Dictionary<IModelDoc2, DocumentHandlerWrapper<TDocHandler>> m_Documents;
         private readonly ILogger m_Logger;
 
+        public TDocHandler this[IModelDoc2 model]
+        {
+            get
+            {
+                DocumentHandlerWrapper<TDocHandler> wrapper;
+
+                if (m_Documents.TryGetValue(model, out wrapper))
+                {
+                    return wrapper.Handler;
+                }
+                else
+                {
+                    throw new KeyNotFoundException("Specified model document is not registered");
+                }
+            }
+        }
+        
         internal DocumentsHandler(ISldWorks app, ILogger logger)
         {
             m_App = app as SldWorks;

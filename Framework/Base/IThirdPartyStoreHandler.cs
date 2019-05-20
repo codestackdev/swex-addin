@@ -9,8 +9,14 @@ using System;
 
 namespace CodeStack.SwEx.AddIn.Base
 {
+    /// <summary>
+    /// Disposable handler for SOLIDWORKS model 3rd party storage store
+    /// </summary>
     public interface IThirdPartyStoreHandler : IDisposable
     {
+        /// <summary>
+        /// Underlying COM storage
+        /// </summary>
         IComStorage Storage { get; }
     }
 }

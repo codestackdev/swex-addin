@@ -9,8 +9,8 @@ using CodeStack.SwEx.Common.Attributes;
 using CodeStack.SwEx.Common.Base;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
-using SolidWorks.Interop.swpublished;
 using System;
+using System.Windows.Forms;
 
 namespace CodeStack.SwEx.AddIn.Base
 {
@@ -22,7 +22,7 @@ namespace CodeStack.SwEx.AddIn.Base
     {
         /// <summary>
         /// Overload to initialize the data. This method is called
-        /// from <see cref="ISwAddin.ConnectToSW(object, int)"/> method when the add-in loads
+        /// from <see cref="SolidWorks.Interop.swpublished.ISwAddin.ConnectToSW(object, int)"/> method when the add-in loads
         /// </summary>
         /// <returns>True if initialization is successful. Return false to stop loading the add-in
         /// (in this case add-in will be unchecked in the add-ins manager dialog)</returns>
@@ -47,7 +47,7 @@ namespace CodeStack.SwEx.AddIn.Base
         /// <param name="callback">Callback function for the commands</param>
         /// <param name="enable">Optional enable method for the commands.
         /// If this method is not used than command will be enabled according to the workspace
-        /// defined in the <see cref="CommandItemInfoAttribute.SupportedWorkspaces"/> for this command</param>
+        /// defined in the <see cref="Attributes.CommandItemInfoAttribute.SupportedWorkspaces"/> for this command</param>
         /// <returns>Newly created command group</returns>
         CommandGroup AddCommandGroup<TCmdEnum>(Action<TCmdEnum> callback,
             EnableMethodDelegate<TCmdEnum> enable = null)
@@ -61,7 +61,7 @@ namespace CodeStack.SwEx.AddIn.Base
         /// <param name="contextMenuSelectType">Selection type where the menu is enabled as defined in <see href="https://help.solidworks.com/2012/english/api/swconst/solidworks.interop.swconst~solidworks.interop.swconst.swselecttype_e.html">swSelectType_e</see></param>
         /// <param name="enable">Optional enable method for the commands.
         /// If this method is not used than command will be enabled according to the workspace
-        /// defined in the <see cref="CommandItemInfoAttribute.SupportedWorkspaces"/> for this command</param>
+        /// defined in the <see cref="Attributes.CommandItemInfoAttribute.SupportedWorkspaces"/> for this command</param>
         /// <returns>Newly created <see href="https://help.solidworks.com/2012/english/api/sldworksapi/SolidWorks.Interop.sldworks~SolidWorks.Interop.sldworks.ICommandGroup.html">CommandGroup</see></returns>
         /// <remarks>It is only possible to specify single selection group for the context menu.
         /// If it is required to enable the menu for multiple selection elements
@@ -72,7 +72,26 @@ namespace CodeStack.SwEx.AddIn.Base
             EnableMethodDelegate<TCmdEnum> enable = null)
             where TCmdEnum : IComparable, IFormattable, IConvertible;
 
+        /// <summary>
+        /// Creates document life cycle hander model
+        /// </summary>
+        /// <typeparam name="TDocHandler">Document handler wrapper</typeparam>
+        /// <returns>Documents handler instance</returns>
         IDocumentsHandler<TDocHandler> CreateDocumentsHandler<TDocHandler>()
             where TDocHandler : IDocumentHandler, new();
+
+        /// <summary>
+        /// Creates task pane control
+        /// </summary>
+        /// <typeparam name="TControl">Control type to host in task pane</typeparam>
+        /// <param name="ctrl">Instance of created control</param>
+        /// <returns>Task pane view</returns>
+        ITaskpaneView CreateTaskPane<TControl>(out TControl ctrl)
+            where TControl : UserControl, new();
+
+        ///<inheritdoc cref="CreateTaskPane{TControl}(out TControl)"/>
+        /// <typeparam name="TCmdEnum">Descriptor for commands in task pane. Use <see cref="Attributes.TaskPaneStandardButtonAttribute"/> to mark standard commands</typeparam>
+        /// <param name="cmdHandler">Handler of the commands</param>
+        ITaskpaneView CreateTaskPane<TControl, TCmdEnum>(Action<TCmdEnum> cmdHandler, out TControl ctrl);
     }
 }

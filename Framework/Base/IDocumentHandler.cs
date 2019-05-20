@@ -10,8 +10,16 @@ using System;
 
 namespace CodeStack.SwEx.AddIn.Base
 {
+    /// <summary>
+    /// Document handler to be used in <see cref="IDocumentsHandler{TDocHandler}"/> documents manager
+    /// </summary>
     public interface IDocumentHandler : IDisposable
     {
+        /// <summary>
+        /// Called when model document is initialized (created)
+        /// </summary>
+        /// <param name="app">Pointer to SOLIDWORKS application</param>
+        /// <param name="model">Pointer to this model document</param>
         void Init(ISldWorks app, IModelDoc2 model);
     }
 }

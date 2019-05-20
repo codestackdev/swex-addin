@@ -5,10 +5,23 @@
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
+using SolidWorks.Interop.sldworks;
+
 namespace CodeStack.SwEx.AddIn.Base
 {
+    /// <summary>
+    /// Manages the lifecycle of documents
+    /// </summary>
+    /// <typeparam name="TDocHandler">Custom document handler to wrap models</typeparam>
     public interface IDocumentsHandler<TDocHandler>
         where TDocHandler : IDocumentHandler, new()
     {
+        /// <summary>
+        /// Accesses the document handler by pointer to model
+        /// </summary>
+        /// <param name="model">Pointer to model</param>
+        /// <returns>Corresponding model handler</returns>
+        /// <exception cref="System.Collections.Generic.KeyNotFoundException"/>
+        TDocHandler this[IModelDoc2 model] { get; }
     }
 }

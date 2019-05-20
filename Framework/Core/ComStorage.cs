@@ -91,7 +91,7 @@ namespace CodeStack.SwEx.AddIn.Core
 
     #endregion
 
-    public class ComStorage : IComStorage
+    internal class ComStorage : IComStorage
     {
         private IStorage m_Storage;
         private bool m_IsWritable;

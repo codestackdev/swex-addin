@@ -36,6 +36,14 @@ namespace CodeStack.SwEx.AddIn.Helpers
             AttachEvents();
         }
 
+        internal TDocHandler Handler
+        {
+            get
+            {
+                return m_DocHandler;
+            }
+        }
+
         private void AttachEvents()
         {
             if (m_Model is PartDoc)

@@ -10,8 +10,14 @@ using System.IO;
 
 namespace CodeStack.SwEx.AddIn.Base
 {
+    /// <summary>
+    /// Disposable handler for SOLIDWORKS model 3rd party storage (stream)
+    /// </summary>
     public interface IThirdPartyStreamHandler : IDisposable
     {
+        /// <summary>
+        /// Underlying stream
+        /// </summary>
         Stream Stream { get; }
     }
 }
