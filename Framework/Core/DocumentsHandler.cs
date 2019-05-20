@@ -11,7 +11,7 @@ using System.Text;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
-    public class DocumentsHandler<TDocHandler> : IDocumentsHandler
+    public class DocumentsHandler<TDocHandler> : IDocumentsHandler<TDocHandler>
         where TDocHandler : IDocumentHandler, new()
     {
         private readonly SldWorks m_App;

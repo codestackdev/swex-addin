@@ -2,6 +2,7 @@
 using SolidWorks.Interop.sldworks;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -17,6 +18,8 @@ namespace CodeStack.SwEx.AddIn.Core
         private bool m_Is3rdPartyStreamLoaded;
         private bool m_Is3rdPartyStoreLoaded;
 
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void Init(ISldWorks app, IModelDoc2 model)
         {
             m_Is3rdPartyStreamLoaded = false;
@@ -52,7 +55,19 @@ namespace CodeStack.SwEx.AddIn.Core
             //as a workaround force call loading within the idle notification
             (App as SldWorks).OnIdleNotify += OnIdleNotify;
 
+            (App as SldWorks).ActiveModelDocChangeNotify += OnActiveModelDocChangeNotify;
+
             OnInit();
+        }
+
+        private int OnActiveModelDocChangeNotify()
+        {
+            if (App.ActiveDoc == Model)
+            {
+                OnActivate();
+            }
+
+            return S_OK;
         }
 
         private int OnIdleNotify()
@@ -67,6 +82,10 @@ namespace CodeStack.SwEx.AddIn.Core
         }
 
         public virtual void OnInit()
+        {
+        }
+
+        public virtual void OnActivate()
         {
         }
 
@@ -88,6 +107,8 @@ namespace CodeStack.SwEx.AddIn.Core
 
         public virtual void Dispose()
         {
+            (App as SldWorks).ActiveModelDocChangeNotify -= OnActiveModelDocChangeNotify;
+
             if (Model is PartDoc)
             {
                 (Model as PartDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -287,7 +288,7 @@ namespace CodeStack.SwEx.AddIn
                cmdBar, true, contextMenuSelectType);
         }
         
-        public IDocumentsHandler CreateDocumentsHandler<TDocHandler>()
+        public IDocumentsHandler<TDocHandler> CreateDocumentsHandler<TDocHandler>()
             where TDocHandler : IDocumentHandler, new()
         {
             return new DocumentsHandler<TDocHandler>(App, m_Logger);
@@ -306,12 +307,12 @@ namespace CodeStack.SwEx.AddIn
             var tooltip = "";
             CommandGroupIcon taskPaneIcon = null;
 
-            var getTaskPaneDisplayData = new Action<Type>(t => 
+            var getTaskPaneDisplayData = new Action<Type, bool>((t,d) => 
             {
                 if (taskPaneIcon == null)
                 {
                     taskPaneIcon = DisplayInfoExtractor.ExtractCommandDisplayIcon<TaskPaneIconAttribute, CommandGroupIcon>(
-                        t, i => new TaskPaneMasterIcon(i), a => a.Icon);
+                        t, i => new TaskPaneMasterIcon(i), a => a.Icon, d);
                 }
 
                 if (string.IsNullOrEmpty(tooltip))
@@ -322,17 +323,18 @@ namespace CodeStack.SwEx.AddIn
                     }
                 }
             });
-
-            getTaskPaneDisplayData.Invoke(typeof(TControl));
-
+            
             if (typeof(TCmdEnum) != typeof(EmptyTaskPaneCommands_e))
             {
-                //TODO: make so icon can be overriden
-                getTaskPaneDisplayData.Invoke(typeof(TCmdEnum));
+                getTaskPaneDisplayData.Invoke(typeof(TCmdEnum), false);
             }
+
+            getTaskPaneDisplayData.Invoke(typeof(TControl), true);
 
             ITaskpaneView taskPaneView = null;
             ITaskPaneHandler taskPaneHandler = null;
+
+            m_Logger.Log($"Creating task pane for {typeof(TControl).FullName} type");
 
             using (var iconConv = new IconsConverter())
             {
@@ -347,13 +349,10 @@ namespace CodeStack.SwEx.AddIn
                     taskPaneView = App.CreateTaskpaneView2(taskPaneIconImage, tooltip);
                 }
 
-                taskPaneHandler = new TaskPaneHandler<TCmdEnum>(App, taskPaneView, cmdHandler, iconConv);
+                taskPaneHandler = new TaskPaneHandler<TCmdEnum>(App, taskPaneView, cmdHandler, iconConv, m_Logger);
             }
-
-            bool isComVisible = false;
-            typeof(TControl).TryGetAttribute<ComVisibleAttribute>(a => isComVisible = a.Value);
-
-            if (isComVisible)
+            
+            if (IsComVisible(typeof(TControl)))
             {
                 var progId = typeof(TControl).GetProgId();
                 ctrl = taskPaneView.AddControl(progId, "") as TControl;
@@ -381,6 +380,37 @@ namespace CodeStack.SwEx.AddIn
             
             return taskPaneView;
         }
+
+        //-common
+        private bool IsComVisible(Type type)
+        {
+            bool isComVisible = false;
+
+            if (!type.TryGetAttribute<ComVisibleAttribute>(a => isComVisible = a.Value))
+            {
+                TryGetAttribute<ComVisibleAttribute>(type.Assembly, a => isComVisible = a.Value);
+            }
+
+            return isComVisible;
+        }
+
+        public static bool TryGetAttribute<TAtt>(Assembly assm, Action<TAtt> attProc)
+            where TAtt : System.Attribute
+        {
+            var atts = assm.GetCustomAttributes(typeof(TAtt), true);
+
+            if (atts != null && atts.Any())
+            {
+                var att = atts.First() as TAtt;
+                attProc?.Invoke(att);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        //
 
         private void OnTaskPaneHandlerDisposed(ITaskPaneHandler handler)
         {

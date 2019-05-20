@@ -189,7 +189,7 @@ namespace CodeStack.SwEx.AddIn.Example
     [AutoRegister("Sample AddInEx", "Sample AddInEx", true)]
     public class SwSampleAddIn : SwAddInEx
     {
-        private IDocumentsHandler m_DocsHandler;
+        private IDocumentsHandler<SimpleDocHandler> m_DocsHandler;
 
         public override bool OnConnect()
         {

@@ -6,7 +6,8 @@ using System.Text;
 
 namespace CodeStack.SwEx.AddIn.Base
 {
-    public interface IDocumentsHandler
+    public interface IDocumentsHandler<TDocHandler>
+        where TDocHandler : IDocumentHandler, new()
     {
     }
 }

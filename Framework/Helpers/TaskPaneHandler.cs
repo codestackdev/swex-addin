@@ -1,5 +1,6 @@
 ﻿using CodeStack.SwEx.AddIn.Attributes;
 using CodeStack.SwEx.AddIn.Icons;
+using CodeStack.SwEx.Common.Diagnostics;
 using CodeStack.SwEx.Common.Icons;
 using CodeStack.SwEx.Common.Reflection;
 using SolidWorks.Interop.sldworks;
@@ -30,14 +31,16 @@ namespace CodeStack.SwEx.AddIn.Helpers
         private const int S_OK = 0;
 
         private readonly ITaskpaneView m_TaskPaneView;
+        private readonly ILogger m_Logger;
 
         private readonly Action<TCmdEnum> m_CmdHandler;
         private readonly TCmdEnum[] m_Commands;
 
-        internal TaskPaneHandler(ISldWorks app, ITaskpaneView taskPaneView, Action<TCmdEnum> cmdHandler, IconsConverter iconsConv)
+        internal TaskPaneHandler(ISldWorks app, ITaskpaneView taskPaneView,
+            Action<TCmdEnum> cmdHandler, IconsConverter iconsConv, ILogger logger)
         {
-            //TODO: add log
-
+            m_Logger = logger;
+            
             m_TaskPaneView = taskPaneView;
             m_CmdHandler = cmdHandler;
 
@@ -54,8 +57,6 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
                 foreach (Enum cmdEnum in enumValues)
                 {
-                    //TODO: check if standard button
-
                     //NOTE: unlike task pane icon, command icons must have the same transparency key as command manager commands
                     var icon = DisplayInfoExtractor.ExtractCommandDisplayIcon<CommandIconAttribute, CommandGroupIcon>(
                         cmdEnum,
@@ -69,20 +70,29 @@ namespace CodeStack.SwEx.AddIn.Helpers
                         cmdEnum.TryGetAttribute<DescriptionAttribute>(a => tooltip = a.Description);
                     }
 
-                    if (app.SupportsHighResIcons(SldWorksExtension.HighResIconsScope_e.TaskPane))
+                    if (!cmdEnum.TryGetAttribute<TaskPaneStandardButtonAttribute>(a => 
                     {
-                        var imageList = iconsConv.ConvertIcon(icon, true);
-                        if (!m_TaskPaneView.AddCustomButton2(imageList, tooltip))
+                        if (!m_TaskPaneView.AddStandardButton((int)a.Icon, tooltip))
                         {
-                            throw new InvalidOperationException($"Failed to create task pane button for {cmdEnum} with highres icon");
+                            throw new InvalidOperationException($"Failed to add standard button for {cmdEnum}");
                         }
-                    }
-                    else
+                    }))
                     {
-                        var imagePath = iconsConv.ConvertIcon(icon, false)[0];
-                        if (!m_TaskPaneView.AddCustomButton(imagePath, tooltip))
+                        if (app.SupportsHighResIcons(SldWorksExtension.HighResIconsScope_e.TaskPane))
                         {
-                            throw new InvalidOperationException($"Failed to create task pane button for {cmdEnum}");
+                            var imageList = iconsConv.ConvertIcon(icon, true);
+                            if (!m_TaskPaneView.AddCustomButton2(imageList, tooltip))
+                            {
+                                throw new InvalidOperationException($"Failed to create task pane button for {cmdEnum} with highres icon");
+                            }
+                        }
+                        else
+                        {
+                            var imagePath = iconsConv.ConvertIcon(icon, false)[0];
+                            if (!m_TaskPaneView.AddCustomButton(imagePath, tooltip))
+                            {
+                                throw new InvalidOperationException($"Failed to create task pane button for {cmdEnum}");
+                            }
                         }
                     }
                 }
@@ -95,7 +105,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
         private int OnTaskPaneToolbarButtonClicked(int buttonIndex)
         {
-            //TODO: add log
+            m_Logger.Log($"Task pane button clicked: {buttonIndex}");
 
             if (m_Commands?.Length > buttonIndex)
             {
@@ -103,7 +113,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
             else
             {
-                //TODO: add log
+                m_Logger.Log($"Invalid task pane button id is clicked: {buttonIndex}");
                 Debug.Assert(false, "Invalid command id");
             }
 
@@ -112,7 +122,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
         private int OnTaskPaneDestroyNotify()
         {
-            //TODO: add log
+            m_Logger.Log("Destroying task pane");
 
             Dispose();
             return S_OK;

@@ -73,7 +73,7 @@ namespace CodeStack.SwEx.AddIn.Base
             EnableMethodDelegate<TCmdEnum> enable = null)
             where TCmdEnum : IComparable, IFormattable, IConvertible;
 
-        IDocumentsHandler CreateDocumentsHandler<TDocHandler>()
+        IDocumentsHandler<TDocHandler> CreateDocumentsHandler<TDocHandler>()
             where TDocHandler : IDocumentHandler, new();
     }
 }

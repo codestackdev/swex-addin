@@ -17,7 +17,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
     {
         internal static TIcon ExtractCommandDisplayIcon<TIconAtt, TIcon>(Type type,
             Func<Image, TIcon> masterIconCreator,
-            Func<TIconAtt, TIcon> extractIcon)
+            Func<TIconAtt, TIcon> extractIcon, bool useDefault = true)
             where TIconAtt : Attribute
             where TIcon : IIcon
         {
@@ -29,7 +29,14 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
                 if (masterIcon == null)
                 {
-                    masterIcon = Resources.swex_addin_default;
+                    if (useDefault)
+                    {
+                        masterIcon = Resources.swex_addin_default;
+                    }
+                    else
+                    {
+                        return icon;
+                    }
                 }
 
                 icon = masterIconCreator.Invoke(masterIcon);
@@ -44,7 +51,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             where TIconAtt : Attribute
             where TIcon : IIcon
         {
-            TIcon icon = default(TIcon);
+            var icon = default(TIcon);
 
             if (!enumer.TryGetAttribute<TIconAtt>(a => icon = extractIcon.Invoke(a)))
             {
