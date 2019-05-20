@@ -352,7 +352,7 @@ namespace CodeStack.SwEx.AddIn
                 taskPaneHandler = new TaskPaneHandler<TCmdEnum>(App, taskPaneView, cmdHandler, iconConv, m_Logger);
             }
             
-            if (IsComVisible(typeof(TControl)))
+            if (typeof(TControl).IsComVisible())
             {
                 var progId = typeof(TControl).GetProgId();
                 ctrl = taskPaneView.AddControl(progId, "") as TControl;
@@ -380,37 +380,6 @@ namespace CodeStack.SwEx.AddIn
             
             return taskPaneView;
         }
-
-        //-common
-        private bool IsComVisible(Type type)
-        {
-            bool isComVisible = false;
-
-            if (!type.TryGetAttribute<ComVisibleAttribute>(a => isComVisible = a.Value))
-            {
-                TryGetAttribute<ComVisibleAttribute>(type.Assembly, a => isComVisible = a.Value);
-            }
-
-            return isComVisible;
-        }
-
-        public static bool TryGetAttribute<TAtt>(Assembly assm, Action<TAtt> attProc)
-            where TAtt : System.Attribute
-        {
-            var atts = assm.GetCustomAttributes(typeof(TAtt), true);
-
-            if (atts != null && atts.Any())
-            {
-                var att = atts.First() as TAtt;
-                attProc?.Invoke(att);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        //
 
         private void OnTaskPaneHandlerDisposed(ITaskPaneHandler handler)
         {
