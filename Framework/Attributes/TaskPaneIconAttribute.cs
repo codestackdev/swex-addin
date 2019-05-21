@@ -12,6 +12,9 @@ using System.Drawing;
 
 namespace CodeStack.SwEx.AddIn.Attributes
 {
+    /// <summary>
+    /// Allows to assign task pane specific icon
+    /// </summary>
     [AttributeUsage(AttributeTargets.All)]
     public class TaskPaneIconAttribute : Attribute
     {

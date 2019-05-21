@@ -11,7 +11,7 @@ using System;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
-    public class ThirdPartyStoreHandler : IThirdPartyStoreHandler
+    internal class ThirdPartyStoreHandler : IThirdPartyStoreHandler
     {
         private readonly IModelDoc2 m_Model;
         private readonly string m_Name;

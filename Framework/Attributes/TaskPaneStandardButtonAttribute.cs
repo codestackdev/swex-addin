@@ -10,11 +10,15 @@ using System;
 
 namespace CodeStack.SwEx.AddIn.Attributes
 {
+    /// <summary>
+    /// Allows to assign the standard icon for the task pane command
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class TaskPaneStandardButtonAttribute : Attribute
     {
         internal swTaskPaneBitmapsOptions_e Icon { get; private set; }
 
+        /// <param name="icon">Standard task pane icon</param>
         public TaskPaneStandardButtonAttribute(swTaskPaneBitmapsOptions_e icon)
         {
             Icon = icon;

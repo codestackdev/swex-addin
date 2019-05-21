@@ -6,11 +6,13 @@
 //**********************
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public class ComStream : Stream
     {
         private readonly IStream m_ComStream;

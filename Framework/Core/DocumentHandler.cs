@@ -11,6 +11,9 @@ using System.ComponentModel;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
+    /// <summary>
+    /// Specific implementation of document handler which provides overrides for the document lifecycle events
+    /// </summary>
     public abstract class DocumentHandler : IDocumentHandler
     {
         private const int S_OK = 0;
@@ -84,31 +87,50 @@ namespace CodeStack.SwEx.AddIn.Core
             return S_OK;
         }
 
+        /// <summary>
+        /// Override to handle the initialization of the document
+        /// </summary>
+        /// <remarks>This method is called when document is opened or loaded with assembly or drawing</remarks>
         public virtual void OnInit()
         {
         }
 
+        /// <summary>
+        /// Override to handle the activation of the document (when it is opened in its own window)
+        /// </summary>
         public virtual void OnActivate()
         {
         }
 
+        /// <summary>
+        /// Override to read the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
+        /// </summary>
         public virtual void OnLoadFromStorageStore()
         {
         }
 
+        /// <summary>
+        /// Override to read the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
+        /// </summary>
         public virtual void OnLoadFromStream()
         {
         }
 
+        /// <summary>
+        /// Override to save the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
+        /// </summary>
         public virtual void OnSaveToStorageStore()
         {
         }
 
+        /// <summary>
+        /// Override to save the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
+        /// </summary>
         public virtual void OnSaveToStream()
         {
         }
-
-        public virtual void Dispose()
+        
+        public void Dispose()
         {
             (App as SldWorks).ActiveModelDocChangeNotify -= OnActiveModelDocChangeNotify;
 
@@ -137,6 +159,10 @@ namespace CodeStack.SwEx.AddIn.Core
             OnDestroy();
         }
 
+        /// <summary>
+        /// Override to dispose the resources
+        /// </summary>
+        /// <remarks>Invoked when document has been destroyed</remarks>
         public virtual void OnDestroy()
         {
         }

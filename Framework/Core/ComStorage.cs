@@ -8,6 +8,7 @@
 using CodeStack.SwEx.AddIn.Base;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -139,7 +140,7 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
-        public ComStream TryOpenStream(string streamName, bool createIfNotExist)
+        public Stream TryOpenStream(string streamName, bool createIfNotExist)
         {
             try
             {

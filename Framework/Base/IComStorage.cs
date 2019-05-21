@@ -8,6 +8,7 @@
 using CodeStack.SwEx.AddIn.Core;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace CodeStack.SwEx.AddIn.Base
 {
@@ -35,7 +36,7 @@ namespace CodeStack.SwEx.AddIn.Base
         /// <param name="streamName">Stream name</param>
         /// <param name="createIfNotExist">Create stream if not exists</param>
         /// <returns>Pointer to stream or null</returns>
-        ComStream TryOpenStream(string streamName, bool createIfNotExist);
+        Stream TryOpenStream(string streamName, bool createIfNotExist);
 
         /// <summary>
         /// Gets all children stream names
