@@ -6,6 +6,7 @@
 //**********************
 
 using SolidWorks.Interop.sldworks;
+using System;
 
 namespace CodeStack.SwEx.AddIn.Base
 {
@@ -16,6 +17,11 @@ namespace CodeStack.SwEx.AddIn.Base
     public interface IDocumentsHandler<TDocHandler>
         where TDocHandler : IDocumentHandler, new()
     {
+        /// <summary>
+        /// Event raised when new document handler is created
+        /// </summary>
+        event Action<TDocHandler> HandlerCreated;
+
         /// <summary>
         /// Accesses the document handler by pointer to model
         /// </summary>

@@ -19,10 +19,12 @@ namespace CodeStack.SwEx.AddIn.Core
     public class DocumentsHandler<TDocHandler> : IDocumentsHandler<TDocHandler>
         where TDocHandler : IDocumentHandler, new()
     {
+        public event Action<TDocHandler> HandlerCreated;
+
         private readonly SldWorks m_App;
         private readonly Dictionary<IModelDoc2, DocumentHandlerWrapper<TDocHandler>> m_Documents;
         private readonly ILogger m_Logger;
-
+        
         public TDocHandler this[IModelDoc2 model]
         {
             get
@@ -73,6 +75,8 @@ namespace CodeStack.SwEx.AddIn.Core
                 docHandler.DocumentDestroyed += OnDocumentDestroyed;
 
                 m_Documents.Add(model, docHandler);
+
+                HandlerCreated?.Invoke(docHandler.Handler);
             }
             else
             {

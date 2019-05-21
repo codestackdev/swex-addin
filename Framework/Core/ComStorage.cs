@@ -163,18 +163,18 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
-        public IEnumerable<string> EnumSubStreamNames()
+        public string[] GetSubStreamNames()
         {
             return EnumElements()
                 .Where(e => e.type == (int)STGTY.STGTY_STREAM)
-                .Select(e => e.pwcsName);
+                .Select(e => e.pwcsName).ToArray();
         }
 
-        public IEnumerable<string> EnumSubStorageNames()
+        public string[] GetSubStorageNames()
         {
             return EnumElements()
                 .Where(e => e.type == (int)STGTY.STGTY_STORAGE)
-                .Select(e => e.pwcsName);
+                .Select(e => e.pwcsName).ToArray();
         }
         
         private ComStream CreateStream(string streamName)

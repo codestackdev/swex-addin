@@ -92,6 +92,8 @@ namespace CodeStack.SwEx.AddIn.Base
         ///<inheritdoc cref="CreateTaskPane{TControl}(out TControl)"/>
         /// <typeparam name="TCmdEnum">Descriptor for commands in task pane. Use <see cref="Attributes.TaskPaneStandardButtonAttribute"/> to mark standard commands</typeparam>
         /// <param name="cmdHandler">Handler of the commands</param>
-        ITaskpaneView CreateTaskPane<TControl, TCmdEnum>(Action<TCmdEnum> cmdHandler, out TControl ctrl);
+        ITaskpaneView CreateTaskPane<TControl, TCmdEnum>(Action<TCmdEnum> cmdHandler, out TControl ctrl)
+            where TControl : UserControl, new()
+            where TCmdEnum : IComparable, IFormattable, IConvertible;
     }
 }

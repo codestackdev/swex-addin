@@ -38,15 +38,15 @@ namespace CodeStack.SwEx.AddIn.Base
         ComStream TryOpenStream(string streamName, bool createIfNotExist);
 
         /// <summary>
-        /// Enumerates all children stream names
+        /// Gets all children stream names
         /// </summary>
         /// <returns>Stream names</returns>
-        IEnumerable<string> EnumSubStreamNames();
+        string[] GetSubStreamNames();
 
         /// <summary>
-        /// Enumerates all children storages names
+        /// Gets all children storages names
         /// </summary>
         /// <returns>Storages names</returns>
-        IEnumerable<string> EnumSubStorageNames();
+        string[] GetSubStorageNames();
     }
 }

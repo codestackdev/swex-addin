@@ -126,7 +126,7 @@ namespace CodeStack.SwEx.AddIn.Example
                 {
                     using (var subStorage = storageHandler.Storage.TryOpenStorage(path[1], false))
                     {
-                        foreach (var subStreamName in subStorage.EnumSubStreamNames())
+                        foreach (var subStreamName in subStorage.GetSubStreamNames())
                         {
                             using (var str = subStorage.TryOpenStream(subStreamName, false))
                             {
