@@ -80,17 +80,18 @@ namespace CodeStack.SwEx.AddIn.Base
         IDocumentsHandler<TDocHandler> CreateDocumentsHandler<TDocHandler>()
             where TDocHandler : IDocumentHandler, new();
 
+
+        /// <inheritdoc cref="CreateTaskPane{TControl, TCmdEnum}(Action{TCmdEnum}, out TControl)"/>
+        ITaskpaneView CreateTaskPane<TControl>(out TControl ctrl)
+            where TControl : UserControl, new();
+
         /// <summary>
         /// Creates task pane control
         /// </summary>
         /// <typeparam name="TControl">Control type to host in task pane</typeparam>
+        /// <typeparam name="TCmdEnum">Descriptor for commands in task pane. Use <see cref="Attributes.TaskPaneStandardButtonAttribute"/> to mark standard commands</typeparam>
         /// <param name="ctrl">Instance of created control</param>
         /// <returns>Task pane view</returns>
-        ITaskpaneView CreateTaskPane<TControl>(out TControl ctrl)
-            where TControl : UserControl, new();
-
-        ///<inheritdoc cref="CreateTaskPane{TControl}(out TControl)"/>
-        /// <typeparam name="TCmdEnum">Descriptor for commands in task pane. Use <see cref="Attributes.TaskPaneStandardButtonAttribute"/> to mark standard commands</typeparam>
         /// <param name="cmdHandler">Handler of the commands</param>
         ITaskpaneView CreateTaskPane<TControl, TCmdEnum>(Action<TCmdEnum> cmdHandler, out TControl ctrl)
             where TControl : UserControl, new()

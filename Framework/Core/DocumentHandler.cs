@@ -18,7 +18,14 @@ namespace CodeStack.SwEx.AddIn.Core
     {
         private const int S_OK = 0;
 
+        /// <summary>
+        /// Pointer to the SOLIDWORKS application
+        /// </summary>
         protected ISldWorks App { get; private set; }
+
+        /// <summary>
+        /// Pointer to the model of this handler
+        /// </summary>
         protected IModelDoc2 Model { get; private set; }
 
         private bool m_Is3rdPartyStreamLoaded;

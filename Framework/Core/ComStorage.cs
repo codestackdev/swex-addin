@@ -8,6 +8,7 @@
 using CodeStack.SwEx.AddIn.Base;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -17,6 +18,9 @@ namespace CodeStack.SwEx.AddIn.Core
 {
     #region WinAPI
 
+    //TODO: check if possible to do internal interfaces
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     [Flags]
     public enum STGM : int
     {
@@ -40,6 +44,7 @@ namespace CodeStack.SwEx.AddIn.Core
         STGM_DELETEONRELEASE = 0x4000000
     }
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public enum STGTY : int
     {
         STGTY_STORAGE = 1,
@@ -48,6 +53,7 @@ namespace CodeStack.SwEx.AddIn.Core
         STGTY_PROPERTY = 4
     };
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     [ComImport]
     [Guid("0000000d-0000-0000-C000-000000000046")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -68,6 +74,7 @@ namespace CodeStack.SwEx.AddIn.Core
         IEnumSTATSTG Clone();
     }
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     [ComImport]
     [Guid("0000000b-0000-0000-C000-000000000046")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

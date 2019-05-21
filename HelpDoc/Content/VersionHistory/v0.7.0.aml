@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="v0-7-0" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        Version 0.7.0 was released on May 21 2019.
+      </para>
+    </introduction>
+
+    <section>
+      <title>Enhancements</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 10</linkText>
+                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/10</linkUri>
+              </externalLink> Add the helper utility to work with 3rd party storage
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 11</linkText>
+                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/11</linkUri>
+              </externalLink> Add the utility to manage events
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 13</linkText>
+                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/13</linkUri>
+              </externalLink> Add the ability to create Task Pane control
+            </para>
+          </listItem>
+        </list>
+
+      </content>
+    </section>
+
+    <section>
+      <title>Obsolete members</title>
+      <content>
+        <list class="bullet">
+          <listItem>
+            <para>Removed CodeStack.SwEx.AddIn.Attributes.IconAttribute. Replaced by CodeStack.SwEx.Common.Attributes.IconAttribute and CodeStack.SwEx.AddIn.Attributes.CommandIconAttribute</para>
+          </listItem>
+          <listItem>
+            <para>Removed CodeStack.SwEx.AddIn.Attributes.TitleAttribute. Replaced by CodeStack.SwEx.Common.Attributes.TitleAttribute</para>
+          </listItem>
+          <listItem>
+            <para>Removed m_App, m_CmdMgr, m_AddInCookie fields in the CodeStack.SwEx.AddIn.SwAddInEx class. Replaced by App, CmdMgr, AddInCookie properties respectively</para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+    
+    <relatedTopics>
+      <link xlink:href="version-history" />
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>
