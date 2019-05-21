@@ -13,7 +13,7 @@ using CodeStack.SwEx.Common.Icons;
 namespace CodeStack.SwEx.AddIn.Icons
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public class TaskPaneHighResIcon : HighResIcon
+    internal class TaskPaneHighResIcon : HighResIcon
     {
         private readonly Image m_Icon;
 

@@ -12,7 +12,7 @@ using System.Runtime.InteropServices.ComTypes;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
-    public class ThirdPartyStreamHandler : IThirdPartyStreamHandler
+    internal class ThirdPartyStreamHandler : IThirdPartyStreamHandler
     {
         private readonly IModelDoc2 m_Model;
         private readonly string m_Name;
