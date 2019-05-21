@@ -6,17 +6,18 @@
 //**********************
 
 using System;
+using System.IO;
 
-namespace CodeStack.SwEx.AddIn.Exceptions
+namespace CodeStack.SwEx.AddIn.Base
 {
     /// <summary>
-    /// Indicates that the callback is not specified for the commands group
+    /// Disposable handler for SOLIDWORKS model 3rd party storage (stream)
     /// </summary>
-    public class CallbackNotSpecifiedException : NullReferenceException
+    public interface IThirdPartyStreamHandler : IDisposable
     {
-        internal CallbackNotSpecifiedException() 
-            : base("Callback must be specified")
-        {
-        }
+        /// <summary>
+        /// Underlying stream
+        /// </summary>
+        Stream Stream { get; }
     }
 }

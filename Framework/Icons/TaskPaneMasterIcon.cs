@@ -7,26 +7,32 @@
 
 using CodeStack.SwEx.Common.Icons;
 using System.Collections.Generic;
-using System.Drawing;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace CodeStack.SwEx.AddIn.Icons
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class CommandGroupIcon : IIcon
+    internal class TaskPaneMasterIcon : MasterIcon
     {
-        private static readonly Color m_CommandTransparencyKey
-            = Color.FromArgb(192, 192, 192);
+        private readonly Image m_Icon;
 
-        public virtual Color TransparencyKey
+        public override Color TransparencyKey
         {
             get
             {
-                return m_CommandTransparencyKey;
+                return Color.White;
             }
         }
 
-        public abstract IEnumerable<IconSizeInfo> GetHighResolutionIconSizes();
-        public abstract IEnumerable<IconSizeInfo> GetIconSizes();
+        public override IEnumerable<IconSizeInfo> GetIconSizes()
+        {
+            yield return new IconSizeInfo(m_Icon, new Size(16, 18));
+        }
+
+        internal TaskPaneMasterIcon(Image icon) : base(icon)
+        {
+            m_Icon = icon;
+        }
     }
 }

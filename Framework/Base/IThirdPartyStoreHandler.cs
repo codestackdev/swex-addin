@@ -7,16 +7,16 @@
 
 using System;
 
-namespace CodeStack.SwEx.AddIn.Exceptions
+namespace CodeStack.SwEx.AddIn.Base
 {
     /// <summary>
-    /// Indicates that the callback is not specified for the commands group
+    /// Disposable handler for SOLIDWORKS model 3rd party storage store
     /// </summary>
-    public class CallbackNotSpecifiedException : NullReferenceException
+    public interface IThirdPartyStoreHandler : IDisposable
     {
-        internal CallbackNotSpecifiedException() 
-            : base("Callback must be specified")
-        {
-        }
+        /// <summary>
+        /// Underlying COM storage
+        /// </summary>
+        IComStorage Storage { get; }
     }
 }

@@ -7,6 +7,7 @@ using SolidWorks.Interop.sldworks;
 using System.Collections.Generic;
 using CodeStack.SwEx.AddIn.Attributes;
 using SolidWorks.Interop.swconst;
+using CodeStack.SwEx.Common.Attributes;
 
 namespace Framework.Tests
 {

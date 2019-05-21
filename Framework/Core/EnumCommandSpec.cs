@@ -1,15 +1,19 @@
-﻿using CodeStack.SwEx.AddIn.Attributes;
+﻿//**********************
+//SwEx.AddIn - development tools for SOLIDWORKS add-ins
+//Copyright(C) 2019 www.codestack.net
+//License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
+//Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
+//**********************
+
+using CodeStack.SwEx.AddIn.Attributes;
 using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;
-using CodeStack.SwEx.AddIn.Properties;
 using CodeStack.SwEx.Common.Reflection;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
@@ -127,17 +131,10 @@ namespace CodeStack.SwEx.AddIn.Core
                 Tooltip = cmd.ToString();
             }
 
-            if (!cmdEnum.TryGetAttribute<CommandIconAttribute>(a => Icon = a.Icon))
-            {
-                var icon = cmdEnum.TryGetAttribute<Common.Attributes.IconAttribute>()?.Icon;
-
-                if (icon == null)
-                {
-                    icon = Resources.swex_addin_default;
-                }
-
-                Icon = new MasterIcon(icon);
-            }
+            Icon = DisplayInfoExtractor.ExtractCommandDisplayIcon<CommandIconAttribute, CommandGroupIcon>(
+                cmdEnum,
+                i => new MasterIcon(i),
+                a => a.Icon);
         }
     }
 }

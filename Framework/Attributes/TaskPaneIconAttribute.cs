@@ -6,36 +6,24 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Icons;
-using CodeStack.SwEx.Common.Icons;
 using CodeStack.SwEx.Common.Reflection;
 using System;
-using System.ComponentModel;
 using System.Drawing;
 
 namespace CodeStack.SwEx.AddIn.Attributes
 {
     /// <summary>
-    /// Loads the icon information from the resources
+    /// Allows to assign task pane specific icon
     /// </summary>
-    /// <remarks>This attribute can be applied to command group (defined as enumeration) and items within the group (defined as enumeration value)</remarks>
     [AttributeUsage(AttributeTargets.All)]
-    public class CommandIconAttribute : Attribute
+    public class TaskPaneIconAttribute : Attribute
     {
         internal CommandGroupIcon Icon { get; private set; }
 
         /// <param name="resType">Type of the static class (usually Resources)</param>
         /// <param name="masterResName">Resource name of the master icon</param>
-        public CommandIconAttribute(Type resType, string masterResName)
+        public TaskPaneIconAttribute(Type resType, string masterResName)
             : this(ResourceHelper.GetResource<Image>(resType, masterResName))
-        {
-        }
-
-        /// <param name="resType">Type of the static class (usually Resources)</param>
-        /// <param name="size16x16ResName">Resource name of the small icon</param>
-        /// <param name="size24x24ResName">Resource name of the large icon</param>
-        public CommandIconAttribute(Type resType, string size16x16ResName, string size24x24ResName)
-            : this(ResourceHelper.GetResource<Image>(resType, size16x16ResName),
-                  ResourceHelper.GetResource<Image>(resType, size24x24ResName))
         {
         }
 
@@ -46,7 +34,7 @@ namespace CodeStack.SwEx.AddIn.Attributes
         /// <param name="size64x64ResName">Resource name of the large icon</param>
         /// <param name="size96x96ResName">Resource name of the extra large icon</param>
         /// <param name="size128x128ResName">Resource name of the high resolution icon</param>
-        public CommandIconAttribute(Type resType, string size20x20ResName, string size32x32ResName,
+        public TaskPaneIconAttribute(Type resType, string size20x20ResName, string size32x32ResName,
             string size40x40ResName, string size64x64ResName, string size96x96ResName, string size128x128ResName)
             : this(ResourceHelper.GetResource<Image>(resType, size20x20ResName),
                   ResourceHelper.GetResource<Image>(resType, size32x32ResName),
@@ -57,20 +45,15 @@ namespace CodeStack.SwEx.AddIn.Attributes
         {
         }
 
-        private CommandIconAttribute(Image icon)
+        private TaskPaneIconAttribute(Image icon)
         {
-            Icon = new MasterIcon(icon);
+            Icon = new TaskPaneMasterIcon(icon);
         }
 
-        private CommandIconAttribute(Image size16x16, Image size24x24)
-        {
-            Icon = new BasicIcon(size16x16, size24x24);
-        }
-
-        private CommandIconAttribute(Image size20x20, Image size32x32, 
+        private TaskPaneIconAttribute(Image size20x20, Image size32x32,
             Image size40x40, Image size64x64, Image size96x96, Image size128x128)
         {
-            Icon = new HighResIcon(
+            Icon = new TaskPaneHighResIcon(
                 size20x20, size32x32, size40x40,
                 size64x64, size96x96, size128x128);
         }

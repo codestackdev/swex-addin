@@ -1,6 +1,6 @@
 ﻿//**********************
 //SwEx.AddIn - development tools for SOLIDWORKS add-ins
-//Copyright(C) 2018 www.codestack.net
+//Copyright(C) 2019 www.codestack.net
 //License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
@@ -12,7 +12,6 @@ using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Exceptions;
 using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;
-using CodeStack.SwEx.AddIn.Properties;
 using CodeStack.SwEx.Common.Diagnostics;
 using CodeStack.SwEx.Common.Icons;
 using CodeStack.SwEx.Common.Reflection;
@@ -25,6 +24,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace CodeStack.SwEx.AddIn
 {
@@ -70,24 +70,6 @@ namespace CodeStack.SwEx.AddIn
         #endregion
 
         /// <summary>
-        /// Deprecated. Use App property instead
-        /// </summary>
-        [Obsolete("Deprecated. Use App property instead")]
-        protected ISldWorks m_App = null;
-
-        /// <summary>
-        /// Deprecated. Use CmdMgr property instead
-        /// </summary>
-        [Obsolete("Deprecated. Use CmdMgr property instead")]
-        protected ICommandManager m_CmdMgr = null;
-
-        /// <summary>
-        /// Deprecated. Use AddInCookie property instead
-        /// </summary>
-        [Obsolete("Deprecated. Use AddInCookie property instead")]
-        protected int m_AddInCookie = 0;
-
-        /// <summary>
         /// Pointer to SOLIDWORKS application
         /// </summary>
         protected ISldWorks App { get; private set; }
@@ -112,6 +94,7 @@ namespace CodeStack.SwEx.AddIn
 
         private readonly List<ICommandGroupSpec> m_CommandGroups;
         private readonly Dictionary<string, ICommandSpec> m_Commands;
+        private readonly List<ITaskPaneHandler> m_TaskPanes;
 
         private readonly ILogger m_Logger;
 
@@ -120,6 +103,7 @@ namespace CodeStack.SwEx.AddIn
             m_Logger = LoggerFactory.Create(this);
             m_Commands = new Dictionary<string, ICommandSpec>();
             m_CommandGroups = new List<ICommandGroupSpec>();
+            m_TaskPanes = new List<ITaskPaneHandler>();
         }
 
         /// <summary>SOLIDWORKS add-in entry function</summary>
@@ -138,17 +122,9 @@ namespace CodeStack.SwEx.AddIn
 
                 CmdMgr = App.GetCommandManager(AddInCookie);
 
-                //TODO: legacy - to be removed
-#pragma warning disable CS0618
-                m_App = App;
-                m_CmdMgr = CmdMgr;
-                m_AddInCookie = AddInCookie;
-#pragma warning restore CS0618
-                //----
-
                 return OnConnect();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Log(ex);
                 throw;
@@ -218,6 +194,11 @@ namespace CodeStack.SwEx.AddIn
                     CmdMgr.RemoveCommandGroup(grp.Id);
                 }
 
+                for (int i = m_TaskPanes.Count - 1; i >= 0; i--)
+                {
+                    m_TaskPanes[i].Delete();
+                }
+
                 var res = OnDisconnect();
 
                 if (Marshal.IsComObject(CmdMgr))
@@ -242,7 +223,7 @@ namespace CodeStack.SwEx.AddIn
 
                 return res;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Log(ex);
                 throw;
@@ -302,6 +283,105 @@ namespace CodeStack.SwEx.AddIn
         {
             return AddCommandGroupOrContextMenu(
                cmdBar, true, contextMenuSelectType);
+        }
+        
+        public IDocumentsHandler<TDocHandler> CreateDocumentsHandler<TDocHandler>()
+            where TDocHandler : IDocumentHandler, new()
+        {
+            return new DocumentsHandler<TDocHandler>(App, m_Logger);
+        }
+        
+        public ITaskpaneView CreateTaskPane<TControl>(out TControl ctrl)
+            where TControl : UserControl, new()
+        {
+            return CreateTaskPane<TControl, EmptyTaskPaneCommands_e>(null, out ctrl);
+        }
+
+        public ITaskpaneView CreateTaskPane<TControl, TCmdEnum>(Action<TCmdEnum> cmdHandler, out TControl ctrl)
+            where TControl : UserControl, new()
+            where TCmdEnum : IComparable, IFormattable, IConvertible
+        {
+            var tooltip = "";
+            CommandGroupIcon taskPaneIcon = null;
+
+            var getTaskPaneDisplayData = new Action<Type, bool>((t,d) => 
+            {
+                if (taskPaneIcon == null)
+                {
+                    taskPaneIcon = DisplayInfoExtractor.ExtractCommandDisplayIcon<TaskPaneIconAttribute, CommandGroupIcon>(
+                        t, i => new TaskPaneMasterIcon(i), a => a.Icon, d);
+                }
+
+                if (string.IsNullOrEmpty(tooltip))
+                {
+                    if (!t.TryGetAttribute<DisplayNameAttribute>(a => tooltip = a.DisplayName))
+                    {
+                        t.TryGetAttribute<DescriptionAttribute>(a => tooltip = a.Description);
+                    }
+                }
+            });
+            
+            if (typeof(TCmdEnum) != typeof(EmptyTaskPaneCommands_e))
+            {
+                getTaskPaneDisplayData.Invoke(typeof(TCmdEnum), false);
+            }
+
+            getTaskPaneDisplayData.Invoke(typeof(TControl), true);
+
+            ITaskpaneView taskPaneView = null;
+            ITaskPaneHandler taskPaneHandler = null;
+
+            m_Logger.Log($"Creating task pane for {typeof(TControl).FullName} type");
+
+            using (var iconConv = new IconsConverter())
+            {
+                if (App.SupportsHighResIcons(SldWorksExtension.HighResIconsScope_e.TaskPane))
+                {
+                    var taskPaneIconImages = iconConv.ConvertIcon(taskPaneIcon, true);
+                    taskPaneView = App.CreateTaskpaneView3(taskPaneIconImages, tooltip);
+                }
+                else
+                {
+                    var taskPaneIconImage = iconConv.ConvertIcon(taskPaneIcon, false)[0];
+                    taskPaneView = App.CreateTaskpaneView2(taskPaneIconImage, tooltip);
+                }
+
+                taskPaneHandler = new TaskPaneHandler<TCmdEnum>(App, taskPaneView, cmdHandler, iconConv, m_Logger);
+            }
+            
+            if (typeof(TControl).IsComVisible())
+            {
+                var progId = typeof(TControl).GetProgId();
+                ctrl = taskPaneView.AddControl(progId, "") as TControl;
+
+                if (ctrl == null)
+                {
+                    throw new NullReferenceException(
+                        $"Failed to create COM control from {progId}. Make sure that COM component is properly registered");
+                }
+            }
+            else
+            {
+                ctrl = new TControl();
+                ctrl.CreateControl();
+                var handle = ctrl.Handle;
+
+                if (!taskPaneView.DisplayWindowFromHandle(handle.ToInt32()))
+                {
+                    throw new NullReferenceException($"Failed to host .NET control (handle {handle}) in task pane");
+                }
+            }
+
+            taskPaneHandler.Disposed += OnTaskPaneHandlerDisposed;
+            m_TaskPanes.Add(taskPaneHandler);
+            
+            return taskPaneView;
+        }
+
+        private void OnTaskPaneHandlerDisposed(ITaskPaneHandler handler)
+        {
+            handler.Disposed -= OnTaskPaneHandlerDisposed;
+            m_TaskPanes.Remove(handler);
         }
 
         private int GetNextAvailableGroupId()
@@ -399,7 +479,7 @@ namespace CodeStack.SwEx.AddIn
 
             //NOTE: if commands are not used, main icon will fail if toolbar commands image list is not specified, so it is required to specify it explicitly
 
-            if (App.SupportsHighResIcons())
+            if (App.SupportsHighResIcons(SldWorksExtension.HighResIconsScope_e.CommandManager))
             {
                 var iconsList = iconsConv.ConvertIcon(mainIcon, true);
                 cmdGroup.MainIconList = iconsList;

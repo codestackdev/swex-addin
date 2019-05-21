@@ -11,12 +11,24 @@
 				<para>Select a version below to see a description of its changes.</para>
 
 				<list class="bullet">
-					<listItem>
-						<para><link xlink:href="v0-1-0" /></para>
-					</listItem>
           <listItem>
             <para>
-              <link xlink:href="v0-2-2" />
+              <link xlink:href="v0-7-0" />
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <link xlink:href="v0-4-1" />
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <link xlink:href="v0-4-0" />
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <link xlink:href="v0-3-1" />
             </para>
           </listItem>
           <listItem>
@@ -26,7 +38,12 @@
           </listItem>
           <listItem>
             <para>
-              <link xlink:href="v0-3-1" />
+              <link xlink:href="v0-2-2" />
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <link xlink:href="v0-1-0" />
             </para>
           </listItem>
 				</list>

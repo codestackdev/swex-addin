@@ -1,6 +1,6 @@
 ﻿//**********************
 //SwEx.AddIn - development tools for SOLIDWORKS add-ins
-//Copyright(C) 2018 www.codestack.net
+//Copyright(C) 2019 www.codestack.net
 //License: https://github.com/codestack-net-dev/sw-dev-tools-addin/blob/master/LICENSE
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
@@ -22,7 +22,7 @@ namespace CodeStack.SwEx.AddIn.Icons
         private readonly Image m_Size96x96;
         private readonly Image m_Size128x128;
 
-        public HighResIcon(Image size20x20, Image size32x32,
+        internal HighResIcon(Image size20x20, Image size32x32,
             Image size40x40, Image size64x64, Image size96x96, Image size128x128)
         {
             m_Size20x20 = size20x20;
