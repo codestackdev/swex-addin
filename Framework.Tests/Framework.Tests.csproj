@@ -101,6 +101,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CommandManagerTest.cs" />
+    <Compile Include="DocumentsHandlerTest.cs" />
     <Compile Include="SwAddInExTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
