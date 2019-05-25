@@ -105,6 +105,8 @@
     <Compile Include="DocumentsHandlerTest.cs" />
     <Compile Include="SwAddInExTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskPaneTest.cs" />
+    <Compile Include="ThirdPartyDataStorageTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Framework\Framework.csproj">
