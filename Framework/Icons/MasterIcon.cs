@@ -17,7 +17,7 @@ namespace CodeStack.SwEx.AddIn.Icons
     {
         private readonly Image m_Icon;
 
-        internal MasterIcon(Image icon)
+        internal protected MasterIcon(Image icon)
         {
             m_Icon = icon;
         }

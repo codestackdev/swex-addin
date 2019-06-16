@@ -95,6 +95,7 @@ namespace CodeStack.SwEx.AddIn
         private readonly List<ICommandGroupSpec> m_CommandGroups;
         private readonly Dictionary<string, ICommandSpec> m_Commands;
         private readonly List<ITaskPaneHandler> m_TaskPanes;
+        private readonly List<IDisposable> m_DocsHandlers;
 
         private readonly ILogger m_Logger;
 
@@ -104,6 +105,7 @@ namespace CodeStack.SwEx.AddIn
             m_Commands = new Dictionary<string, ICommandSpec>();
             m_CommandGroups = new List<ICommandGroupSpec>();
             m_TaskPanes = new List<ITaskPaneHandler>();
+            m_DocsHandlers = new List<IDisposable>();
         }
 
         /// <summary>SOLIDWORKS add-in entry function</summary>
@@ -199,6 +201,15 @@ namespace CodeStack.SwEx.AddIn
                     m_TaskPanes[i].Delete();
                 }
 
+                m_TaskPanes.Clear();
+
+                foreach (var docHandler in m_DocsHandlers)
+                {
+                    docHandler.Dispose();
+                }
+
+                m_DocsHandlers.Clear();
+
                 var res = OnDisconnect();
 
                 if (Marshal.IsComObject(CmdMgr))
@@ -288,7 +299,11 @@ namespace CodeStack.SwEx.AddIn
         public IDocumentsHandler<TDocHandler> CreateDocumentsHandler<TDocHandler>()
             where TDocHandler : IDocumentHandler, new()
         {
-            return new DocumentsHandler<TDocHandler>(App, m_Logger);
+            var docsHandler = new DocumentsHandler<TDocHandler>(App, m_Logger);
+
+            m_DocsHandlers.Add(docsHandler);
+
+            return docsHandler;
         }
         
         public ITaskpaneView CreateTaskPane<TControl>(out TControl ctrl)

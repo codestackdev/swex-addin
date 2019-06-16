@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace CodeStack.SwEx.AddIn.Helpers
 {
-    internal class DocumentHandlerWrapper<TDocHandler>
+    internal class DocumentHandlerWrapper<TDocHandler> : IDisposable
             where TDocHandler : IDocumentHandler, new()
     {
         internal event Action<IModelDoc2> DocumentDestroyed;
@@ -84,11 +84,9 @@ namespace CodeStack.SwEx.AddIn.Helpers
             {
                 m_Logger.Log($"Destroying '{m_Model.GetTitle()}' document");
 
-                m_DocHandler.Dispose();
-
                 DocumentDestroyed?.Invoke(m_Model);
 
-                DetachEvents();
+                Dispose();
             }
             else if (destroyType == (int)swDestroyNotifyType_e.swDestroyNotifyHidden)
             {
@@ -100,6 +98,13 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
 
             return S_OK;
+        }
+
+        public void Dispose()
+        {
+            m_DocHandler.Dispose();
+            
+            DetachEvents();
         }
     }
 }
