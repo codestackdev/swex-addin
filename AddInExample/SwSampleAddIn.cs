@@ -20,9 +20,9 @@ using CodeStack.SwEx.Common.Attributes;
 
 namespace CodeStack.SwEx.AddIn.Example
 {
-    [Common.Attributes.Title("AddInEx Commands")]
+    [Title("AddInEx Commands")]
     [Description("Sample commands")]
-    [Common.Attributes.Icon(typeof(Resources), nameof(Resources.command_group_icon))]
+    [Icon(typeof(Resources), nameof(Resources.command_group_icon))]
     [CommandGroupInfo(0)]
     public enum Commands_e
     {
@@ -32,6 +32,7 @@ namespace CodeStack.SwEx.AddIn.Example
         [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
         Command1,
 
+        [CommandSpacer]
         [Title("Command Two")]
         [Description("Sample Command2")]
         [CommandIcon(typeof(Resources), nameof(Resources.command2_icon), nameof(Resources.command2_icon))]

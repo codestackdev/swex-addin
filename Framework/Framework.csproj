@@ -76,6 +76,7 @@
     <Compile Include="Attributes\CommandGroupInfoAttribute.cs" />
     <Compile Include="Attributes\CommandItemInfoAttribute.cs" />
     <Compile Include="Attributes\CommandIconAttribute.cs" />
+    <Compile Include="Attributes\CommandSpacerAttribute.cs" />
     <Compile Include="Attributes\TaskPaneIconAttribute.cs" />
     <Compile Include="Attributes\TaskPaneStandardButtonAttribute.cs" />
     <Compile Include="Base\ICommandSpec.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="Core\ThirdPartyStreamHandler.cs" />
     <Compile Include="Delegates\EnableMethodDelegate.cs" />
     <Compile Include="Enums\CommandItemEnableState_e.cs" />
+    <Compile Include="Enums\CommandSpacerPosition_e.cs" />
     <Compile Include="Enums\swWorkspaceTypes_e.cs" />
     <Compile Include="Exceptions\CallbackNotSpecifiedException.cs" />
     <Compile Include="Exceptions\GroupIdAlreadyExistsException.cs" />

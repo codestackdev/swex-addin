@@ -570,9 +570,24 @@ namespace CodeStack.SwEx.AddIn
                 var callbackFunc = $"{callbackMethodName}({cmdName})";
                 var enableFunc = $"{enableMethodName}({cmdName})";
 
+                var addSpacer = new Action<CommandSpacerPosition_e>(s => 
+                {
+                    if (cmd.SpacerPosition.HasValue)
+                    {
+                        if (cmd.SpacerPosition.Value == s)
+                        {
+                            var spacerIndex = cmdGroup.AddSpacer2(-1, (int)menuToolbarOpts);
+                        }
+                    }
+                });
+
+                addSpacer.Invoke(CommandSpacerPosition_e.Before);
+                
                 var cmdIndex = cmdGroup.AddCommandItem2(cmd.Title, -1, cmd.Tooltip,
                     cmd.Title, i, callbackFunc, enableFunc, cmd.UserId,
                     (int)menuToolbarOpts);
+
+                addSpacer.Invoke(CommandSpacerPosition_e.After);
 
                 createdCmds.Add(cmd, cmdIndex);
 

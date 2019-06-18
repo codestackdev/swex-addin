@@ -10,6 +10,7 @@ using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Icons;
 using SolidWorks.Interop.swconst;
 using System.ComponentModel;
+using System;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
@@ -26,6 +27,7 @@ namespace CodeStack.SwEx.AddIn.Core
         public bool HasTabBox { get; protected set; }
         public int UserId { get; protected set; }
         public swCommandTabButtonTextDisplay_e TabBoxStyle { get; protected set; }
+        public CommandSpacerPosition_e? SpacerPosition { get; protected set; }
 
         public virtual CommandItemEnableState_e OnEnable()
         {

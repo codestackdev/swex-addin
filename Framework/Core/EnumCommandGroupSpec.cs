@@ -44,7 +44,7 @@ namespace CodeStack.SwEx.AddIn.Core
                 Id = nextGroupId;
             }
 
-            Icon = DisplayInfoExtractor.ExtractCommandDisplayIcon<TaskPaneIconAttribute, CommandGroupIcon>(
+            Icon = DisplayInfoExtractor.ExtractCommandDisplayIcon<CommandIconAttribute, CommandGroupIcon>(
                 cmdGroupType, i => new MasterIcon(i), a => a.Icon);
 
             if (!cmdGroupType.TryGetAttribute<DisplayNameAttribute>(a => Title = a.DisplayName))
