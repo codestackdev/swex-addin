@@ -17,13 +17,31 @@ namespace CodeStack.SwEx.AddIn.Attributes
     {
         internal int UserId { get; private set; }
 
+        internal Type ParentGroupType { get; private set; }
+        
         /// <summary>
         /// Constructor for specifying the additional information for group
         /// </summary>
         /// <param name="userId">User id for the command group. Must be unique per add-in</param>
-        public CommandGroupInfoAttribute(int userId)
+        public CommandGroupInfoAttribute(int userId) : this(userId, null)
+        {
+        }
+
+        public CommandGroupInfoAttribute(Type parentGroupType) : this(-1, parentGroupType)
+        {
+        }
+
+        public CommandGroupInfoAttribute(int userId, Type parentGroupType)
         {
             UserId = userId;
+            
+            if (parentGroupType != null && !parentGroupType.IsEnum)
+            {
+                throw new InvalidCastException(
+                    $"Type '{parentGroupType.FullName}' specified as subgroup must be an enumeration");
+            }
+
+            ParentGroupType = parentGroupType;
         }
     }
 }

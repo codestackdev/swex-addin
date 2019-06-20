@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
 
 namespace CodeStack.SwEx.AddIn
@@ -69,6 +70,8 @@ namespace CodeStack.SwEx.AddIn
 
         #endregion
 
+        private const string SUB_GROUP_SEPARATOR = "\\";
+
         /// <summary>
         /// Pointer to SOLIDWORKS application
         /// </summary>
@@ -92,7 +95,7 @@ namespace CodeStack.SwEx.AddIn
             }
         }
 
-        private readonly List<ICommandGroupSpec> m_CommandGroups;
+        private readonly Dictionary<ICommandGroupSpec, CommandGroup> m_CommandGroups;
         private readonly Dictionary<string, ICommandSpec> m_Commands;
         private readonly List<ITaskPaneHandler> m_TaskPanes;
         private readonly List<IDisposable> m_DocsHandlers;
@@ -103,7 +106,7 @@ namespace CodeStack.SwEx.AddIn
         {
             m_Logger = LoggerFactory.Create(this);
             m_Commands = new Dictionary<string, ICommandSpec>();
-            m_CommandGroups = new List<ICommandGroupSpec>();
+            m_CommandGroups = new Dictionary<ICommandGroupSpec, CommandGroup>();
             m_TaskPanes = new List<ITaskPaneHandler>();
             m_DocsHandlers = new List<IDisposable>();
         }
@@ -190,11 +193,13 @@ namespace CodeStack.SwEx.AddIn
 
             try
             {
-                foreach (var grp in m_CommandGroups)
+                foreach (var grp in m_CommandGroups.Keys)
                 {
                     Logger.Log($"Removing group: {grp.Id}");
                     CmdMgr.RemoveCommandGroup(grp.Id);
                 }
+
+                m_CommandGroups.Clear();
 
                 for (int i = m_TaskPanes.Count - 1; i >= 0; i--)
                 {
@@ -263,7 +268,7 @@ namespace CodeStack.SwEx.AddIn
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
             return AddCommandGroup(
-                new EnumCommandGroupSpec<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId()));
+                new EnumCommandGroupSpec<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId(), m_CommandGroups.Keys));
         }
 
         /// <inheritdoc/>
@@ -277,7 +282,7 @@ namespace CodeStack.SwEx.AddIn
             where TCmdEnum : IComparable, IFormattable, IConvertible
         {
             return AddContextMenu(
-                new EnumCommandGroupSpec<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId()),
+                new EnumCommandGroupSpec<TCmdEnum>(App, callback, enable, GetNextAvailableGroupId(), m_CommandGroups.Keys),
                 contextMenuSelectType);
         }
 
@@ -403,7 +408,7 @@ namespace CodeStack.SwEx.AddIn
         {
             if (m_CommandGroups.Any())
             {
-                return m_CommandGroups.Max(g => g.Id) + 1;
+                return m_CommandGroups.Keys.Max(g => g.Id) + 1;
             }
             else
             {
@@ -416,33 +421,63 @@ namespace CodeStack.SwEx.AddIn
         {
             Logger.Log($"Creating command group: {cmdBar.Id}");
 
-            if (m_CommandGroups.FirstOrDefault(g=>g.Id == cmdBar.Id) == null)
-            {
-                m_CommandGroups.Add(cmdBar);
-            }
-            else
+            if (m_CommandGroups.Keys.FirstOrDefault(g => g.Id == cmdBar.Id) != null)
             {
                 throw new GroupIdAlreadyExistsException(cmdBar);
             }
-
+            
             bool isCmdsChanged;
+            var title = GetMenuPath(cmdBar);
 
-            var cmdGroup = CreateCommandGroup(cmdBar.Id, cmdBar.Title, cmdBar.Tooltip,
+            var cmdGroup = CreateCommandGroup(cmdBar.Id, title, cmdBar.Tooltip,
                 cmdBar.Commands.Select(c => c.UserId).ToArray(), isContextMenu,
                 contextMenuSelectType, out isCmdsChanged);
-            
+
+            m_CommandGroups.Add(cmdBar, cmdGroup);
+
             using (var iconsConv = new IconsConverter())
             {
                 CreateIcons(cmdGroup, cmdBar, iconsConv);
 
                 var createdCmds = CreateCommandItems(cmdGroup, cmdBar.Id, cmdBar.Commands);
-                
-                CreateCommandTabBox(cmdGroup, createdCmds, isCmdsChanged);
+
+                var tabGroup = GetRootCommandGroup(cmdBar);
+
+                CreateCommandTabBox(tabGroup, createdCmds, isCmdsChanged);
             }
 
             return cmdGroup;
         }
-        
+
+        private CommandGroup GetRootCommandGroup(ICommandGroupSpec cmdBar)
+        {
+            var root = cmdBar;
+
+            while (root.Parent != null)
+            {
+                root = root.Parent;
+            }
+
+            return m_CommandGroups[root];
+        }
+
+        private string GetMenuPath(ICommandGroupSpec cmdBar)
+        {
+            var title = new StringBuilder();
+
+            var parent = cmdBar.Parent;
+
+            while (parent != null)
+            {
+                title.Insert(0, parent.Title + SUB_GROUP_SEPARATOR);
+                parent = parent.Parent;
+            }
+
+            title.Append(cmdBar.Title);
+
+            return title.ToString();
+        }
+
         private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip,
             int[] knownCmdIDs, bool isContextMenu, swSelectType_e contextMenuSelectType, out bool isChanged)
         {
@@ -668,9 +703,9 @@ namespace CodeStack.SwEx.AddIn
                 if (cmdTab == null)
                 {
                     cmdTab = CmdMgr.AddCommandTab((int)docType, cmdGroup.Name);
-
+                    //TODO: use cmdTab.AddSeparator() to add separator
                     var cmdBox = cmdTab.AddCommandTabBox();
-
+                    
                     var cmdIds = cmdGrp.Select(c => c.Item2).ToArray();
                     var txtTypes = cmdGrp.Select(c => (int)c.Item3).ToArray();
                     if (!cmdBox.AddCommands(cmdIds, txtTypes))

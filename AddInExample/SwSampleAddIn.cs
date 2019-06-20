@@ -39,7 +39,18 @@ namespace CodeStack.SwEx.AddIn.Example
         [CommandItemInfo(true, true, swWorkspaceTypes_e.All, true)]
         Command2,
 
-        Command3,
+        Command3
+    }
+
+    [CommandGroupInfo(typeof(Commands_e))]
+    [Title("Sub Menu Commands")]
+    public enum SubCommands_e
+    {
+        [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
+        SubCommand1,
+
+        [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
+        SubCommand2
     }
 
     public enum TaskPaneCommands_e
@@ -195,6 +206,7 @@ namespace CodeStack.SwEx.AddIn.Example
         public override bool OnConnect()
         {
             AddCommandGroup<Commands_e>(OnCommandClick, OnCommandEnable);
+            AddCommandGroup<SubCommands_e>(OnSubCommandClick);
 
             m_DocsHandler = CreateDocumentsHandler<SimpleDocHandler>();
 
@@ -223,6 +235,20 @@ namespace CodeStack.SwEx.AddIn.Example
 
                 case Commands_e.Command3:
                     App.SendMsgToUser("Command3 clicked!");
+                    break;
+            }
+        }
+
+        private void OnSubCommandClick(SubCommands_e cmd)
+        {
+            switch (cmd)
+            {
+                case SubCommands_e.SubCommand1:
+                    App.SendMsgToUser("SubCommand1 clicked!");
+                    break;
+
+                case SubCommands_e.SubCommand2:
+                    App.SendMsgToUser("SubCommand2 clicked!");
                     break;
             }
         }
