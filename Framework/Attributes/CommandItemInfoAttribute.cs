@@ -16,8 +16,7 @@ namespace CodeStack.SwEx.AddIn.Attributes
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class CommandItemInfoAttribute : Attribute
-    {
-        
+    {   
         internal bool HasToolbar { get; private set; }
         internal bool HasMenu { get; private set; }
         internal bool ShowInCommandTabBox { get; private set; }
@@ -25,7 +24,7 @@ namespace CodeStack.SwEx.AddIn.Attributes
         internal swWorkspaceTypes_e SupportedWorkspaces { get; private set; }
 
         /// <summary>
-        /// Construtor for specifying additional information about command item
+        /// Constructor for specifying additional information about command item
         /// </summary>
         /// <param name="suppWorkspaces">Indicates the workspaces where this command is enabled. This information is used in the default command enable handler</param>
         public CommandItemInfoAttribute(swWorkspaceTypes_e suppWorkspaces)

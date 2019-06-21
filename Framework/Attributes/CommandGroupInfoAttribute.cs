@@ -27,10 +27,15 @@ namespace CodeStack.SwEx.AddIn.Attributes
         {
         }
 
+        /// <param name="parentGroupType">Type of the parent group enumeration</param>
+        /// <inheritdoc cref="CommandGroupInfoAttribute(int)"/>
+        /// <remarks>This group will be displayed as sub group in the menu and separated in the command tab box</remarks>
         public CommandGroupInfoAttribute(Type parentGroupType) : this(-1, parentGroupType)
         {
         }
 
+        /// <inheritdoc cref="CommandGroupInfoAttribute(int)"/>
+        /// <inheritdoc cref="CommandGroupInfoAttribute(Type)"/>
         public CommandGroupInfoAttribute(int userId, Type parentGroupType)
         {
             UserId = userId;

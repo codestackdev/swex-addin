@@ -29,17 +29,20 @@ namespace CodeStack.SwEx.AddIn.Example
         [Title("Command One")]
         [Description("Sample Command 1")]
         [Icon(typeof(Resources), nameof(Resources.command1_icon))]
-        [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
         Command1,
 
-        [CommandSpacer]
         [Title("Command Two")]
         [Description("Sample Command2")]
         [CommandIcon(typeof(Resources), nameof(Resources.command2_icon), nameof(Resources.command2_icon))]
         [CommandItemInfo(true, true, swWorkspaceTypes_e.All, true)]
         Command2,
 
-        Command3
+        [CommandSpacer]
+        [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
+        Command3,
+
+        [CommandItemInfo(true, true, swWorkspaceTypes_e.AllDocuments, true)]
+        Command4
     }
 
     [CommandGroupInfo(typeof(Commands_e))]

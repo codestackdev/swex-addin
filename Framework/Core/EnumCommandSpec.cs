@@ -119,7 +119,7 @@ namespace CodeStack.SwEx.AddIn.Core
                 TabBoxStyle = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow;
             }
 
-            cmdEnum.TryGetAttribute<CommandSpacerAttribute>(a => SpacerPosition = a.Position);
+            HasSpacer = cmdEnum.TryGetAttribute<CommandSpacerAttribute>() != null;
 
             if (!cmdEnum.TryGetAttribute<DisplayNameAttribute>(
                 att => Title = att.DisplayName))

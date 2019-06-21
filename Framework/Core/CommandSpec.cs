@@ -27,7 +27,7 @@ namespace CodeStack.SwEx.AddIn.Core
         public bool HasTabBox { get; protected set; }
         public int UserId { get; protected set; }
         public swCommandTabButtonTextDisplay_e TabBoxStyle { get; protected set; }
-        public CommandSpacerPosition_e? SpacerPosition { get; protected set; }
+        public bool HasSpacer { get; protected set; }
 
         public virtual CommandItemEnableState_e OnEnable()
         {

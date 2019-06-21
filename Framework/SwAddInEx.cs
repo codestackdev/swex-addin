@@ -70,6 +70,21 @@ namespace CodeStack.SwEx.AddIn
 
         #endregion
 
+        private class TabCommandInfo
+        {
+            internal swDocumentTypes_e DocType { get; private set; }
+            internal int CmdId { get; private set; }
+            internal swCommandTabButtonTextDisplay_e TextType { get; private set; }
+
+            internal TabCommandInfo(swDocumentTypes_e docType, int cmdId,
+                swCommandTabButtonTextDisplay_e textType)
+            {
+                DocType = docType;
+                CmdId = cmdId;
+                TextType = textType;
+            }
+        }
+
         private const string SUB_GROUP_SEPARATOR = "\\";
 
         /// <summary>
@@ -426,12 +441,11 @@ namespace CodeStack.SwEx.AddIn
                 throw new GroupIdAlreadyExistsException(cmdBar);
             }
             
-            bool isCmdsChanged;
             var title = GetMenuPath(cmdBar);
 
             var cmdGroup = CreateCommandGroup(cmdBar.Id, title, cmdBar.Tooltip,
                 cmdBar.Commands.Select(c => c.UserId).ToArray(), isContextMenu,
-                contextMenuSelectType, out isCmdsChanged);
+                contextMenuSelectType);
 
             m_CommandGroups.Add(cmdBar, cmdGroup);
 
@@ -443,7 +457,15 @@ namespace CodeStack.SwEx.AddIn
 
                 var tabGroup = GetRootCommandGroup(cmdBar);
 
-                CreateCommandTabBox(tabGroup, createdCmds, isCmdsChanged);
+                try
+                {
+                    CreateCommandTabBox(tabGroup, createdCmds);
+                }
+                catch(Exception ex)
+                {
+                    Logger.Log(ex);
+                    //not critical error - continue operation
+                }
             }
 
             return cmdGroup;
@@ -479,15 +501,13 @@ namespace CodeStack.SwEx.AddIn
         }
 
         private CommandGroup CreateCommandGroup(int groupId, string title, string toolTip,
-            int[] knownCmdIDs, bool isContextMenu, swSelectType_e contextMenuSelectType, out bool isChanged)
+            int[] knownCmdIDs, bool isContextMenu, swSelectType_e contextMenuSelectType)
         {
             int cmdGroupErr = 0;
-
-            isChanged = false;
-
+            
             object registryIDs;
 
-            isChanged = true;
+            var isChanged = true;
 
             if (CmdMgr.GetGroupDataFromRegistry(groupId, out registryIDs))
             {
@@ -604,26 +624,16 @@ namespace CodeStack.SwEx.AddIn
                 
                 var callbackFunc = $"{callbackMethodName}({cmdName})";
                 var enableFunc = $"{enableMethodName}({cmdName})";
-
-                var addSpacer = new Action<CommandSpacerPosition_e>(s => 
-                {
-                    if (cmd.SpacerPosition.HasValue)
-                    {
-                        if (cmd.SpacerPosition.Value == s)
-                        {
-                            var spacerIndex = cmdGroup.AddSpacer2(-1, (int)menuToolbarOpts);
-                        }
-                    }
-                });
-
-                addSpacer.Invoke(CommandSpacerPosition_e.Before);
                 
+                if (cmd.HasSpacer)
+                {
+                    cmdGroup.AddSpacer2(-1, (int)menuToolbarOpts);
+                }
+
                 var cmdIndex = cmdGroup.AddCommandItem2(cmd.Title, -1, cmd.Tooltip,
                     cmd.Title, i, callbackFunc, enableFunc, cmd.UserId,
                     (int)menuToolbarOpts);
-
-                addSpacer.Invoke(CommandSpacerPosition_e.After);
-
+                
                 createdCmds.Add(cmd, cmdIndex);
 
                 Logger.Log($"Created command {cmdIndex} for {cmd}");
@@ -636,14 +646,12 @@ namespace CodeStack.SwEx.AddIn
             return createdCmds.ToDictionary(p => p.Key, p => cmdGroup.CommandID[p.Value]);
         }
 
-        private void CreateCommandTabBox(CommandGroup cmdGroup, Dictionary<ICommandSpec, int> commands, bool removePrevious)
+        private void CreateCommandTabBox(CommandGroup cmdGroup, Dictionary<ICommandSpec, int> commands)
         {
             Logger.Log($"Creating command tab box");
 
-            var tabCommands = new List<Tuple<swDocumentTypes_e, int, swCommandTabButtonTextDisplay_e>>();
-
-            var ignoredCmds = new List<int>();
-
+            var tabCommands = new List<TabCommandInfo>();
+            
             foreach (var cmdData in commands)
             {
                 var cmd = cmdData.Key;
@@ -669,62 +677,66 @@ namespace CodeStack.SwEx.AddIn
                     }
 
                     tabCommands.AddRange(docTypes.Select(
-                        t => new Tuple<swDocumentTypes_e, int, swCommandTabButtonTextDisplay_e>(
+                        t => new TabCommandInfo(
                             t, cmdId, cmd.TabBoxStyle)));
-                }
-                else
-                {
-                    ignoredCmds.Add(cmdId);
                 }
             }
 
-            foreach (var cmdGrp in tabCommands.GroupBy(c => c.Item1))
+            foreach (var cmdGrp in tabCommands.GroupBy(c => c.DocType))
             {
                 var docType = cmdGrp.Key;
 
                 var cmdTab = CmdMgr.GetCommandTab((int)docType, cmdGroup.Name);
 
-                //NOTE: checking if command group is changed or any of the commands has changed the
-                //option to be added to command tab box - as this can be changed without changing the command group
-                if (cmdTab != null &&
-                    (removePrevious
-                    || ContainsCommands(cmdTab, cmdGrp.Select(c => c.Item2)).Any(c => !c)
-                    || ContainsCommands(cmdTab, ignoredCmds).Any(c => c)
-                    ))
-                {
-                    if (!CmdMgr.RemoveCommandTab(cmdTab))
-                    {
-                        Debug.Assert(false, "Failed to remove command tab");
-                    }
-
-                    cmdTab = null;
-                }
-
                 if (cmdTab == null)
                 {
                     cmdTab = CmdMgr.AddCommandTab((int)docType, cmdGroup.Name);
-                    //TODO: use cmdTab.AddSeparator() to add separator
-                    var cmdBox = cmdTab.AddCommandTabBox();
+                }
+                
+                if (cmdTab != null)
+                {
+                    var cmdIds = cmdGrp.Select(c => c.CmdId).ToArray();
+                    var txtTypes = cmdGrp.Select(c => (int)c.TextType).ToArray();
+
+                    var cmdBox = TryFindCommandTabBox(cmdTab, cmdIds);
+
+                    if (cmdBox == null)
+                    {
+                        cmdBox = cmdTab.AddCommandTabBox();
+                    }
+                    else
+                    {
+                        if (!IsCommandTabBoxChanged(cmdBox, cmdIds, txtTypes))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            ClearCommandTabBox(cmdBox);
+                        }
+                    }
                     
-                    var cmdIds = cmdGrp.Select(c => c.Item2).ToArray();
-                    var txtTypes = cmdGrp.Select(c => (int)c.Item3).ToArray();
                     if (!cmdBox.AddCommands(cmdIds, txtTypes))
                     {
-                        Debug.Assert(false, "Failed to add commands to the command box");
+                        throw new InvalidOperationException("Failed to add commands to commands tab box");
                     }
+                }
+                else
+                {
+                    throw new NullReferenceException("Failed to create command tab box");
                 }
             }
         }
 
-        private IEnumerable<bool> ContainsCommands(ICommandTab cmdTab, IEnumerable<int> cmdIds)
+        private CommandTabBox TryFindCommandTabBox(ICommandTab cmdTab, int[] cmdIds)
         {
             var cmdBoxesArr = cmdTab.CommandTabBoxes() as object[];
 
             if (cmdBoxesArr != null)
             {
-                var cmdBoxes = cmdBoxesArr.Cast<ICommandTabBox>().ToArray();
+                var cmdBoxes = cmdBoxesArr.Cast<CommandTabBox>().ToArray();
 
-                return cmdIds.Select(cmdId => cmdBoxes.Any(b =>
+                var cmdBoxGroup = cmdBoxes.GroupBy(b =>
                 {
                     object existingCmds;
                     object existingTextStyles;
@@ -732,15 +744,52 @@ namespace CodeStack.SwEx.AddIn
 
                     if (existingCmds is int[])
                     {
-                        return ((int[])existingCmds).Contains(cmdId);
+                        return ((int[])existingCmds).Intersect(cmdIds).Count();
                     }
+                    else
+                    {
+                        return 0;
+                    }
+                }).OrderByDescending(g => g.Key).FirstOrDefault();
 
-                    return false;
-                }));
+                if (cmdBoxGroup != null)
+                {
+                    if (cmdBoxGroup.Key > 0)
+                    {
+                        return cmdBoxGroup.FirstOrDefault();
+                    }
+                }
+
+                return null;
             }
-            else
+
+            return null;
+        }
+
+        private bool IsCommandTabBoxChanged(ICommandTabBox cmdBox, int[] cmdIds, int[] txtTypes)
+        {
+            object existingCmds;
+            object existingTextStyles;
+            cmdBox.GetCommands(out existingCmds, out existingTextStyles);
+
+            if (existingCmds != null && existingTextStyles != null)
             {
-                return Enumerable.Empty<bool>();
+                return !(existingCmds as int[]).SequenceEqual(cmdIds)
+                    || !(existingTextStyles as int[]).SequenceEqual(txtTypes);
+            }
+
+            return true;
+        }
+
+        private void ClearCommandTabBox(ICommandTabBox cmdBox)
+        {
+            object existingCmds;
+            object existingTextStyles;
+            cmdBox.GetCommands(out existingCmds, out existingTextStyles);
+
+            if (existingCmds != null)
+            {
+                cmdBox.RemoveCommands(existingCmds as int[]);
             }
         }
         
