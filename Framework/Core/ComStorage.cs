@@ -128,7 +128,7 @@ namespace CodeStack.SwEx.AddIn.Core
             try
             {
                 IStorage storage;
-
+                
                 m_Storage.OpenStorage(storageName, null,
                     (uint)Mode, IntPtr.Zero, 0, out storage);
 

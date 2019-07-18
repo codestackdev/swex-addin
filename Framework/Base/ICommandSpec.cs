@@ -19,6 +19,7 @@ namespace CodeStack.SwEx.AddIn.Base
         bool HasToolbar { get; }
         bool HasTabBox { get; }
         int UserId { get; }
+        bool HasSpacer { get; }
         swCommandTabButtonTextDisplay_e TabBoxStyle { get; }
         CommandItemEnableState_e OnEnable();
         void OnClick();

@@ -14,6 +14,7 @@ namespace CodeStack.SwEx.AddIn.Core
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public class CommandGroupSpec : ICommandGroupSpec
     {
+        public ICommandGroupSpec Parent { get; protected set; }
         public string Title { get; protected set; }
         public string Tooltip { get; protected set; }
         public CommandGroupIcon Icon { get; protected set; }

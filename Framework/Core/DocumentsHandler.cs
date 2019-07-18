@@ -121,6 +121,13 @@ namespace CodeStack.SwEx.AddIn.Core
         public void Dispose()
         {
             m_App.DocumentLoadNotify2 -= OnDocumentLoadNotify2;
+
+            foreach (var docHandler in m_Documents.Values)
+            {
+                docHandler.Dispose();
+            }
+
+            m_Documents.Clear();
         }
     }
 }

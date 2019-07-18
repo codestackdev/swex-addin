@@ -16,6 +16,7 @@ namespace CodeStack.SwEx.AddIn.Base
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public interface ICommandGroupSpec : ICommandBaseSpec
     {
+        ICommandGroupSpec Parent { get; }
         int Id { get; }
         ICommandSpec[] Commands { get; }
     }

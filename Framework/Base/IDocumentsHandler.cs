@@ -14,7 +14,7 @@ namespace CodeStack.SwEx.AddIn.Base
     /// Manages the lifecycle of documents
     /// </summary>
     /// <typeparam name="TDocHandler">Custom document handler to wrap models</typeparam>
-    public interface IDocumentsHandler<TDocHandler>
+    public interface IDocumentsHandler<TDocHandler> : IDisposable
         where TDocHandler : IDocumentHandler, new()
     {
         /// <summary>
