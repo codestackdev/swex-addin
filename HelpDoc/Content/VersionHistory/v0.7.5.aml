@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="v0-7-5" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        Version 0.7.5 was released on July 18 2019.
+      </para>
+    </introduction>
+
+    <section>
+      <title>Enhancements</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 9</linkText>
+                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/9</linkUri>
+              </externalLink> How to AddSpacer in the Group?
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 20</linkText>
+                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/20</linkUri>
+              </externalLink> Add ability to group commands under sub menues
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+
+    <section>
+      <title>Bug Fixes</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 21</linkText>
+                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/21</linkUri>
+              </externalLink> Need to call the dispose on the IDocumentsHandler automatically
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+    
+    <relatedTopics>
+      <link xlink:href="version-history" />
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>
