@@ -1,7 +1,7 @@
 [![Change Log](https://img.shields.io/badge/-Changelog-blue.svg)](https://docs.codestack.net/swex/add-in/html/version-history.htm)
 [![Documentation](https://img.shields.io/badge/-Documentation-green.svg)](https://www.codestack.net/labs/solidworks/swex/add-in/)
 [![NuGet](https://img.shields.io/nuget/v/CodeStack.SwEx.AddIn.svg)](https://www.nuget.org/packages/CodeStack.SwEx.AddIn/)
-[![Issues](https://img.shields.io/github/issues/codestack-net-dev/sw-dev-tools-addin.svg)](https://github.com/codestack-net-dev/sw-dev-tools-addin/issues)
+[![Issues](https://img.shields.io/github/issues/codestackdev/swex-addin.svg)](https://github.com/codestackdev/swex-addin/issues)
 
 ~~~
 When updating nuget package 0.7.0 or newer check the Changelog for the list of members which were remove and their replacements.
@@ -32,7 +32,7 @@ Public Class SwExportComponentAddIn
 End Class
 ~~~
 
-* Overload [OnConnect](https://docs.codestack.net/swex/add-in/html/M_CodeStack_SwEx_AddIn_SwAddInEx_OnConnect.htm) method to initiate the add-in. Access the pointer to the SLDWORKS application via [m_App](https://docs.codestack.net/swex/add-in/html/F_CodeStack_SwEx_AddIn_SwAddInEx_m_App.htm) field.
+* Overload [OnConnect](https://docs.codestack.net/swex/add-in/html/M_CodeStack_SwEx_AddIn_SwAddInEx_OnConnect.htm) method to initiate the add-in. Access the pointer to the SLDWORKS application via [App](https://docs.codestack.net/swex/add-in/html/P_CodeStack_SwEx_AddIn_SwAddInEx_App.htm) field.
 
 ## Adding commands
 

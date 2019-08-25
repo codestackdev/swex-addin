@@ -16,7 +16,7 @@
             <para>
               <externalLink>
                 <linkText>Issue 8</linkText>
-                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/8</linkUri>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/8</linkUri>
               </externalLink> Null reference exception when creating toolbar without commands
             </para>
           </listItem>

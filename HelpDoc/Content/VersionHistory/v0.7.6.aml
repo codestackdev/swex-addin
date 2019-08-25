@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<topic id="v0-7-5" revisionNumber="1">
+<topic id="v0-7-6" revisionNumber="1">
   <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <introduction>
       <para>
-        Version 0.7.5 was released on July 18 2019.
+        Version 0.7.6 was released on August 25 2019.
       </para>
     </introduction>
 
@@ -15,17 +15,9 @@
           <listItem>
             <para>
               <externalLink>
-                <linkText>Issue 9</linkText>
-                <linkUri>https://github.com/codestackdev/swex-addin/issues/9</linkUri>
-              </externalLink> How to AddSpacer in the Group?
-            </para>
-          </listItem>
-          <listItem>
-            <para>
-              <externalLink>
-                <linkText>Issue 20</linkText>
-                <linkUri>https://github.com/codestackdev/swex-addin/issues/20</linkUri>
-              </externalLink> Add ability to group commands under sub menues
+                <linkText>Issue 23</linkText>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/23</linkUri>
+              </externalLink> Add the remove stream and storage methods to the 3rd party stream handler
             </para>
           </listItem>
         </list>
@@ -40,9 +32,9 @@
           <listItem>
             <para>
               <externalLink>
-                <linkText>Issue 21</linkText>
-                <linkUri>https://github.com/codestackdev/swex-addin/issues/21</linkUri>
-              </externalLink> Need to call the dispose on the IDocumentsHandler automatically
+                <linkText>Issue 4 (Common)</linkText>
+                <linkUri>https://github.com/codestackdev/swex-common/issues/4</linkUri>
+              </externalLink> Protect transparency key when generating icons with IconConverter utility
             </para>
           </listItem>
         </list>

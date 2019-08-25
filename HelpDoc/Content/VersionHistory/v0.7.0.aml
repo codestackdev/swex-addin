@@ -16,7 +16,7 @@
             <para>
               <externalLink>
                 <linkText>Issue 10</linkText>
-                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/10</linkUri>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/10</linkUri>
               </externalLink> Add the helper utility to work with 3rd party storage
             </para>
           </listItem>
@@ -24,7 +24,7 @@
             <para>
               <externalLink>
                 <linkText>Issue 11</linkText>
-                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/11</linkUri>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/11</linkUri>
               </externalLink> Add the utility to manage events
             </para>
           </listItem>
@@ -32,7 +32,7 @@
             <para>
               <externalLink>
                 <linkText>Issue 13</linkText>
-                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/13</linkUri>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/13</linkUri>
               </externalLink> Add the ability to create Task Pane control
             </para>
           </listItem>
