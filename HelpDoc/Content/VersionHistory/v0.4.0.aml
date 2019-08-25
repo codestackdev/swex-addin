@@ -16,7 +16,7 @@
             <para>
               <externalLink>
                 <linkText>Issue 7</linkText>
-                <linkUri>https://github.com/codestack-net-dev/sw-dev-tools-addin/issues/7</linkUri>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/7</linkUri>
               </externalLink> Need a way to create commands without enumeration (dynamically)
             </para>
           </listItem>
