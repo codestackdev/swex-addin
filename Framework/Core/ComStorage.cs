@@ -258,6 +258,11 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
+        public void RemoveSubElement(string name)
+        {
+            m_Storage.DestroyElement(name);
+        }
+
         public void Dispose()
         {
             Close();

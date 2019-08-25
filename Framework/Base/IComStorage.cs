@@ -49,5 +49,11 @@ namespace CodeStack.SwEx.AddIn.Base
         /// </summary>
         /// <returns>Storages names</returns>
         string[] GetSubStorageNames();
+
+        /// <summary>
+        /// Removes child stream or storage
+        /// </summary>
+        /// <param name="name">Stream or storage name</param>
+        void RemoveSubElement(string name);
     }
 }
