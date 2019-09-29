@@ -102,6 +102,7 @@
     <Compile Include="Exceptions\GroupIdAlreadyExistsException.cs" />
     <Compile Include="Exceptions\InvalidMenuToolbarOptionsException.cs" />
     <Compile Include="Extensions\ModelDocExtension.cs" />
+    <Compile Include="Helpers\CustomPropertiesEventsHandler.cs" />
     <Compile Include="Helpers\DisplayInfoExtractor.cs" />
     <Compile Include="Helpers\DocumentHandlerWrapper.cs" />
     <Compile Include="Helpers\RegistrationHelper.cs" />

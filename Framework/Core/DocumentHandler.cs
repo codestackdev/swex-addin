@@ -6,17 +6,310 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Base;
+using CodeStack.SwEx.AddIn.Helpers;
 using SolidWorks.Interop.sldworks;
+using SolidWorks.Interop.swconst;
+using System;
 using System.ComponentModel;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
+    public enum SaveAction_e
+    {
+        AutoSave,
+        SaveAs,
+        PreSave,
+        PostSave,
+        PostCancel
+    }
+
+    public enum SelectionAction_e
+    {
+        NewSelection,
+        UserPreSelect,
+        UserPostSelect,
+        ClearSelection
+    }
+
+    public enum ItemModificationAction_e
+    {
+        Add,
+        Delete,
+        PreDelete,
+        Rename,
+        PreRename
+    }
+
+    public enum Access3rdPartyDataAction_e
+    {
+        /// <summary>
+        /// Read the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
+        /// </summary>
+        StorageRead,
+
+        /// <summary>
+        /// Save the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
+        /// </summary>
+        StorageWrite,
+
+        /// <summary>
+        /// Read the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
+        /// </summary>
+        StreamRead,
+
+        /// <summary>
+        /// Save the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
+        /// </summary>
+        StreamWrite
+    }
+
+    public enum CustomPropertyChangeAction_e
+    {
+        Added,
+        Deleted,
+        Modified
+    }
+
+    public delegate bool DocumentSaveDelegate(DocumentHandler docHandler, string fileName, SaveAction_e type);
+    public delegate bool DocumentSelectionDelegate(DocumentHandler docHandler, swSelectType_e selType, SelectionAction_e type);
+    public delegate bool DocumentAccess3rdPartyDataDelegate(DocumentHandler docHandler, Access3rdPartyDataAction_e type);
+    public delegate void DocumentCustomPropertyModifiedDelegate(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value);
+    public delegate bool DocumentItemModifiedDelegate(DocumentHandler docHandler, ItemModificationAction_e type, swNotifyEntityType_e entType, string name, string oldName = "");
+
     /// <summary>
     /// Specific implementation of document handler which provides overrides for the document lifecycle events
     /// </summary>
-    public abstract class DocumentHandler : IDocumentHandler
+    public class DocumentHandler : IDocumentHandler
     {
         private const int S_OK = 0;
+        private const int S_FALSE = 1;
+
+        private DocumentSaveDelegate m_SaveDelegate;
+        private bool m_SaveSubscribed;
+
+        private DocumentSelectionDelegate m_SelectionDelegate;
+        private bool m_SelectionSubscribed;
+
+        private DocumentAccess3rdPartyDataDelegate m_Access3rdPartyDataDelegate;
+        private bool m_Access3rdPartyDataSubscribed;
+
+        private DocumentItemModifiedDelegate m_ItemModifiedDelegate;
+        private bool m_ItemModifiedSubscribed;
+        
+        private DocumentCustomPropertyModifiedDelegate m_DocumentCustomPropertyChangedDelegate;
+        private bool m_DocumentCustomPropertyChangedSubscirbed;
+        private CustomPropertiesEventsHandler m_CustPrpsEventsHandler;
+
+        public event DocumentSaveDelegate Save
+        {
+            add
+            {
+                if (!m_SaveSubscribed)
+                {
+                    m_SaveSubscribed = true;
+
+                    if (Model is PartDoc)
+                    {
+                        (Model as PartDoc).AutoSaveNotify += OnAutoSaveNotify;
+                        (Model as PartDoc).FileSaveAsNotify2 += OnFileSaveAsNotify2;
+                        (Model as PartDoc).FileSaveNotify += OnFileSaveNotify;
+                        (Model as PartDoc).FileSavePostCancelNotify += OnFileSavePostCancelNotify;
+                        (Model as PartDoc).FileSavePostNotify += OnFileSavePostNotify;
+                    }
+                    else if (Model is AssemblyDoc)
+                    {
+                        (Model as AssemblyDoc).AutoSaveNotify += OnAutoSaveNotify;
+                        (Model as AssemblyDoc).FileSaveAsNotify2 += OnFileSaveAsNotify2;
+                        (Model as AssemblyDoc).FileSaveNotify += OnFileSaveNotify;
+                        (Model as AssemblyDoc).FileSavePostCancelNotify += OnFileSavePostCancelNotify;
+                        (Model as AssemblyDoc).FileSavePostNotify += OnFileSavePostNotify;
+                    }
+                    else if (Model is DrawingDoc)
+                    {
+                        (Model as DrawingDoc).AutoSaveNotify += OnAutoSaveNotify;
+                        (Model as DrawingDoc).FileSaveAsNotify2 += OnFileSaveAsNotify2;
+                        (Model as DrawingDoc).FileSaveNotify += OnFileSaveNotify;
+                        (Model as DrawingDoc).FileSavePostCancelNotify += OnFileSavePostCancelNotify;
+                        (Model as DrawingDoc).FileSavePostNotify += OnFileSavePostNotify;
+                    }
+                }
+
+                m_SaveDelegate += value;
+            }
+            remove
+            {
+                m_SaveDelegate -= value;
+
+                if (m_SaveDelegate == null)
+                {
+                    UnsubscribeSaveEvents();
+                }
+            }
+        }
+
+        public event DocumentSelectionDelegate Selection
+        {
+            add
+            {
+                if (!m_SelectionSubscribed)
+                {
+                    m_SelectionSubscribed = true;
+
+                    if (Model is PartDoc)
+                    {
+                        (Model as PartDoc).ClearSelectionsNotify += OnClearSelectionsNotify;
+                        (Model as PartDoc).NewSelectionNotify += OnNewSelectionNotify;
+                        (Model as PartDoc).UserSelectionPreNotify += OnUserSelectionPreNotify;
+                        (Model as PartDoc).UserSelectionPostNotify += OnUserSelectionPostNotify;
+                    }
+                    else if (Model is AssemblyDoc)
+                    {
+                        (Model as AssemblyDoc).ClearSelectionsNotify += OnClearSelectionsNotify;
+                        (Model as AssemblyDoc).NewSelectionNotify += OnNewSelectionNotify;
+                        (Model as AssemblyDoc).UserSelectionPreNotify += OnUserSelectionPreNotify;
+                        (Model as AssemblyDoc).UserSelectionPostNotify += OnUserSelectionPostNotify;
+                    }
+                    else if (Model is DrawingDoc)
+                    {
+                        (Model as DrawingDoc).ClearSelectionsNotify += OnClearSelectionsNotify;
+                        (Model as DrawingDoc).NewSelectionNotify += OnNewSelectionNotify;
+                        (Model as DrawingDoc).UserSelectionPreNotify += OnUserSelectionPreNotify;
+                        (Model as DrawingDoc).UserSelectionPostNotify += OnUserSelectionPostNotify;
+                    }
+                }
+
+                m_SelectionDelegate += value;
+            }
+            remove
+            {
+                m_SelectionDelegate -= value;
+
+                if (m_SelectionDelegate == null)
+                {
+                    UnsubscribeSelectionEvents();
+                }
+            }
+        }
+
+        public event DocumentAccess3rdPartyDataDelegate Access3rdPartyData
+        {
+            add
+            {
+                if (!m_Access3rdPartyDataSubscribed)
+                {
+                    m_Access3rdPartyDataSubscribed = true;
+
+                    if (Model is PartDoc)
+                    {
+                        (Model as PartDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
+                        (Model as PartDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
+                        (Model as PartDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
+                        (Model as PartDoc).SaveToStorageNotify += OnSaveToStorageNotify;
+                    }
+                    else if (Model is AssemblyDoc)
+                    {
+                        (Model as AssemblyDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
+                        (Model as AssemblyDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
+                        (Model as AssemblyDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
+                        (Model as AssemblyDoc).SaveToStorageNotify += OnSaveToStorageNotify;
+                    }
+                    else if (Model is DrawingDoc)
+                    {
+                        (Model as DrawingDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
+                        (Model as DrawingDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
+                        (Model as DrawingDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
+                        (Model as DrawingDoc).SaveToStorageNotify += OnSaveToStorageNotify;
+                    }
+
+                    //NOTE: load from storage notification is not always raised
+                    //it is not raised when model is loaded with assembly, it won't be also raised if the document already loaded
+                    //as a workaround force call loading within the idle notification
+                    (App as SldWorks).OnIdleNotify += OnIdleHandleThirdPartyStorageNotify;
+                }
+
+                m_Access3rdPartyDataDelegate += value;
+            }
+            remove
+            {
+                m_Access3rdPartyDataDelegate -= value;
+
+                if (m_Access3rdPartyDataDelegate == null)
+                {
+                    Unsubscribe3rdPartyDataAccessEvents();
+                }
+            }
+        }
+
+        public event DocumentCustomPropertyModifiedDelegate CustomPropertyModified
+        {
+            add
+            {
+                if (!m_DocumentCustomPropertyChangedSubscirbed)
+                {
+                    m_DocumentCustomPropertyChangedSubscirbed = true;
+
+                    m_CustPrpsEventsHandler = new CustomPropertiesEventsHandler(this, App, Model);
+                    m_CustPrpsEventsHandler.PropertyChanged += OnCustomPropertiesPropertyModified;
+                }
+
+                m_DocumentCustomPropertyChangedDelegate += value;
+            }
+            remove
+            {
+                m_DocumentCustomPropertyChangedDelegate -= value;
+
+                if (m_DocumentCustomPropertyChangedDelegate == null)
+                {
+                    UnsubscribeCustomPropertyChangedEvents();
+                }
+            }
+        }
+        
+        public event DocumentItemModifiedDelegate ItemModified
+        {
+            add
+            {
+                if (!m_ItemModifiedSubscribed)
+                {
+                    m_ItemModifiedSubscribed = true;
+
+                    if (Model is PartDoc)
+                    {
+                        (Model as PartDoc).AddItemNotify += OnAddItemNotify;
+                        (Model as PartDoc).DeleteItemNotify += OnDeleteItemNotify;
+                        (Model as PartDoc).DeleteItemPreNotify += OnDeleteItemPreNotify;
+                        (Model as PartDoc).PreRenameItemNotify += OnPreRenameItemNotify;
+                        (Model as PartDoc).RenameItemNotify += OnRenameItemNotify;
+                    }
+                    else if (Model is AssemblyDoc)
+                    {
+                        (Model as AssemblyDoc).AddItemNotify += OnAddItemNotify;
+                        (Model as AssemblyDoc).DeleteItemNotify += OnDeleteItemNotify;
+                        (Model as AssemblyDoc).DeleteItemPreNotify += OnDeleteItemPreNotify;
+                        (Model as AssemblyDoc).PreRenameItemNotify += OnPreRenameItemNotify;
+                        (Model as AssemblyDoc).RenameItemNotify += OnRenameItemNotify;
+                    }
+                    else if (Model is DrawingDoc)
+                    {
+                        (Model as DrawingDoc).AddItemNotify += OnAddItemNotify;
+                        (Model as DrawingDoc).DeleteItemNotify += OnDeleteItemNotify;
+                        (Model as DrawingDoc).DeleteItemPreNotify += OnDeleteItemPreNotify;
+                        (Model as DrawingDoc).RenameItemNotify += OnRenameItemNotify;
+                    }
+                }
+
+                m_ItemModifiedDelegate += value;
+            }
+            remove
+            {
+                m_ItemModifiedDelegate -= value;
+
+                if (m_ItemModifiedDelegate == null)
+                {
+                    UnsubscribeItemModifiedEvents();
+                }
+            }
+        }
 
         /// <summary>
         /// Pointer to the SOLIDWORKS application
@@ -41,37 +334,42 @@ namespace CodeStack.SwEx.AddIn.Core
             App = app;
             Model = model;
 
-            if (Model is PartDoc)
-            {
-                (Model as PartDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
-                (Model as PartDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
-                (Model as PartDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
-                (Model as PartDoc).SaveToStorageNotify += OnSaveToStorageNotify;
-            }
-            else if (Model is AssemblyDoc)
-            {
-                (Model as AssemblyDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
-                (Model as AssemblyDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
-                (Model as AssemblyDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
-                (Model as AssemblyDoc).SaveToStorageNotify += OnSaveToStorageNotify;
-            }
-            else if (Model is DrawingDoc)
-            {
-                (Model as DrawingDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
-                (Model as DrawingDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
-                (Model as DrawingDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
-                (Model as DrawingDoc).SaveToStorageNotify += OnSaveToStorageNotify;
-            }
-
-            //NOTE: load from storage notification is not always raised
-            //it is not raised when model is loaded with assembly, it won't be also raised if the document already loaded
-            //as a workaround force call loading within the idle notification
-            (App as SldWorks).OnIdleNotify += OnIdleNotify;
+            //TODO: remove this once the obsolete methods are removed
+            this.Access3rdPartyData += OnAccess3rdPartyData;
+            //---
 
             (App as SldWorks).ActiveModelDocChangeNotify += OnActiveModelDocChangeNotify;
 
             OnInit();
         }
+
+        //TODO: remove this once the obsolete methods are removed
+        private bool OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataAction_e type)
+        {
+            switch (type)
+            {
+#pragma warning disable CS0618
+                case Access3rdPartyDataAction_e.StorageRead:
+                    OnLoadFromStorageStore();
+                    break;
+
+                case Access3rdPartyDataAction_e.StorageWrite:
+                    OnSaveToStorageStore();
+                    break;
+
+                case Access3rdPartyDataAction_e.StreamRead:
+                    OnLoadFromStream();
+                    break;
+
+                case Access3rdPartyDataAction_e.StreamWrite:
+                    OnSaveToStream();
+                    break;
+#pragma warning restore CS0618
+            }
+
+            return true;
+        }
+        //---
 
         private int OnActiveModelDocChangeNotify()
         {
@@ -83,13 +381,13 @@ namespace CodeStack.SwEx.AddIn.Core
             return S_OK;
         }
 
-        private int OnIdleNotify()
+        private int OnIdleHandleThirdPartyStorageNotify()
         {
             EnsureLoadFromStream();
             EnsureLoadFromStorageStore();
 
             //only need to handle loading one time
-            (App as SldWorks).OnIdleNotify -= OnIdleNotify;
+            (App as SldWorks).OnIdleNotify -= OnIdleHandleThirdPartyStorageNotify;
 
             return S_OK;
         }
@@ -109,30 +407,26 @@ namespace CodeStack.SwEx.AddIn.Core
         {
         }
 
-        /// <summary>
-        /// Override to read the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
-        /// </summary>
+        [Obsolete("Deprecated. Use Access3rdPartyData event with StorageRead type instead")]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnLoadFromStorageStore()
         {
         }
 
-        /// <summary>
-        /// Override to read the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
-        /// </summary>
+        [Obsolete("Deprecated. Use Access3rdPartyData event with StreamRead type instead")]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnLoadFromStream()
         {
         }
 
-        /// <summary>
-        /// Override to save the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
-        /// </summary>
+        [Obsolete("Deprecated. Use Access3rdPartyData event with StorageWrite type instead")]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnSaveToStorageStore()
         {
         }
 
-        /// <summary>
-        /// Override to save the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
-        /// </summary>
+        [Obsolete("Deprecated. Use Access3rdPartyData event with StreamWrite type instead")]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnSaveToStream()
         {
         }
@@ -141,29 +435,158 @@ namespace CodeStack.SwEx.AddIn.Core
         {
             (App as SldWorks).ActiveModelDocChangeNotify -= OnActiveModelDocChangeNotify;
 
-            if (Model is PartDoc)
-            {
-                (Model as PartDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
-                (Model as PartDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
-                (Model as PartDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
-                (Model as PartDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
-            }
-            else if (Model is AssemblyDoc)
-            {
-                (Model as AssemblyDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
-                (Model as AssemblyDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
-                (Model as AssemblyDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
-                (Model as AssemblyDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
-            }
-            else if (Model is DrawingDoc)
-            {
-                (Model as DrawingDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
-                (Model as DrawingDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
-                (Model as DrawingDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
-                (Model as DrawingDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
-            }
+            //TODO: remove this once the obsolete methods are removed
+            this.Access3rdPartyData -= OnAccess3rdPartyData;
+            //---
+
+            UnsubscribeSaveEvents();
+
+            UnsubscribeSelectionEvents();
+
+            Unsubscribe3rdPartyDataAccessEvents();
+
+            UnsubscribeCustomPropertyChangedEvents();
+
+            UnsubscribeItemModifiedEvents();
 
             OnDestroy();
+        }
+
+        private void UnsubscribeSaveEvents()
+        {
+            if (m_SaveSubscribed)
+            {
+                if (Model is PartDoc)
+                {
+                    (Model as PartDoc).AutoSaveNotify -= OnAutoSaveNotify;
+                    (Model as PartDoc).FileSaveAsNotify2 -= OnFileSaveAsNotify2;
+                    (Model as PartDoc).FileSaveNotify -= OnFileSaveNotify;
+                    (Model as PartDoc).FileSavePostCancelNotify -= OnFileSavePostCancelNotify;
+                    (Model as PartDoc).FileSavePostNotify -= OnFileSavePostNotify;
+                }
+                else if (Model is AssemblyDoc)
+                {
+                    (Model as AssemblyDoc).AutoSaveNotify -= OnAutoSaveNotify;
+                    (Model as AssemblyDoc).FileSaveAsNotify2 -= OnFileSaveAsNotify2;
+                    (Model as AssemblyDoc).FileSaveNotify -= OnFileSaveNotify;
+                    (Model as AssemblyDoc).FileSavePostCancelNotify -= OnFileSavePostCancelNotify;
+                    (Model as AssemblyDoc).FileSavePostNotify -= OnFileSavePostNotify;
+                }
+                else if (Model is DrawingDoc)
+                {
+                    (Model as DrawingDoc).AutoSaveNotify -= OnAutoSaveNotify;
+                    (Model as DrawingDoc).FileSaveAsNotify2 -= OnFileSaveAsNotify2;
+                    (Model as DrawingDoc).FileSaveNotify -= OnFileSaveNotify;
+                    (Model as DrawingDoc).FileSavePostCancelNotify -= OnFileSavePostCancelNotify;
+                    (Model as DrawingDoc).FileSavePostNotify -= OnFileSavePostNotify;
+                }
+
+                m_SaveSubscribed = false;
+            }
+        }
+
+        private void UnsubscribeSelectionEvents()
+        {
+            if (m_SelectionSubscribed)
+            {
+                if (Model is PartDoc)
+                {
+                    (Model as PartDoc).ClearSelectionsNotify -= OnClearSelectionsNotify;
+                    (Model as PartDoc).NewSelectionNotify -= OnNewSelectionNotify;
+                    (Model as PartDoc).UserSelectionPreNotify -= OnUserSelectionPreNotify;
+                    (Model as PartDoc).UserSelectionPostNotify -= OnUserSelectionPostNotify;
+                }
+                else if (Model is AssemblyDoc)
+                {
+                    (Model as AssemblyDoc).ClearSelectionsNotify -= OnClearSelectionsNotify;
+                    (Model as AssemblyDoc).NewSelectionNotify -= OnNewSelectionNotify;
+                    (Model as AssemblyDoc).UserSelectionPreNotify -= OnUserSelectionPreNotify;
+                    (Model as AssemblyDoc).UserSelectionPostNotify -= OnUserSelectionPostNotify;
+                }
+                else if (Model is DrawingDoc)
+                {
+                    (Model as DrawingDoc).ClearSelectionsNotify -= OnClearSelectionsNotify;
+                    (Model as DrawingDoc).NewSelectionNotify -= OnNewSelectionNotify;
+                    (Model as DrawingDoc).UserSelectionPreNotify -= OnUserSelectionPreNotify;
+                    (Model as DrawingDoc).UserSelectionPostNotify -= OnUserSelectionPostNotify;
+                }
+
+                m_SelectionSubscribed = false;
+            }
+        }
+
+        private void Unsubscribe3rdPartyDataAccessEvents()
+        {
+            if (m_Access3rdPartyDataSubscribed)
+            {
+                if (Model is PartDoc)
+                {
+                    (Model as PartDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
+                    (Model as PartDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
+                    (Model as PartDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
+                    (Model as PartDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
+                }
+                else if (Model is AssemblyDoc)
+                {
+                    (Model as AssemblyDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
+                    (Model as AssemblyDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
+                    (Model as AssemblyDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
+                    (Model as AssemblyDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
+                }
+                else if (Model is DrawingDoc)
+                {
+                    (Model as DrawingDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
+                    (Model as DrawingDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
+                    (Model as DrawingDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
+                    (Model as DrawingDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
+                }
+
+                m_Access3rdPartyDataSubscribed = false;
+            }
+        }
+
+        private void UnsubscribeCustomPropertyChangedEvents()
+        {
+            if (m_DocumentCustomPropertyChangedSubscirbed)
+            {
+                m_CustPrpsEventsHandler.PropertyChanged -= OnCustomPropertiesPropertyModified;
+                m_CustPrpsEventsHandler.Dispose();
+                m_CustPrpsEventsHandler = null;
+
+                m_DocumentCustomPropertyChangedSubscirbed = false;
+            }
+        }
+
+        private void UnsubscribeItemModifiedEvents()
+        {
+            if (m_ItemModifiedSubscribed)
+            {
+                if (Model is PartDoc)
+                {
+                    (Model as PartDoc).AddItemNotify -= OnAddItemNotify;
+                    (Model as PartDoc).DeleteItemNotify -= OnDeleteItemNotify;
+                    (Model as PartDoc).DeleteItemPreNotify -= OnDeleteItemPreNotify;
+                    (Model as PartDoc).PreRenameItemNotify -= OnPreRenameItemNotify;
+                    (Model as PartDoc).RenameItemNotify -= OnRenameItemNotify;
+                }
+                else if (Model is AssemblyDoc)
+                {
+                    (Model as AssemblyDoc).AddItemNotify -= OnAddItemNotify;
+                    (Model as AssemblyDoc).DeleteItemNotify -= OnDeleteItemNotify;
+                    (Model as AssemblyDoc).DeleteItemPreNotify -= OnDeleteItemPreNotify;
+                    (Model as AssemblyDoc).PreRenameItemNotify -= OnPreRenameItemNotify;
+                    (Model as AssemblyDoc).RenameItemNotify -= OnRenameItemNotify;
+                }
+                else if (Model is DrawingDoc)
+                {
+                    (Model as DrawingDoc).AddItemNotify -= OnAddItemNotify;
+                    (Model as DrawingDoc).DeleteItemNotify -= OnDeleteItemNotify;
+                    (Model as DrawingDoc).DeleteItemPreNotify -= OnDeleteItemPreNotify;
+                    (Model as DrawingDoc).RenameItemNotify -= OnRenameItemNotify;
+                }
+
+                m_ItemModifiedSubscribed = false;
+            }
         }
 
         /// <summary>
@@ -174,48 +597,134 @@ namespace CodeStack.SwEx.AddIn.Core
         {
         }
 
+        #region SOLIDWORKS Events Handlers
+
         private int OnSaveToStorageStoreNotify()
         {
-            OnSaveToStorageStore();
-            return S_OK;
+            return m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StorageWrite) ? S_OK : S_FALSE;
         }
 
         private int OnLoadFromStorageNotify()
         {
             //NOTE: by some reasons this event is triggered twice, adding the flag to avoid repetition
-            EnsureLoadFromStream();
-
-            return S_OK;
+            return EnsureLoadFromStream();
         }
 
         private int OnSaveToStorageNotify()
         {
-            OnSaveToStream();
-            return S_OK;
+            return m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StreamWrite) ? S_OK : S_FALSE;
         }
 
         private int OnLoadFromStorageStoreNotify()
         {
-            EnsureLoadFromStorageStore();
-
-            return S_OK;
+            return EnsureLoadFromStorageStore();
         }
 
-        private void EnsureLoadFromStream()
+        private int OnUserSelectionPostNotify()
+        {
+            return m_SelectionDelegate.Invoke(this, swSelectType_e.swSelNOTHING, SelectionAction_e.UserPostSelect) ? S_OK : S_FALSE;
+        }
+
+        private int OnUserSelectionPreNotify(int selType)
+        {
+            return m_SelectionDelegate.Invoke(this, (swSelectType_e)selType, SelectionAction_e.UserPreSelect) ? S_OK : S_FALSE;
+        }
+
+        private int OnNewSelectionNotify()
+        {
+            return m_SelectionDelegate.Invoke(this, swSelectType_e.swSelNOTHING, SelectionAction_e.NewSelection) ? S_OK : S_FALSE;
+        }
+
+        private int OnClearSelectionsNotify()
+        {
+            return m_SelectionDelegate.Invoke(this, swSelectType_e.swSelNOTHING, SelectionAction_e.ClearSelection) ? S_OK : S_FALSE;
+        }
+
+        private int OnFileSavePostNotify(int saveType, string fileName)
+        {
+            return m_SaveDelegate.Invoke(this, fileName, SaveAction_e.PostSave) ? S_OK : S_FALSE;
+        }
+
+        private int OnFileSavePostCancelNotify()
+        {
+            return m_SaveDelegate.Invoke(this, "", SaveAction_e.PostCancel) ? S_OK : S_FALSE;
+        }
+
+        private int OnFileSaveNotify(string fileName)
+        {
+            return m_SaveDelegate.Invoke(this, fileName, SaveAction_e.PreSave) ? S_OK : S_FALSE;
+        }
+
+        private int OnFileSaveAsNotify2(string fileName)
+        {
+            return m_SaveDelegate.Invoke(this, fileName, SaveAction_e.SaveAs) ? S_OK : S_FALSE;
+        }
+
+        private int OnAutoSaveNotify(string fileName)
+        {
+            return m_SaveDelegate.Invoke(this, fileName, SaveAction_e.AutoSave) ? S_OK : S_FALSE;
+        }
+
+        private void OnCustomPropertiesPropertyModified(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value)
+        {
+            m_DocumentCustomPropertyChangedDelegate.Invoke(docHandler, type, name, conf, value);
+        }
+
+        private int OnRenameItemNotify(int entityType, string oldName, string newName)
+        {
+            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.Rename, 
+                (swNotifyEntityType_e)entityType, newName, oldName) ? S_OK : S_FALSE;
+        }
+
+        private int OnPreRenameItemNotify(int entityType, string oldName, string newName)
+        {
+            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.PreRename,
+                (swNotifyEntityType_e)entityType, newName, oldName) ? S_OK : S_FALSE;
+        }
+
+        private int OnDeleteItemPreNotify(int entityType, string itemName)
+        {
+            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.PreDelete,
+                (swNotifyEntityType_e)entityType, itemName) ? S_OK : S_FALSE;
+        }
+
+        private int OnDeleteItemNotify(int entityType, string itemName)
+        {
+            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.Delete,
+                (swNotifyEntityType_e)entityType, itemName) ? S_OK : S_FALSE;
+        }
+
+        private int OnAddItemNotify(int entityType, string itemName)
+        {
+            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.Add,
+                (swNotifyEntityType_e)entityType, itemName) ? S_OK : S_FALSE;
+        }
+
+        #endregion
+
+        private int EnsureLoadFromStream()
         {
             if (!m_Is3rdPartyStreamLoaded)
             {
                 m_Is3rdPartyStreamLoaded = true;
-                OnLoadFromStream();
+                return m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StreamRead) ? S_OK : S_FALSE;
+            }
+            else
+            {
+                return S_OK;
             }
         }
 
-        private void EnsureLoadFromStorageStore()
+        private int EnsureLoadFromStorageStore()
         {
             if (!m_Is3rdPartyStoreLoaded)
             {
                 m_Is3rdPartyStoreLoaded = true;
-                OnLoadFromStorageStore();
+                return m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StorageRead) ? S_OK : S_FALSE;
+            }
+            else
+            {
+                return S_OK;
             }
         }
     }
