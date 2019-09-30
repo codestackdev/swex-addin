@@ -8,6 +8,7 @@
 using CodeStack.SwEx.AddIn.Attributes;
 using CodeStack.SwEx.AddIn.Base;
 using CodeStack.SwEx.AddIn.Core;
+using CodeStack.SwEx.AddIn.Delegates;
 using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Exceptions;
 using CodeStack.SwEx.AddIn.Helpers;

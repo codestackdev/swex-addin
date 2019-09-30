@@ -6,6 +6,8 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Core;
+using CodeStack.SwEx.AddIn.Delegates;
+using CodeStack.SwEx.AddIn.Enums;
 using SolidWorks.Interop.sldworks;
 using System;
 using System.Collections.Generic;
@@ -149,14 +151,14 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
                 foreach (var newPrpName in addedPrpNames)
                 {
-                    PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Added, newPrpName, conf, newPrsList[newPrpName]);
+                    PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Add, newPrpName, conf, newPrsList[newPrpName]);
                 }
 
                 var removedPrpNames = oldPrsList.Keys.Except(newPrsList.Keys);
 
                 foreach (var deletedPrpName in removedPrpNames)
                 {
-                    PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Deleted, deletedPrpName, conf, oldPrsList[deletedPrpName]);
+                    PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Delete, deletedPrpName, conf, oldPrsList[deletedPrpName]);
                 }
 
                 var commonPrpNames = oldPrsList.Keys.Intersect(newPrsList.Keys);
@@ -165,7 +167,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
                 {
                     if (newPrsList[prpName] != oldPrsList[prpName])
                     {
-                        PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Modified, prpName, conf, newPrsList[prpName]);
+                        PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Modify, prpName, conf, newPrsList[prpName]);
                     }
                 }
             }
@@ -173,19 +175,19 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
         private int OnAddCustomPropertyNotify(string propName, string Configuration, string Value, int valueType)
         {
-            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Added, propName, Configuration, Value);
+            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Add, propName, Configuration, Value);
             return 0;
         }
 
         private int OnDeleteCustomPropertyNotify(string propName, string Configuration, string Value, int valueType)
         {
-            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Deleted, propName, Configuration, Value);
+            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Delete, propName, Configuration, Value);
             return 0;
         }
 
         private int OnChangeCustomPropertyNotify(string propName, string Configuration, string oldValue, string NewValue, int valueType)
         {
-            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Modified, propName, Configuration, NewValue);
+            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Modify, propName, Configuration, NewValue);
             return 0;
         }
 

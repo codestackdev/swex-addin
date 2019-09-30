@@ -5,6 +5,7 @@
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
+using CodeStack.SwEx.AddIn.Delegates;
 using CodeStack.SwEx.Common.Attributes;
 using CodeStack.SwEx.Common.Base;
 using SolidWorks.Interop.sldworks;

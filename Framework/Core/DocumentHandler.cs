@@ -6,6 +6,8 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Base;
+using CodeStack.SwEx.AddIn.Delegates;
+using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Helpers;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
@@ -14,68 +16,6 @@ using System.ComponentModel;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
-    public enum SaveAction_e
-    {
-        AutoSave,
-        SaveAs,
-        PreSave,
-        PostSave,
-        PostCancel
-    }
-
-    public enum SelectionAction_e
-    {
-        NewSelection,
-        UserPreSelect,
-        UserPostSelect,
-        ClearSelection
-    }
-
-    public enum ItemModificationAction_e
-    {
-        Add,
-        Delete,
-        PreDelete,
-        Rename,
-        PreRename
-    }
-
-    public enum Access3rdPartyDataAction_e
-    {
-        /// <summary>
-        /// Read the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
-        /// </summary>
-        StorageRead,
-
-        /// <summary>
-        /// Save the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
-        /// </summary>
-        StorageWrite,
-
-        /// <summary>
-        /// Read the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
-        /// </summary>
-        StreamRead,
-
-        /// <summary>
-        /// Save the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
-        /// </summary>
-        StreamWrite
-    }
-
-    public enum CustomPropertyChangeAction_e
-    {
-        Added,
-        Deleted,
-        Modified
-    }
-
-    public delegate bool DocumentSaveDelegate(DocumentHandler docHandler, string fileName, SaveAction_e type);
-    public delegate bool DocumentSelectionDelegate(DocumentHandler docHandler, swSelectType_e selType, SelectionAction_e type);
-    public delegate bool DocumentAccess3rdPartyDataDelegate(DocumentHandler docHandler, Access3rdPartyDataAction_e type);
-    public delegate void DocumentCustomPropertyModifiedDelegate(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value);
-    public delegate bool DocumentItemModifiedDelegate(DocumentHandler docHandler, ItemModificationAction_e type, swNotifyEntityType_e entType, string name, string oldName = "");
-
     /// <summary>
     /// Specific implementation of document handler which provides overrides for the document lifecycle events
     /// </summary>
@@ -95,10 +35,17 @@ namespace CodeStack.SwEx.AddIn.Core
 
         private DocumentItemModifiedDelegate m_ItemModifiedDelegate;
         private bool m_ItemModifiedSubscribed;
-        
+
+        private DocumentConfigurationChangedDelegate m_ConfigurationChangedDelegate;
+        private bool m_ConfigurationChangedSubscribed;
+
         private DocumentCustomPropertyModifiedDelegate m_DocumentCustomPropertyChangedDelegate;
         private bool m_DocumentCustomPropertyChangedSubscirbed;
         private CustomPropertiesEventsHandler m_CustPrpsEventsHandler;
+
+        public event DocumentStateChangedDelegate Initialized;
+        public event DocumentStateChangedDelegate Activated;
+        public event DocumentStateChangedDelegate Destroyed;
 
         public event DocumentSaveDelegate Save
         {
@@ -311,6 +258,42 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
+        public event DocumentConfigurationChangedDelegate ConfigurationChanged
+        {
+            add
+            {
+                if (!m_ConfigurationChangedSubscribed)
+                {
+                    m_ConfigurationChangedSubscribed = true;
+
+                    if (Model is PartDoc)
+                    {
+                        (Model as PartDoc).ConfigurationChangeNotify += OnConfigurationChangeNotify;
+                    }
+                    else if (Model is AssemblyDoc)
+                    {
+                        (Model as AssemblyDoc).ConfigurationChangeNotify += OnConfigurationChangeNotify;
+                    }
+                    else if (Model is DrawingDoc)
+                    {
+                        (Model as DrawingDoc).ActivateSheetPreNotify += OnActivateSheetPreNotify;
+                        (Model as DrawingDoc).ActivateSheetPostNotify += OnActivateSheetPostNotify;
+                    }
+                }
+
+                m_ConfigurationChangedDelegate += value;
+            }
+            remove
+            {
+                m_ConfigurationChangedDelegate -= value;
+
+                if (m_ConfigurationChangedDelegate == null)
+                {
+                    
+                }
+            }
+        }
+
         /// <summary>
         /// Pointer to the SOLIDWORKS application
         /// </summary>
@@ -340,6 +323,7 @@ namespace CodeStack.SwEx.AddIn.Core
 
             (App as SldWorks).ActiveModelDocChangeNotify += OnActiveModelDocChangeNotify;
 
+            Initialized?.Invoke(this);
             OnInit();
         }
 
@@ -375,6 +359,7 @@ namespace CodeStack.SwEx.AddIn.Core
         {
             if (App.ActiveDoc == Model)
             {
+                Activated?.Invoke(this);
                 OnActivate();
             }
 
@@ -449,6 +434,9 @@ namespace CodeStack.SwEx.AddIn.Core
 
             UnsubscribeItemModifiedEvents();
 
+            UnsubscribeConfigurationChangedEvents();
+
+            Destroyed?.Invoke(this);
             OnDestroy();
         }
 
@@ -589,6 +577,28 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
+        private void UnsubscribeConfigurationChangedEvents()
+        {
+            if (m_ConfigurationChangedSubscribed)
+            {
+                m_ConfigurationChangedSubscribed = false;
+
+                if (Model is PartDoc)
+                {
+                    (Model as PartDoc).ConfigurationChangeNotify -= OnConfigurationChangeNotify;
+                }
+                else if (Model is AssemblyDoc)
+                {
+                    (Model as AssemblyDoc).ConfigurationChangeNotify -= OnConfigurationChangeNotify;
+                }
+                else if (Model is DrawingDoc)
+                {
+                    (Model as DrawingDoc).ActivateSheetPreNotify -= OnActivateSheetPreNotify;
+                    (Model as DrawingDoc).ActivateSheetPostNotify -= OnActivateSheetPostNotify;
+                }
+            }
+        }
+
         /// <summary>
         /// Override to dispose the resources
         /// </summary>
@@ -698,6 +708,24 @@ namespace CodeStack.SwEx.AddIn.Core
         {
             return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.Add,
                 (swNotifyEntityType_e)entityType, itemName) ? S_OK : S_FALSE;
+        }
+
+        private int OnActivateSheetPreNotify(string sheetName)
+        {
+            return m_ConfigurationChangedDelegate.Invoke(this, ConfigurationChangeAction_e.PreActivate, 
+                sheetName) ? S_OK : S_FALSE;
+        }
+
+        private int OnActivateSheetPostNotify(string sheetName)
+        {
+            return m_ConfigurationChangedDelegate.Invoke(this, ConfigurationChangeAction_e.PostActivate,
+                sheetName) ? S_OK : S_FALSE;
+        }
+
+        private int OnConfigurationChangeNotify(string configurationName, object obj, int objectType, int changeType)
+        {
+            return m_ConfigurationChangedDelegate.Invoke(this, ConfigurationChangeAction_e.PreActivate,
+                configurationName) ? S_OK : S_FALSE;
         }
 
         #endregion
