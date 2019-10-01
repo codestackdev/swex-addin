@@ -17,6 +17,7 @@ using SolidWorks.Interop.swconst;
 using CodeStack.SwEx.AddIn.Base;
 using System.Xml.Serialization;
 using CodeStack.SwEx.Common.Attributes;
+using CodeStack.SwEx.AddIn.Delegates;
 
 namespace CodeStack.SwEx.AddIn.Example
 {
@@ -237,9 +238,9 @@ namespace CodeStack.SwEx.AddIn.Example
             AddCommandGroup<Commands_e>(OnCommandClick, OnCommandEnable);
             AddCommandGroup<SubCommands_e>(OnSubCommandClick);
 
-            //m_DocsHandler = CreateDocumentsHandler<DataStorageDocHandler>();
+            m_DocsHandler = CreateDocumentsHandler<DataStorageDocHandler>();
 
-            m_GenericDocsHandler = CreateDocumentsHandler<DocumentHandler>();
+            m_GenericDocsHandler = CreateDocumentsHandler();
             m_GenericDocsHandler.HandlerCreated += OnHandlerCreated;
             TaskPaneControl ctrl;
             var taskPaneView = CreateTaskPane<TaskPaneControl, TaskPaneCommands_e>(OnTaskPaneCommandClick, out ctrl);
@@ -322,10 +323,13 @@ namespace CodeStack.SwEx.AddIn.Example
                 (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
         }
 
-        private void OnCustomPropertyModified(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value)
+        private void OnCustomPropertyModified(DocumentHandler docHandler, CustomPropertyModifyData[] modifications)
         {
-            App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' custom property '{name}' changed ({type}) in '{conf}' to '{value}'",
-                (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
+            foreach (var mod in modifications)
+            {
+                App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' custom property '{mod.Name}' changed ({mod.Type}) in '{mod.Configuration}' to '{mod.Value}'",
+                    (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
+            }
         }
 
         private void OnConfigurationChanged(DocumentHandler docHandler, ConfigurationChangeAction_e type, string confName)

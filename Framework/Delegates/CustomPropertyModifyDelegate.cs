@@ -10,5 +10,21 @@ using CodeStack.SwEx.AddIn.Enums;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate void CustomPropertyModifyDelegate(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value);
+    public class CustomPropertyModifyData
+    {
+        public CustomPropertyChangeAction_e Type { get; private set; }
+        public string Name { get; private set; }
+        public string Configuration { get; private set; }
+        public string Value { get; private set; }
+
+        internal CustomPropertyModifyData(CustomPropertyChangeAction_e type, string name, string conf, string val)
+        {
+            Type = type;
+            Name = name;
+            Configuration = conf;
+            Value = val;
+        }
+    }
+
+    public delegate void CustomPropertyModifyDelegate(DocumentHandler docHandler, CustomPropertyModifyData[] modifications);
 }

@@ -6,6 +6,7 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Base;
+using CodeStack.SwEx.AddIn.Core;
 using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.Common.Diagnostics;
 using SolidWorks.Interop.sldworks;

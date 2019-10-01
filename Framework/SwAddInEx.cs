@@ -316,7 +316,8 @@ namespace CodeStack.SwEx.AddIn
             return AddCommandGroupOrContextMenu(
                cmdBar, true, contextMenuSelectType);
         }
-        
+
+        /// <inheritdoc/>
         public IDocumentsHandler<TDocHandler> CreateDocumentsHandler<TDocHandler>()
             where TDocHandler : IDocumentHandler, new()
         {
@@ -326,13 +327,25 @@ namespace CodeStack.SwEx.AddIn
 
             return docsHandler;
         }
-        
+
+        /// <inheritdoc/>
+        public IDocumentsHandler<DocumentHandler> CreateDocumentsHandler()
+        {
+            var docsHandler = new DocumentsHandler<DocumentHandler>(App, m_Logger);
+
+            m_DocsHandlers.Add(docsHandler);
+
+            return docsHandler;
+        }
+
+        /// <inheritdoc/>
         public ITaskpaneView CreateTaskPane<TControl>(out TControl ctrl)
             where TControl : UserControl, new()
         {
             return CreateTaskPane<TControl, EmptyTaskPaneCommands_e>(null, out ctrl);
         }
 
+        /// <inheritdoc/>
         public ITaskpaneView CreateTaskPane<TControl, TCmdEnum>(Action<TCmdEnum> cmdHandler, out TControl ctrl)
             where TControl : UserControl, new()
             where TCmdEnum : IComparable, IFormattable, IConvertible

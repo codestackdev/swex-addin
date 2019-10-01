@@ -120,6 +120,14 @@
     <Compile Include="Helpers\CustomPropertiesEventsHandler.cs" />
     <Compile Include="Helpers\DisplayInfoExtractor.cs" />
     <Compile Include="Helpers\DocumentHandlerWrapper.cs" />
+    <Compile Include="Helpers\EventHandlers\Access3rdPartyDataEventsHandler.cs" />
+    <Compile Include="Helpers\EventHandlers\ConfigurationChangeEventsHandler.cs" />
+    <Compile Include="Helpers\EventHandlers\CustomPropertyModifyEventHandler.cs" />
+    <Compile Include="Helpers\EventHandlers\DocumentSaveEventsHandler.cs" />
+    <Compile Include="Helpers\EventHandlers\ItemModifyEventsHandler.cs" />
+    <Compile Include="Helpers\EventHandlers\ObjectSelectionEventsHandler.cs" />
+    <Compile Include="Helpers\EventHandlers\RebuildEventsHandler.cs" />
+    <Compile Include="Helpers\EventsHandler.cs" />
     <Compile Include="Helpers\RegistrationHelper.cs" />
     <Compile Include="Helpers\TaskPaneHandler.cs" />
     <Compile Include="Icons\CommandGroupIcon.cs" />

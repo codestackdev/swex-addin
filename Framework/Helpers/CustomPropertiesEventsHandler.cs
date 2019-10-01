@@ -58,7 +58,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
         }
 
-        public event CustomPropertyModifyDelegate PropertyChanged;
+        public event CustomPropertyModifyDelegate CustomPropertiesModified;
 
         #region WinAPI
 
@@ -142,52 +142,66 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
         private void FindDifferences(PropertiesSet oldSet, PropertiesSet newSet)
         {
+            var modData = new List<CustomPropertyModifyData>();
+
             foreach (var conf in oldSet.Keys)
             {
                 var oldPrsList = oldSet[conf];
                 var newPrsList = newSet[conf];
-
+                
                 var addedPrpNames = newPrsList.Keys.Except(oldPrsList.Keys);
-
-                foreach (var newPrpName in addedPrpNames)
-                {
-                    PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Add, newPrpName, conf, newPrsList[newPrpName]);
-                }
+                
+                modData.AddRange(addedPrpNames
+                    .Select(newPrpName => new CustomPropertyModifyData(
+                        CustomPropertyChangeAction_e.Add, newPrpName, conf, newPrsList[newPrpName])));
 
                 var removedPrpNames = oldPrsList.Keys.Except(newPrsList.Keys);
 
-                foreach (var deletedPrpName in removedPrpNames)
-                {
-                    PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Delete, deletedPrpName, conf, oldPrsList[deletedPrpName]);
-                }
+                modData.AddRange(removedPrpNames
+                    .Select(deletedPrpName => new CustomPropertyModifyData(
+                        CustomPropertyChangeAction_e.Delete, deletedPrpName, conf, oldPrsList[deletedPrpName])));
 
                 var commonPrpNames = oldPrsList.Keys.Intersect(newPrsList.Keys);
 
-                foreach (var prpName in commonPrpNames)
-                {
-                    if (newPrsList[prpName] != oldPrsList[prpName])
-                    {
-                        PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Modify, prpName, conf, newPrsList[prpName]);
-                    }
-                }
+                modData.AddRange(commonPrpNames.Where(prpName => newPrsList[prpName] != oldPrsList[prpName])
+                    .Select(prpName => new CustomPropertyModifyData(
+                        CustomPropertyChangeAction_e.Modify, prpName, conf, newPrsList[prpName])));
+            }
+
+            if (modData.Any())
+            {
+                CustomPropertiesModified?.Invoke(m_DocHandler, modData.ToArray());
             }
         }
 
-        private int OnAddCustomPropertyNotify(string propName, string Configuration, string Value, int valueType)
+        private int OnAddCustomPropertyNotify(string propName, string configuration, string value, int valueType)
         {
-            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Add, propName, Configuration, Value);
+            CustomPropertiesModified?.Invoke(m_DocHandler, 
+                new CustomPropertyModifyData[]
+                {
+                    new CustomPropertyModifyData(CustomPropertyChangeAction_e.Add, propName, configuration, value)
+                });
+
             return 0;
         }
 
-        private int OnDeleteCustomPropertyNotify(string propName, string Configuration, string Value, int valueType)
+        private int OnDeleteCustomPropertyNotify(string propName, string configuration, string value, int valueType)
         {
-            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Delete, propName, Configuration, Value);
+            CustomPropertiesModified?.Invoke(m_DocHandler, new CustomPropertyModifyData[] 
+            {
+                new CustomPropertyModifyData(CustomPropertyChangeAction_e.Delete, propName, configuration, value)
+            });
+
             return 0;
         }
 
-        private int OnChangeCustomPropertyNotify(string propName, string Configuration, string oldValue, string NewValue, int valueType)
+        private int OnChangeCustomPropertyNotify(string propName, string configuration, string oldValue, string newValue, int valueType)
         {
-            PropertyChanged?.Invoke(m_DocHandler, CustomPropertyChangeAction_e.Modify, propName, Configuration, NewValue);
+            CustomPropertiesModified?.Invoke(m_DocHandler, new CustomPropertyModifyData[] 
+            {
+                new CustomPropertyModifyData(CustomPropertyChangeAction_e.Modify, propName, configuration, newValue)
+            });
+
             return 0;
         }
 
