@@ -7,9 +7,8 @@
 
 using CodeStack.SwEx.AddIn.Core;
 using CodeStack.SwEx.AddIn.Enums;
-using SolidWorks.Interop.swconst;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate bool DocumentItemModifiedDelegate(DocumentHandler docHandler, ItemModificationAction_e type, swNotifyEntityType_e entType, string name, string oldName = "");
+    public delegate void CustomPropertyModifyDelegate(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value);
 }

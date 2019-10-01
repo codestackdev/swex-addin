@@ -65,7 +65,7 @@ namespace CodeStack.SwEx.AddIn.Example
         Command2
     }
 
-    public class SimpleDocHandler : DocumentHandler
+    public class DataStorageDocHandler : DocumentHandler
     {
         public class RevData
         {
@@ -82,7 +82,32 @@ namespace CodeStack.SwEx.AddIn.Example
 
         public override void OnInit()
         {
+            this.Access3rdPartyData += OnAccess3rdPartyData;
+
             ShowMessage($"{Model.GetTitle()} document loaded");
+        }
+
+        private void OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataAction_e type)
+        {
+            switch (type)
+            {
+                case Access3rdPartyDataAction_e.StorageRead:
+                    LoadFromStorageStore();
+                    break;
+
+                case Access3rdPartyDataAction_e.StorageWrite:
+                    SaveToStorageStore();
+                    break;
+
+                case Access3rdPartyDataAction_e.StreamRead:
+                    LoadFromStream();
+                    break;
+
+                case Access3rdPartyDataAction_e.StreamWrite:
+                    SaveToStream();
+                    break;
+
+            }
         }
 
         public override void OnDestroy()
@@ -90,7 +115,7 @@ namespace CodeStack.SwEx.AddIn.Example
             ShowMessage($"{Model.GetTitle()} document destroyed");
         }
 
-        public override void OnSaveToStream()
+        private void SaveToStream()
         {
             using (var streamHandler = Model.Access3rdPartyStream(STREAM_NAME, true))
             {
@@ -111,7 +136,7 @@ namespace CodeStack.SwEx.AddIn.Example
             }
         }
 
-        public override void OnLoadFromStream()
+        private void LoadFromStream()
         {
             using (var streamHandler = Model.Access3rdPartyStream(STREAM_NAME, false))
             {
@@ -131,7 +156,7 @@ namespace CodeStack.SwEx.AddIn.Example
             }
         }
 
-        public override void OnLoadFromStorageStore()
+        private void LoadFromStorageStore()
         {
             var path = SUB_STORAGE_PATH.Split('\\');
 
@@ -170,7 +195,7 @@ namespace CodeStack.SwEx.AddIn.Example
             }
         }
 
-        public override void OnSaveToStorageStore()
+        private void SaveToStorageStore()
         {
             var path = SUB_STORAGE_PATH.Split('\\');
 
@@ -204,19 +229,115 @@ namespace CodeStack.SwEx.AddIn.Example
     [AutoRegister("Sample AddInEx", "Sample AddInEx", true)]
     public class SwSampleAddIn : SwAddInEx
     {
-        private IDocumentsHandler<SimpleDocHandler> m_DocsHandler;
+        private IDocumentsHandler<DataStorageDocHandler> m_DocsHandler;
+        private IDocumentsHandler<DocumentHandler> m_GenericDocsHandler;
 
         public override bool OnConnect()
         {
             AddCommandGroup<Commands_e>(OnCommandClick, OnCommandEnable);
             AddCommandGroup<SubCommands_e>(OnSubCommandClick);
 
-            m_DocsHandler = CreateDocumentsHandler<SimpleDocHandler>();
+            //m_DocsHandler = CreateDocumentsHandler<DataStorageDocHandler>();
 
+            m_GenericDocsHandler = CreateDocumentsHandler<DocumentHandler>();
+            m_GenericDocsHandler.HandlerCreated += OnHandlerCreated;
             TaskPaneControl ctrl;
             var taskPaneView = CreateTaskPane<TaskPaneControl, TaskPaneCommands_e>(OnTaskPaneCommandClick, out ctrl);
 
             return true;
+        }
+
+        private void OnHandlerCreated(DocumentHandler handler)
+        {
+            handler.Activated += OnActivated;
+            handler.Initialized += OnInitialized;
+            handler.ConfigurationChange += OnConfigurationChanged;
+            handler.CustomPropertyModify += OnCustomPropertyModified;
+            handler.ItemModify += OnItemModified;
+            handler.Save += OnSave;
+            handler.Selection += OnSelection;
+            handler.Rebuild += OnRebuild;
+            handler.Destroyed += OnDestroyed;
+        }
+
+        private bool OnRebuild(DocumentHandler docHandler, RebuildAction_e type)
+        {
+            return App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' rebuilt ({type}). Cancel?",
+                        (int)swMessageBoxIcon_e.swMbQuestion, (int)swMessageBoxBtn_e.swMbYesNo) == (int)swMessageBoxResult_e.swMbHitNo;
+        }
+
+        private void OnInitialized(DocumentHandler docHandler)
+        {
+            App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' initialized",
+                (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
+        }
+
+        private void OnDestroyed(DocumentHandler handler)
+        {
+            handler.Activated -= OnActivated;
+            handler.Initialized -= OnInitialized;
+            handler.ConfigurationChange -= OnConfigurationChanged;
+            handler.CustomPropertyModify -= OnCustomPropertyModified;
+            handler.ItemModify -= OnItemModified;
+            handler.Save -= OnSave;
+            handler.Selection -= OnSelection;
+            handler.Rebuild -= OnRebuild;
+            handler.Destroyed -= OnDestroyed;
+
+            App.SendMsgToUser2($"'{handler.Model.GetTitle()}' destroyed",
+                (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
+        }
+
+        private bool m_ShowSelectionEvents = false;
+
+        private bool OnSelection(DocumentHandler docHandler, swSelectType_e selType, SelectionAction_e type)
+        {
+            if (m_ShowSelectionEvents)
+            {
+                if (type != SelectionAction_e.UserPreSelect)//dynamic selection
+                {
+                    return App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' selection ({type}) of {selType}. Cancel?",
+                        (int)swMessageBoxIcon_e.swMbQuestion, (int)swMessageBoxBtn_e.swMbYesNo) == (int)swMessageBoxResult_e.swMbHitNo;
+                }
+                else
+                {
+                    return selType != swSelectType_e.swSelFACES;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private bool OnSave(DocumentHandler docHandler, string fileName, SaveAction_e type)
+        {
+            return App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' saving ({type}). Cancel?",
+                (int)swMessageBoxIcon_e.swMbQuestion, (int)swMessageBoxBtn_e.swMbYesNo) == (int)swMessageBoxResult_e.swMbHitNo;
+        }
+
+        private void OnItemModified(DocumentHandler docHandler, ItemModificationAction_e type, swNotifyEntityType_e entType, string name, string oldName = "")
+        {
+            App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' item modified ({type}) of {entType}. Name: {name} (from {oldName}). Cancel?",
+                (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
+        }
+
+        private void OnCustomPropertyModified(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value)
+        {
+            App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' custom property '{name}' changed ({type}) in '{conf}' to '{value}'",
+                (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
+        }
+
+        private void OnConfigurationChanged(DocumentHandler docHandler, ConfigurationChangeAction_e type, string confName)
+        {
+            App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' configuration {confName} changed ({type}). Cancel?",
+                (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
+        }
+
+        private void OnActivated(DocumentHandler docHandler)
+        {
+            App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' activated",
+                (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
         }
 
         public override bool OnDisconnect()

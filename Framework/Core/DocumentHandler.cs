@@ -13,6 +13,7 @@ using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
@@ -27,20 +28,20 @@ namespace CodeStack.SwEx.AddIn.Core
         private DocumentSaveDelegate m_SaveDelegate;
         private bool m_SaveSubscribed;
 
-        private DocumentSelectionDelegate m_SelectionDelegate;
+        private ObjectSelectionDelegate m_SelectionDelegate;
         private bool m_SelectionSubscribed;
 
-        private DocumentAccess3rdPartyDataDelegate m_Access3rdPartyDataDelegate;
+        private Access3rdPartyDataDelegate m_Access3rdPartyDataDelegate;
         private bool m_Access3rdPartyDataSubscribed;
 
-        private DocumentItemModifiedDelegate m_ItemModifiedDelegate;
-        private bool m_ItemModifiedSubscribed;
+        private ItemModifyDelegate m_ItemModifyDelegate;
+        private bool m_ItemModifySubscribed;
 
-        private DocumentConfigurationChangedDelegate m_ConfigurationChangedDelegate;
-        private bool m_ConfigurationChangedSubscribed;
+        private ConfigurationChangeDelegate m_ConfigurationChangeDelegate;
+        private bool m_ConfigurationChangeSubscribed;
 
-        private DocumentCustomPropertyModifiedDelegate m_DocumentCustomPropertyChangedDelegate;
-        private bool m_DocumentCustomPropertyChangedSubscirbed;
+        private CustomPropertyModifyDelegate m_DocumentCustomPropertyChangeDelegate;
+        private bool m_DocumentCustomPropertyChangeSubscirbed;
         private CustomPropertiesEventsHandler m_CustPrpsEventsHandler;
 
         public event DocumentStateChangedDelegate Initialized;
@@ -94,7 +95,7 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
-        public event DocumentSelectionDelegate Selection
+        public event ObjectSelectionDelegate Selection
         {
             add
             {
@@ -138,7 +139,7 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
-        public event DocumentAccess3rdPartyDataDelegate Access3rdPartyData
+        public event Access3rdPartyDataDelegate Access3rdPartyData
         {
             add
             {
@@ -187,38 +188,38 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
-        public event DocumentCustomPropertyModifiedDelegate CustomPropertyModified
+        public event CustomPropertyModifyDelegate CustomPropertyModify
         {
             add
             {
-                if (!m_DocumentCustomPropertyChangedSubscirbed)
+                if (!m_DocumentCustomPropertyChangeSubscirbed)
                 {
-                    m_DocumentCustomPropertyChangedSubscirbed = true;
+                    m_DocumentCustomPropertyChangeSubscirbed = true;
 
                     m_CustPrpsEventsHandler = new CustomPropertiesEventsHandler(this, App, Model);
                     m_CustPrpsEventsHandler.PropertyChanged += OnCustomPropertiesPropertyModified;
                 }
 
-                m_DocumentCustomPropertyChangedDelegate += value;
+                m_DocumentCustomPropertyChangeDelegate += value;
             }
             remove
             {
-                m_DocumentCustomPropertyChangedDelegate -= value;
+                m_DocumentCustomPropertyChangeDelegate -= value;
 
-                if (m_DocumentCustomPropertyChangedDelegate == null)
+                if (m_DocumentCustomPropertyChangeDelegate == null)
                 {
                     UnsubscribeCustomPropertyChangedEvents();
                 }
             }
         }
         
-        public event DocumentItemModifiedDelegate ItemModified
+        public event ItemModifyDelegate ItemModify
         {
             add
             {
-                if (!m_ItemModifiedSubscribed)
+                if (!m_ItemModifySubscribed)
                 {
-                    m_ItemModifiedSubscribed = true;
+                    m_ItemModifySubscribed = true;
 
                     if (Model is PartDoc)
                     {
@@ -245,26 +246,26 @@ namespace CodeStack.SwEx.AddIn.Core
                     }
                 }
 
-                m_ItemModifiedDelegate += value;
+                m_ItemModifyDelegate += value;
             }
             remove
             {
-                m_ItemModifiedDelegate -= value;
+                m_ItemModifyDelegate -= value;
 
-                if (m_ItemModifiedDelegate == null)
+                if (m_ItemModifyDelegate == null)
                 {
                     UnsubscribeItemModifiedEvents();
                 }
             }
         }
 
-        public event DocumentConfigurationChangedDelegate ConfigurationChanged
+        public event ConfigurationChangeDelegate ConfigurationChange
         {
             add
             {
-                if (!m_ConfigurationChangedSubscribed)
+                if (!m_ConfigurationChangeSubscribed)
                 {
-                    m_ConfigurationChangedSubscribed = true;
+                    m_ConfigurationChangeSubscribed = true;
 
                     if (Model is PartDoc)
                     {
@@ -281,31 +282,221 @@ namespace CodeStack.SwEx.AddIn.Core
                     }
                 }
 
-                m_ConfigurationChangedDelegate += value;
+                m_ConfigurationChangeDelegate += value;
             }
             remove
             {
-                m_ConfigurationChangedDelegate -= value;
+                m_ConfigurationChangeDelegate -= value;
 
-                if (m_ConfigurationChangedDelegate == null)
+                if (m_ConfigurationChangeDelegate == null)
                 {
                     
                 }
             }
         }
 
+        private abstract class EventsHandler<TDel> : IDisposable
+            where TDel : class, ICloneable, ISerializable
+        {
+            protected const int S_OK = 0;
+            protected const int S_FALSE = 1;
+
+            public TDel Delegate { get; set; }
+
+            protected readonly DocumentHandler m_DocHandler;
+            
+            private bool m_IsSubscribed;
+
+            internal EventsHandler(DocumentHandler docHandler)
+            {
+                m_DocHandler = docHandler;
+
+                m_IsSubscribed = false;
+            }
+
+            private void SubscribeIfNeeded()
+            {
+                if (!m_IsSubscribed)
+                {
+                    if (m_DocHandler.Model is PartDoc)
+                    {
+                        SubscribePartEvents(m_DocHandler.Model as PartDoc);
+                    }
+                    else if (m_DocHandler.Model is AssemblyDoc)
+                    {
+                        SubscribeAssemblyEvents(m_DocHandler.Model as AssemblyDoc);
+                    }
+                    else if (m_DocHandler.Model is DrawingDoc)
+                    {
+                        SubscribeDrawingEvents(m_DocHandler.Model as DrawingDoc);
+                    }
+                    else
+                    {
+                        throw new InvalidCastException("Model type is null or invalid");
+                    }
+
+                    m_IsSubscribed = true;
+                }
+            }
+
+            private void UnsubscribeIfNeeded()
+            {
+                if (m_IsSubscribed)
+                {
+                    if (m_DocHandler.Model is PartDoc)
+                    {
+                        UnsubscribePartEvents(m_DocHandler.Model as PartDoc);
+                    }
+                    else if (m_DocHandler.Model is AssemblyDoc)
+                    {
+                        UnsubscribeAssemblyEvents(m_DocHandler.Model as AssemblyDoc);
+                    }
+                    else if (m_DocHandler.Model is DrawingDoc)
+                    {
+                        UnsubscribeDrawingEvents(m_DocHandler.Model as DrawingDoc);
+                    }
+                    else
+                    {
+                        throw new InvalidCastException("Model type is null or invalid");
+                    }
+
+                    m_IsSubscribed = false;
+                }
+            }
+
+            public void Dispose()
+            {
+                UnsubscribeIfNeeded();
+            }
+            
+            protected abstract void SubscribePartEvents(PartDoc part);
+            protected abstract void SubscribeAssemblyEvents(AssemblyDoc assm);
+            protected abstract void SubscribeDrawingEvents(DrawingDoc draw);
+            protected abstract void UnsubscribePartEvents(PartDoc part);
+            protected abstract void UnsubscribeAssemblyEvents(AssemblyDoc assm);
+            protected abstract void UnsubscribeDrawingEvents(DrawingDoc draw);
+
+            internal void Attach(TDel del)
+            {
+                SubscribeIfNeeded();
+                OnAttach(del);
+            }
+
+            internal void Detach(TDel del)
+            {
+                OnDetach(del);
+
+                if (Delegate == null)
+                {
+                    UnsubscribeIfNeeded();
+                }
+            }
+
+            protected abstract void OnAttach(TDel del);
+            protected abstract void OnDetach(TDel del);
+        }
+
+        private class RebuildEventsHandler : EventsHandler<RebuildDelegate>
+        {
+            internal RebuildEventsHandler(DocumentHandler docHandler) : base(docHandler)
+            {
+            }
+
+            protected override void SubscribeAssemblyEvents(AssemblyDoc assm)
+            {
+                assm.RegenNotify += OnRegenNotify;
+                assm.RegenPostNotify2 += OnRegenPostNotify2;
+            }
+
+            protected override void SubscribeDrawingEvents(DrawingDoc draw)
+            {
+                draw.RegenNotify += OnRegenNotify;
+                draw.RegenPostNotify += OnDrawingRegenPostNotify;
+            }
+
+            protected override void SubscribePartEvents(PartDoc part)
+            {
+                part.RegenNotify += OnRegenNotify;
+                part.RegenPostNotify2 += OnRegenPostNotify2;
+            }
+
+            protected override void UnsubscribeAssemblyEvents(AssemblyDoc assm)
+            {
+                assm.RegenNotify -= OnRegenNotify;
+                assm.RegenPostNotify2 -= OnRegenPostNotify2;
+            }
+
+            protected override void UnsubscribeDrawingEvents(DrawingDoc draw)
+            {
+                draw.RegenNotify -= OnRegenNotify;
+                draw.RegenPostNotify -= OnDrawingRegenPostNotify;
+            }
+
+            protected override void UnsubscribePartEvents(PartDoc part)
+            {
+                part.RegenNotify -= OnRegenNotify;
+                part.RegenPostNotify2 -= OnRegenPostNotify2;
+            }
+
+            private int OnRegenNotify()
+            {
+                return Delegate.Invoke(m_DocHandler, RebuildAction_e.PreRebuild) ? S_OK : S_FALSE;
+            }
+
+            private int OnDrawingRegenPostNotify()
+            {
+                return Delegate.Invoke(m_DocHandler, RebuildAction_e.PostRebuild) ? S_OK : S_FALSE;
+            }
+
+            private int OnRegenPostNotify2(object stopFeature)
+            {
+                return Delegate.Invoke(m_DocHandler, RebuildAction_e.PostRebuild) ? S_OK : S_FALSE;
+            }
+
+            protected override void OnAttach(RebuildDelegate del)
+            {
+                Delegate += del;
+            }
+
+            protected override void OnDetach(RebuildDelegate del)
+            {
+                Delegate -= del;
+            }
+        }
+
+        private readonly RebuildEventsHandler m_RebuildEventsHandler;
+
+        public event RebuildDelegate Rebuild
+        {
+            add
+            {
+                m_RebuildEventsHandler.Attach(value);
+            }
+            remove
+            {
+                m_RebuildEventsHandler.Detach(value);
+            }
+        }
+
         /// <summary>
         /// Pointer to the SOLIDWORKS application
         /// </summary>
-        protected ISldWorks App { get; private set; }
+        /// <remarks>This pointer assigned before <see cref="OnInit"/> method or <see cref="Initialized"/> event</remarks>
+        public ISldWorks App { get; private set; }
 
         /// <summary>
         /// Pointer to the model of this handler
         /// </summary>
-        protected IModelDoc2 Model { get; private set; }
+        /// <remarks>This pointer assigned before <see cref="OnInit"/> method or <see cref="Initialized"/> event</remarks>
+        public IModelDoc2 Model { get; private set; }
 
         private bool m_Is3rdPartyStreamLoaded;
         private bool m_Is3rdPartyStoreLoaded;
+
+        public DocumentHandler()
+        {
+            m_RebuildEventsHandler = new RebuildEventsHandler(this);
+        }
 
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -328,7 +519,7 @@ namespace CodeStack.SwEx.AddIn.Core
         }
 
         //TODO: remove this once the obsolete methods are removed
-        private bool OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataAction_e type)
+        private void OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataAction_e type)
         {
             switch (type)
             {
@@ -350,8 +541,6 @@ namespace CodeStack.SwEx.AddIn.Core
                     break;
 #pragma warning restore CS0618
             }
-
-            return true;
         }
         //---
 
@@ -436,9 +625,13 @@ namespace CodeStack.SwEx.AddIn.Core
 
             UnsubscribeConfigurationChangedEvents();
 
+            m_RebuildEventsHandler.Dispose();
+
             Destroyed?.Invoke(this);
             OnDestroy();
         }
+
+        #region Events Unsubscribing
 
         private void UnsubscribeSaveEvents()
         {
@@ -535,19 +728,19 @@ namespace CodeStack.SwEx.AddIn.Core
 
         private void UnsubscribeCustomPropertyChangedEvents()
         {
-            if (m_DocumentCustomPropertyChangedSubscirbed)
+            if (m_DocumentCustomPropertyChangeSubscirbed)
             {
                 m_CustPrpsEventsHandler.PropertyChanged -= OnCustomPropertiesPropertyModified;
                 m_CustPrpsEventsHandler.Dispose();
                 m_CustPrpsEventsHandler = null;
 
-                m_DocumentCustomPropertyChangedSubscirbed = false;
+                m_DocumentCustomPropertyChangeSubscirbed = false;
             }
         }
 
         private void UnsubscribeItemModifiedEvents()
         {
-            if (m_ItemModifiedSubscribed)
+            if (m_ItemModifySubscribed)
             {
                 if (Model is PartDoc)
                 {
@@ -573,16 +766,14 @@ namespace CodeStack.SwEx.AddIn.Core
                     (Model as DrawingDoc).RenameItemNotify -= OnRenameItemNotify;
                 }
 
-                m_ItemModifiedSubscribed = false;
+                m_ItemModifySubscribed = false;
             }
         }
 
         private void UnsubscribeConfigurationChangedEvents()
         {
-            if (m_ConfigurationChangedSubscribed)
+            if (m_ConfigurationChangeSubscribed)
             {
-                m_ConfigurationChangedSubscribed = false;
-
                 if (Model is PartDoc)
                 {
                     (Model as PartDoc).ConfigurationChangeNotify -= OnConfigurationChangeNotify;
@@ -596,8 +787,12 @@ namespace CodeStack.SwEx.AddIn.Core
                     (Model as DrawingDoc).ActivateSheetPreNotify -= OnActivateSheetPreNotify;
                     (Model as DrawingDoc).ActivateSheetPostNotify -= OnActivateSheetPostNotify;
                 }
+
+                m_ConfigurationChangeSubscribed = false;
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Override to dispose the resources
@@ -607,11 +802,12 @@ namespace CodeStack.SwEx.AddIn.Core
         {
         }
 
-        #region SOLIDWORKS Events Handlers
+        #region Events Handlers
 
         private int OnSaveToStorageStoreNotify()
         {
-            return m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StorageWrite) ? S_OK : S_FALSE;
+            m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StorageWrite);
+            return S_OK;
         }
 
         private int OnLoadFromStorageNotify()
@@ -622,7 +818,9 @@ namespace CodeStack.SwEx.AddIn.Core
 
         private int OnSaveToStorageNotify()
         {
-            return m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StreamWrite) ? S_OK : S_FALSE;
+            m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StreamWrite);
+
+            return S_OK;
         }
 
         private int OnLoadFromStorageStoreNotify()
@@ -677,55 +875,73 @@ namespace CodeStack.SwEx.AddIn.Core
 
         private void OnCustomPropertiesPropertyModified(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value)
         {
-            m_DocumentCustomPropertyChangedDelegate.Invoke(docHandler, type, name, conf, value);
+            m_DocumentCustomPropertyChangeDelegate.Invoke(docHandler, type, name, conf, value);
         }
 
         private int OnRenameItemNotify(int entityType, string oldName, string newName)
         {
-            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.Rename, 
-                (swNotifyEntityType_e)entityType, newName, oldName) ? S_OK : S_FALSE;
+            m_ItemModifyDelegate.Invoke(this, ItemModificationAction_e.Rename,
+                (swNotifyEntityType_e)entityType, newName, oldName);
+
+            return S_OK;
         }
 
         private int OnPreRenameItemNotify(int entityType, string oldName, string newName)
         {
-            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.PreRename,
-                (swNotifyEntityType_e)entityType, newName, oldName) ? S_OK : S_FALSE;
+            m_ItemModifyDelegate.Invoke(this, ItemModificationAction_e.PreRename,
+                (swNotifyEntityType_e)entityType, newName, oldName);
+
+            return S_OK;
         }
 
         private int OnDeleteItemPreNotify(int entityType, string itemName)
         {
-            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.PreDelete,
-                (swNotifyEntityType_e)entityType, itemName) ? S_OK : S_FALSE;
+            m_ItemModifyDelegate.Invoke(this, ItemModificationAction_e.PreDelete,
+                (swNotifyEntityType_e)entityType, itemName);
+
+            return S_OK;
         }
 
         private int OnDeleteItemNotify(int entityType, string itemName)
         {
-            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.Delete,
-                (swNotifyEntityType_e)entityType, itemName) ? S_OK : S_FALSE;
+            m_ItemModifyDelegate.Invoke(this, ItemModificationAction_e.Delete,
+                (swNotifyEntityType_e)entityType, itemName);
+
+            return S_OK;
         }
 
         private int OnAddItemNotify(int entityType, string itemName)
         {
-            return m_ItemModifiedDelegate.Invoke(this, ItemModificationAction_e.Add,
-                (swNotifyEntityType_e)entityType, itemName) ? S_OK : S_FALSE;
+            m_ItemModifyDelegate.Invoke(this, ItemModificationAction_e.Add,
+                (swNotifyEntityType_e)entityType, itemName);
+
+            return S_OK;
         }
 
         private int OnActivateSheetPreNotify(string sheetName)
         {
-            return m_ConfigurationChangedDelegate.Invoke(this, ConfigurationChangeAction_e.PreActivate, 
-                sheetName) ? S_OK : S_FALSE;
+            m_ConfigurationChangeDelegate.Invoke(this, ConfigurationChangeAction_e.PreActivate,
+                sheetName);
+
+            return S_OK;
         }
 
         private int OnActivateSheetPostNotify(string sheetName)
         {
-            return m_ConfigurationChangedDelegate.Invoke(this, ConfigurationChangeAction_e.PostActivate,
-                sheetName) ? S_OK : S_FALSE;
+            m_ConfigurationChangeDelegate.Invoke(this, ConfigurationChangeAction_e.PostActivate,
+                sheetName);
+
+            return S_OK;
         }
 
         private int OnConfigurationChangeNotify(string configurationName, object obj, int objectType, int changeType)
         {
-            return m_ConfigurationChangedDelegate.Invoke(this, ConfigurationChangeAction_e.PreActivate,
-                configurationName) ? S_OK : S_FALSE;
+            const int POST_NOTIFICATION = 11;
+
+            m_ConfigurationChangeDelegate.Invoke(this, (changeType == POST_NOTIFICATION ? ConfigurationChangeAction_e.PostActivate : ConfigurationChangeAction_e.PreActivate),
+                configurationName);
+
+            return S_OK;
         }
 
         #endregion
@@ -735,12 +951,10 @@ namespace CodeStack.SwEx.AddIn.Core
             if (!m_Is3rdPartyStreamLoaded)
             {
                 m_Is3rdPartyStreamLoaded = true;
-                return m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StreamRead) ? S_OK : S_FALSE;
+                m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StreamRead);
             }
-            else
-            {
-                return S_OK;
-            }
+
+            return S_OK;
         }
 
         private int EnsureLoadFromStorageStore()
@@ -748,12 +962,10 @@ namespace CodeStack.SwEx.AddIn.Core
             if (!m_Is3rdPartyStoreLoaded)
             {
                 m_Is3rdPartyStoreLoaded = true;
-                return m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StorageRead) ? S_OK : S_FALSE;
+                m_Access3rdPartyDataDelegate.Invoke(this, Access3rdPartyDataAction_e.StorageRead);
             }
-            else
-            {
-                return S_OK;
-            }
+
+            return S_OK;
         }
     }
 }

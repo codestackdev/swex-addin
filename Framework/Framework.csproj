@@ -85,12 +85,13 @@
     <Compile Include="Base\ISwAddInEx.cs" />
     <Compile Include="Base\IThirdPartyStoreHandler.cs" />
     <Compile Include="Base\IThirdPartyStreamHandler.cs" />
-    <Compile Include="Delegates\DocumentAccess3rdPartyDataDelegate.cs" />
-    <Compile Include="Delegates\DocumentConfigurationChangedDelegate.cs" />
-    <Compile Include="Delegates\DocumentCustomPropertyModifiedDelegate.cs" />
-    <Compile Include="Delegates\DocumentItemModifiedDelegate.cs" />
+    <Compile Include="Delegates\Access3rdPartyDataDelegate.cs" />
+    <Compile Include="Delegates\ConfigurationChangeDelegate.cs" />
+    <Compile Include="Delegates\CustomPropertyModifyDelegate.cs" />
+    <Compile Include="Delegates\RebuildDelegate.cs" />
+    <Compile Include="Delegates\ItemModifyDelegate.cs" />
     <Compile Include="Delegates\DocumentSaveDelegate.cs" />
-    <Compile Include="Delegates\DocumentSelectionDelegate.cs" />
+    <Compile Include="Delegates\ObjectSelectionDelegate.cs" />
     <Compile Include="Delegates\DocumentStateChangedDelegate.cs" />
     <Compile Include="Enums\Access3rdPartyDataAction_e.cs" />
     <Compile Include="Core\CommandSpec.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Core\EnumCommandGroupSpec.cs" />
     <Compile Include="Core\DocumentsHandler.cs" />
     <Compile Include="Enums\ItemModificationAction_e.cs" />
+    <Compile Include="Enums\RebuildAction_e.cs" />
     <Compile Include="Enums\SaveAction_e.cs" />
     <Compile Include="Enums\SelectionAction_e.cs" />
     <Compile Include="Core\ThirdPartyStoreHandler.cs" />

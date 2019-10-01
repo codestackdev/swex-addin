@@ -1,14 +1,15 @@
-﻿//**********************
+//**********************
 //SwEx.AddIn - development tools for SOLIDWORKS add-ins
 //Copyright(C) 2019 www.codestack.net
 //License: https://github.com/codestackdev/swex-addin/blob/master/LICENSE
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
-using CodeStack.SwEx.AddIn.Core;
-using CodeStack.SwEx.AddIn.Enums;
-
-namespace CodeStack.SwEx.AddIn.Delegates
+namespace CodeStack.SwEx.AddIn.Enums
 {
-    public delegate bool DocumentAccess3rdPartyDataDelegate(DocumentHandler docHandler, Access3rdPartyDataAction_e type);
+    public enum RebuildAction_e
+    {
+        PreRebuild,
+        PostRebuild
+    }
 }

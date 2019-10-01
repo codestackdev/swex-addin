@@ -58,7 +58,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             }
         }
 
-        public event DocumentCustomPropertyModifiedDelegate PropertyChanged;
+        public event CustomPropertyModifyDelegate PropertyChanged;
 
         #region WinAPI
 

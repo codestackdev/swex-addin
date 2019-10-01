@@ -7,9 +7,8 @@
 
 using CodeStack.SwEx.AddIn.Core;
 using CodeStack.SwEx.AddIn.Enums;
-using SolidWorks.Interop.swconst;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate bool DocumentSelectionDelegate(DocumentHandler docHandler, swSelectType_e selType, SelectionAction_e type);
+    public delegate void ConfigurationChangeDelegate(DocumentHandler docHandler, ConfigurationChangeAction_e type, string confName);
 }

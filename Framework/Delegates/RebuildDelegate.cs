@@ -10,5 +10,5 @@ using CodeStack.SwEx.AddIn.Enums;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate void DocumentCustomPropertyModifiedDelegate(DocumentHandler docHandler, CustomPropertyChangeAction_e type, string name, string conf, string value);
+    public delegate bool RebuildDelegate(DocumentHandler docHandler, RebuildAction_e type);
 }
