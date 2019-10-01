@@ -56,17 +56,17 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         private int OnRegenNotify()
         {
-            return Delegate.Invoke(m_DocHandler, RebuildAction_e.PreRebuild) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, RebuildState_e.PreRebuild) ? S_OK : S_FALSE;
         }
 
         private int OnDrawingRegenPostNotify()
         {
-            return Delegate.Invoke(m_DocHandler, RebuildAction_e.PostRebuild) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, RebuildState_e.PostRebuild) ? S_OK : S_FALSE;
         }
 
         private int OnRegenPostNotify2(object stopFeature)
         {
-            return Delegate.Invoke(m_DocHandler, RebuildAction_e.PostRebuild) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, RebuildState_e.PostRebuild) ? S_OK : S_FALSE;
         }
 
         protected override void OnAttach(RebuildDelegate del)

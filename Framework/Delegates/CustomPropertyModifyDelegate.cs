@@ -10,21 +10,44 @@ using CodeStack.SwEx.AddIn.Enums;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
+    /// <summary>
+    /// Custom Property modification data
+    /// </summary>
     public class CustomPropertyModifyData
     {
-        public CustomPropertyChangeAction_e Type { get; private set; }
+        /// <summary>
+        /// Type of the modification
+        /// </summary>
+        public CustomPropertyChangeAction_e Action { get; private set; }
+
+        /// <summary>
+        /// Name of the custom property
+        /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// Configuration of custom property. Empty string for the file specific (generic) custom property
+        /// </summary>
         public string Configuration { get; private set; }
+
+        /// <summary>
+        /// Value of the custom property
+        /// </summary>
         public string Value { get; private set; }
 
         internal CustomPropertyModifyData(CustomPropertyChangeAction_e type, string name, string conf, string val)
         {
-            Type = type;
+            Action = type;
             Name = name;
             Configuration = conf;
             Value = val;
         }
     }
 
+    /// <summary>
+    /// Delegate of <see cref="DocumentHandler.CustomPropertyModify"/> event
+    /// </summary>
+    /// <param name="docHandler">Document Handler which sends this notification</param>
+    /// <param name="modifications">Array of all modifications in custom properties</param>
     public delegate void CustomPropertyModifyDelegate(DocumentHandler docHandler, CustomPropertyModifyData[] modifications);
 }

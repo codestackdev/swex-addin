@@ -88,23 +88,23 @@ namespace CodeStack.SwEx.AddIn.Example
             ShowMessage($"{Model.GetTitle()} document loaded");
         }
 
-        private void OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataAction_e type)
+        private void OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataState_e type)
         {
             switch (type)
             {
-                case Access3rdPartyDataAction_e.StorageRead:
+                case Access3rdPartyDataState_e.StorageRead:
                     LoadFromStorageStore();
                     break;
 
-                case Access3rdPartyDataAction_e.StorageWrite:
+                case Access3rdPartyDataState_e.StorageWrite:
                     SaveToStorageStore();
                     break;
 
-                case Access3rdPartyDataAction_e.StreamRead:
+                case Access3rdPartyDataState_e.StreamRead:
                     LoadFromStream();
                     break;
 
-                case Access3rdPartyDataAction_e.StreamWrite:
+                case Access3rdPartyDataState_e.StreamWrite:
                     SaveToStream();
                     break;
 
@@ -261,7 +261,7 @@ namespace CodeStack.SwEx.AddIn.Example
             handler.Destroyed += OnDestroyed;
         }
 
-        private bool OnRebuild(DocumentHandler docHandler, RebuildAction_e type)
+        private bool OnRebuild(DocumentHandler docHandler, RebuildState_e type)
         {
             return App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' rebuilt ({type}). Cancel?",
                         (int)swMessageBoxIcon_e.swMbQuestion, (int)swMessageBoxBtn_e.swMbYesNo) == (int)swMessageBoxResult_e.swMbHitNo;
@@ -291,11 +291,11 @@ namespace CodeStack.SwEx.AddIn.Example
 
         private bool m_ShowSelectionEvents = false;
 
-        private bool OnSelection(DocumentHandler docHandler, swSelectType_e selType, SelectionAction_e type)
+        private bool OnSelection(DocumentHandler docHandler, swSelectType_e selType, SelectionState_e type)
         {
             if (m_ShowSelectionEvents)
             {
-                if (type != SelectionAction_e.UserPreSelect)//dynamic selection
+                if (type != SelectionState_e.UserPreSelect)//dynamic selection
                 {
                     return App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' selection ({type}) of {selType}. Cancel?",
                         (int)swMessageBoxIcon_e.swMbQuestion, (int)swMessageBoxBtn_e.swMbYesNo) == (int)swMessageBoxResult_e.swMbHitNo;
@@ -311,7 +311,7 @@ namespace CodeStack.SwEx.AddIn.Example
             }
         }
 
-        private bool OnSave(DocumentHandler docHandler, string fileName, SaveAction_e type)
+        private bool OnSave(DocumentHandler docHandler, string fileName, SaveState_e type)
         {
             return App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' saving ({type}). Cancel?",
                 (int)swMessageBoxIcon_e.swMbQuestion, (int)swMessageBoxBtn_e.swMbYesNo) == (int)swMessageBoxResult_e.swMbHitNo;
@@ -327,12 +327,12 @@ namespace CodeStack.SwEx.AddIn.Example
         {
             foreach (var mod in modifications)
             {
-                App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' custom property '{mod.Name}' changed ({mod.Type}) in '{mod.Configuration}' to '{mod.Value}'",
+                App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' custom property '{mod.Name}' changed ({mod.Action}) in '{mod.Configuration}' to '{mod.Value}'",
                     (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
             }
         }
 
-        private void OnConfigurationChanged(DocumentHandler docHandler, ConfigurationChangeAction_e type, string confName)
+        private void OnConfigurationChanged(DocumentHandler docHandler, ConfigurationChangeState_e type, string confName)
         {
             App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' configuration {confName} changed ({type}). Cancel?",
                 (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);

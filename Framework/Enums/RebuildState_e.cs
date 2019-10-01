@@ -7,12 +7,19 @@
 
 namespace CodeStack.SwEx.AddIn.Enums
 {
-    public enum SaveAction_e
+    /// <summary>
+    /// State of the rebuild operation
+    /// </summary>
+    public enum RebuildState_e
     {
-        AutoSave,
-        SaveAs,
-        PreSave,
-        PostSave,
-        PostCancel
+        /// <summary>
+        /// Document is about to be rebuilt
+        /// </summary>
+        PreRebuild,
+
+        /// <summary>
+        /// Document has been rebuilt
+        /// </summary>
+        PostRebuild
     }
 }

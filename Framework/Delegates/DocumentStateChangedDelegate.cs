@@ -9,5 +9,9 @@ using CodeStack.SwEx.AddIn.Core;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
+    /// <summary>
+    /// Delegate of <see cref="DocumentHandler.Initialized"/>, <see cref="DocumentHandler.Activated"/>, <see cref="DocumentHandler.Destroyed"/> event,
+    /// </summary>
+    /// <param name="docHandler">Document Handler which sends this notification</param>
     public delegate void DocumentStateChangedDelegate(DocumentHandler docHandler);
 }

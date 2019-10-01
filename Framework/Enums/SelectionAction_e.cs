@@ -7,11 +7,29 @@
 
 namespace CodeStack.SwEx.AddIn.Enums
 {
-    public enum SelectionAction_e
+    /// <summary>
+    /// State of the object selection
+    /// </summary>
+    public enum SelectionState_e
     {
+        /// <summary>
+        /// New selection (user or via API)
+        /// </summary>
         NewSelection,
+
+        /// <summary>
+        /// Use is about to select the object
+        /// </summary>
         UserPreSelect,
+
+        /// <summary>
+        /// User has selected the object
+        /// </summary>
         UserPostSelect,
+
+        /// <summary>
+        /// Selection is cleared
+        /// </summary>
         ClearSelection
     }
 }

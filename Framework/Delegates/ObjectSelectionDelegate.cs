@@ -11,5 +11,12 @@ using SolidWorks.Interop.swconst;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate bool ObjectSelectionDelegate(DocumentHandler docHandler, swSelectType_e selType, SelectionAction_e type);
+    /// <summary>
+    /// Delegate of <see cref="DocumentHandler.Selection"/> event
+    /// </summary>
+    /// <param name="docHandler">Document Handler which sends this notification</param>
+    /// <param name="selType">Type of the selected object as described in <see href="http://help.solidworks.com/2014/english/api/swconst/SolidWorks.Interop.swconst~SolidWorks.Interop.swconst.swSelectType_e.html">swSelectType_e</see> enumeration</param>
+    /// <param name="state">Type of the selection operation</param>
+    /// <returns>Return false if <see cref="SelectionState_e.UserPreSelect"/> to cancel the user selection</returns>
+    public delegate bool ObjectSelectionDelegate(DocumentHandler docHandler, swSelectType_e selType, SelectionState_e state);
 }

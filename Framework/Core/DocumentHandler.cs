@@ -35,6 +35,9 @@ namespace CodeStack.SwEx.AddIn.Core
         public event DocumentStateChangedDelegate Activated;
         public event DocumentStateChangedDelegate Destroyed;
 
+        /// <summary>
+        /// Raised when document is saving or saved (including auto saving)
+        /// </summary>
         public event DocumentSaveDelegate Save
         {
             add
@@ -47,6 +50,9 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
+        /// <summary>
+        /// Raised when object is selected in SOLIDWORKS (either by the user or API)
+        /// </summary>
         public event ObjectSelectionDelegate Selection
         {
             add
@@ -59,6 +65,9 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
+        /// <summary>
+        /// Raised when 3rd party storage and stream are ready for access (reading or writing)
+        /// </summary>
         public event Access3rdPartyDataDelegate Access3rdPartyData
         {
             add
@@ -71,6 +80,9 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
+        /// <summary>
+        /// Raised when custom properties modified (added, removed or changed) from the UI or API
+        /// </summary>
         public event CustomPropertyModifyDelegate CustomPropertyModify
         {
             add
@@ -83,6 +95,9 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
         
+        /// <summary>
+        /// Raised when item (e.g. feature, configuration) is modified in the Feature Manager Tree (e.g. renamed, added or removed)
+        /// </summary>
         public event ItemModifyDelegate ItemModify
         {
             add
@@ -95,6 +110,9 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
+        /// <summary>
+        /// Raised when configuration is changed in part or assembly or sheet is activated in the drawing
+        /// </summary>
         public event ConfigurationChangeDelegate ConfigurationChange
         {
             add
@@ -107,6 +125,9 @@ namespace CodeStack.SwEx.AddIn.Core
             }
         }
 
+        /// <summary>
+        /// Raised when model is regenerated either as force regeneration or parametric regeneration or after rollback
+        /// </summary>
         public event RebuildDelegate Rebuild
         {
             add
@@ -160,24 +181,24 @@ namespace CodeStack.SwEx.AddIn.Core
         }
 
         //TODO: remove this once the obsolete methods are removed
-        private void OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataAction_e type)
+        private void OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataState_e type)
         {
             switch (type)
             {
 #pragma warning disable CS0618
-                case Access3rdPartyDataAction_e.StorageRead:
+                case Access3rdPartyDataState_e.StorageRead:
                     OnLoadFromStorageStore();
                     break;
 
-                case Access3rdPartyDataAction_e.StorageWrite:
+                case Access3rdPartyDataState_e.StorageWrite:
                     OnSaveToStorageStore();
                     break;
 
-                case Access3rdPartyDataAction_e.StreamRead:
+                case Access3rdPartyDataState_e.StreamRead:
                     OnLoadFromStream();
                     break;
 
-                case Access3rdPartyDataAction_e.StreamWrite:
+                case Access3rdPartyDataState_e.StreamWrite:
                     OnSaveToStream();
                     break;
 #pragma warning restore CS0618

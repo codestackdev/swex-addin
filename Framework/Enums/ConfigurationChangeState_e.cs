@@ -7,9 +7,19 @@
 
 namespace CodeStack.SwEx.AddIn.Enums
 {
-    public enum ConfigurationChangeAction_e
+    /// <summary>
+    /// States of configuration changes
+    /// </summary>
+    public enum ConfigurationChangeState_e
     {
+        /// <summary>
+        /// Configuration is about to be activated
+        /// </summary>
         PreActivate,
+
+        /// <summary>
+        /// Configuration has been activated
+        /// </summary>
         PostActivate
     }
 }

@@ -8,33 +8,33 @@
 namespace CodeStack.SwEx.AddIn.Enums
 {
     /// <summary>
-    /// Type of the modification action of the item
+    /// Stage of saving the document
     /// </summary>
-    public enum ItemModificationAction_e
+    public enum SaveState_e
     {
         /// <summary>
-        /// New item added
+        /// Automatic save
         /// </summary>
-        Add,
+        AutoSave,
 
         /// <summary>
-        /// Item has been deleted
+        /// Saving document as new file
         /// </summary>
-        Delete,
+        SaveAs,
 
         /// <summary>
-        /// Item is about to be deleted
+        /// Document is about to be saved
         /// </summary>
-        PreDelete,
+        PreSave,
 
         /// <summary>
-        /// Item has been renamed
+        /// Document has been saved
         /// </summary>
-        Rename,
+        PostSave,
 
         /// <summary>
-        /// Item is about to be renamed
+        /// After document saving has been canceled
         /// </summary>
-        PreRename
+        PostCancel
     }
 }

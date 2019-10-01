@@ -79,22 +79,22 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         private int OnUserSelectionPostNotify()
         {
-            return Delegate.Invoke(m_DocHandler, swSelectType_e.swSelNOTHING, SelectionAction_e.UserPostSelect) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, swSelectType_e.swSelNOTHING, SelectionState_e.UserPostSelect) ? S_OK : S_FALSE;
         }
 
         private int OnUserSelectionPreNotify(int selType)
         {
-            return Delegate.Invoke(m_DocHandler, (swSelectType_e)selType, SelectionAction_e.UserPreSelect) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, (swSelectType_e)selType, SelectionState_e.UserPreSelect) ? S_OK : S_FALSE;
         }
 
         private int OnNewSelectionNotify()
         {
-            return Delegate.Invoke(m_DocHandler, swSelectType_e.swSelNOTHING, SelectionAction_e.NewSelection) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, swSelectType_e.swSelNOTHING, SelectionState_e.NewSelection) ? S_OK : S_FALSE;
         }
 
         private int OnClearSelectionsNotify()
         {
-            return Delegate.Invoke(m_DocHandler, swSelectType_e.swSelNOTHING, SelectionAction_e.ClearSelection) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, swSelectType_e.swSelNOTHING, SelectionState_e.ClearSelection) ? S_OK : S_FALSE;
         }
     }
 }

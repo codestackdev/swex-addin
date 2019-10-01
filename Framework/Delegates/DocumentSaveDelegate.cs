@@ -10,5 +10,12 @@ using CodeStack.SwEx.AddIn.Enums;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate bool DocumentSaveDelegate(DocumentHandler docHandler, string fileName, SaveAction_e type);
+    /// <summary>
+    /// Delegate of <see cref="DocumentHandler.Save"/> event
+    /// </summary>
+    /// <param name="docHandler">Document Handler which sends this notification</param>
+    /// <param name="fileName">Full path to save the file</param>
+    /// <param name="state">Type of the save operation</param>
+    /// <returns>Return false within the <see cref="SaveState_e.PreSave"/> to cancel the save operation</returns>
+    public delegate bool DocumentSaveDelegate(DocumentHandler docHandler, string fileName, SaveState_e state);
 }

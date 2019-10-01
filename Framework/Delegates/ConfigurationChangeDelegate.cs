@@ -10,5 +10,11 @@ using CodeStack.SwEx.AddIn.Enums;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate void ConfigurationChangeDelegate(DocumentHandler docHandler, ConfigurationChangeAction_e type, string confName);
+    /// <summary>
+    /// Delegate of <see cref="DocumentHandler.ConfigurationChange"/> event
+    /// </summary>
+    /// <param name="docHandler">Document Handler which sends this notification</param>
+    /// <param name="state">Type of the configuration change</param>
+    /// <param name="confName">Name of the new configuration</param>
+    public delegate void ConfigurationChangeDelegate(DocumentHandler docHandler, ConfigurationChangeState_e state, string confName);
 }

@@ -11,5 +11,13 @@ using SolidWorks.Interop.swconst;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate void ItemModifyDelegate(DocumentHandler docHandler, ItemModificationAction_e type, swNotifyEntityType_e entType, string name, string oldName = "");
+    /// <summary>
+    /// Delegate of <see cref="DocumentHandler.ItemModify"/> event
+    /// </summary>
+    /// <param name="docHandler">Document Handler which sends this notification</param>
+    /// <param name="action">Item modification type</param>
+    /// <param name="entType">Modified entity type as described in <see href="http://help.solidworks.com/2017/english/api/swconst/SolidWorks.Interop.swconst~SolidWorks.Interop.swconst.swNotifyEntityType_e.html">swNotifyEntityType_e</see> enumeration</param>
+    /// <param name="name">Name of the item</param>
+    /// <param name="oldName">Old name of the item if <see cref="ItemModificationAction_e.PreRename"/> or <see cref="ItemModificationAction_e.Rename"/> operation</param>
+    public delegate void ItemModifyDelegate(DocumentHandler docHandler, ItemModificationAction_e action, swNotifyEntityType_e entType, string name, string oldName = "");
 }

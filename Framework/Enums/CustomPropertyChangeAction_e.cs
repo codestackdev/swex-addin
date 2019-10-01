@@ -7,10 +7,24 @@
 
 namespace CodeStack.SwEx.AddIn.Enums
 {
+    /// <summary>
+    /// Type of the modification action on custom properties
+    /// </summary>
     public enum CustomPropertyChangeAction_e
     {
+        /// <summary>
+        /// New custom property is added
+        /// </summary>
         Add,
+
+        /// <summary>
+        /// Custom property is removed
+        /// </summary>
         Delete,
+
+        /// <summary>
+        /// Custom property value is changed
+        /// </summary>
         Modify
     }
 }

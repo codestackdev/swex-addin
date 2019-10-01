@@ -9,7 +9,10 @@ using SolidWorks.Interop.sldworks;
 
 namespace CodeStack.SwEx.AddIn.Enums
 {
-    public enum Access3rdPartyDataAction_e
+    /// <summary>
+    /// Types of the access to the 3rd party data storage
+    /// </summary>
+    public enum Access3rdPartyDataState_e
     {
         /// <summary>
         /// Read the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method

@@ -84,27 +84,27 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         private int OnFileSavePostNotify(int saveType, string fileName)
         {
-            return Delegate.Invoke(m_DocHandler, fileName, SaveAction_e.PostSave) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, fileName, SaveState_e.PostSave) ? S_OK : S_FALSE;
         }
 
         private int OnFileSavePostCancelNotify()
         {
-            return Delegate.Invoke(m_DocHandler, "", SaveAction_e.PostCancel) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, "", SaveState_e.PostCancel) ? S_OK : S_FALSE;
         }
 
         private int OnFileSaveNotify(string fileName)
         {
-            return Delegate.Invoke(m_DocHandler, fileName, SaveAction_e.PreSave) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, fileName, SaveState_e.PreSave) ? S_OK : S_FALSE;
         }
 
         private int OnFileSaveAsNotify2(string fileName)
         {
-            return Delegate.Invoke(m_DocHandler, fileName, SaveAction_e.SaveAs) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, fileName, SaveState_e.SaveAs) ? S_OK : S_FALSE;
         }
 
         private int OnAutoSaveNotify(string fileName)
         {
-            return Delegate.Invoke(m_DocHandler, fileName, SaveAction_e.AutoSave) ? S_OK : S_FALSE;
+            return Delegate.Invoke(m_DocHandler, fileName, SaveState_e.AutoSave) ? S_OK : S_FALSE;
         }
     }
 }

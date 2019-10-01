@@ -62,7 +62,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         private int OnActivateSheetPreNotify(string sheetName)
         {
-            Delegate.Invoke(m_DocHandler, ConfigurationChangeAction_e.PreActivate,
+            Delegate.Invoke(m_DocHandler, ConfigurationChangeState_e.PreActivate,
                 sheetName);
 
             return S_OK;
@@ -70,7 +70,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         private int OnActivateSheetPostNotify(string sheetName)
         {
-            Delegate.Invoke(m_DocHandler, ConfigurationChangeAction_e.PostActivate,
+            Delegate.Invoke(m_DocHandler, ConfigurationChangeState_e.PostActivate,
                 sheetName);
 
             return S_OK;
@@ -80,7 +80,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
         {
             const int POST_NOTIFICATION = 11;
 
-            Delegate.Invoke(m_DocHandler, (changeType == POST_NOTIFICATION ? ConfigurationChangeAction_e.PostActivate : ConfigurationChangeAction_e.PreActivate),
+            Delegate.Invoke(m_DocHandler, (changeType == POST_NOTIFICATION ? ConfigurationChangeState_e.PostActivate : ConfigurationChangeState_e.PreActivate),
                 configurationName);
 
             return S_OK;

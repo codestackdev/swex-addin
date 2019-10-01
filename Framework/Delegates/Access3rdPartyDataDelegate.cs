@@ -10,5 +10,10 @@ using CodeStack.SwEx.AddIn.Enums;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate void Access3rdPartyDataDelegate(DocumentHandler docHandler, Access3rdPartyDataAction_e type);
+    /// <summary>
+    /// Delegate of <see cref="DocumentHandler.Access3rdPartyData"/> event
+    /// </summary>
+    /// <param name="docHandler">Document Handler which sends this notification</param>
+    /// <param name="state">Type of the 3rd party storage access</param>
+    public delegate void Access3rdPartyDataDelegate(DocumentHandler docHandler, Access3rdPartyDataState_e state);
 }

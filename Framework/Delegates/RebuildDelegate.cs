@@ -10,5 +10,11 @@ using CodeStack.SwEx.AddIn.Enums;
 
 namespace CodeStack.SwEx.AddIn.Delegates
 {
-    public delegate bool RebuildDelegate(DocumentHandler docHandler, RebuildAction_e type);
+    /// <summary>
+    /// Delegate of <see cref="DocumentHandler.Rebuild"/> event
+    /// </summary>
+    /// <param name="docHandler">Document Handler which sends this notification</param>
+    /// <param name="state">Type of the rebuild operation</param>
+    /// <returns>Return false if <see cref="RebuildState_e.PreRebuild"/> to cancel rebuild operation</returns>
+    public delegate bool RebuildDelegate(DocumentHandler docHandler, RebuildState_e state);
 }

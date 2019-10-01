@@ -97,7 +97,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         private int OnSaveToStorageStoreNotify()
         {
-            Delegate.Invoke(m_DocHandler, Access3rdPartyDataAction_e.StorageWrite);
+            Delegate.Invoke(m_DocHandler, Access3rdPartyDataState_e.StorageWrite);
             return S_OK;
         }
 
@@ -109,7 +109,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         private int OnSaveToStorageNotify()
         {
-            Delegate.Invoke(m_DocHandler, Access3rdPartyDataAction_e.StreamWrite);
+            Delegate.Invoke(m_DocHandler, Access3rdPartyDataState_e.StreamWrite);
 
             return S_OK;
         }
@@ -135,7 +135,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             if (!m_Is3rdPartyStreamLoaded)
             {
                 m_Is3rdPartyStreamLoaded = true;
-                Delegate.Invoke(m_DocHandler, Access3rdPartyDataAction_e.StreamRead);
+                Delegate.Invoke(m_DocHandler, Access3rdPartyDataState_e.StreamRead);
             }
 
             return S_OK;
@@ -146,7 +146,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             if (!m_Is3rdPartyStoreLoaded)
             {
                 m_Is3rdPartyStoreLoaded = true;
-                Delegate.Invoke(m_DocHandler, Access3rdPartyDataAction_e.StorageRead);
+                Delegate.Invoke(m_DocHandler, Access3rdPartyDataState_e.StorageRead);
             }
 
             return S_OK;
