@@ -8,7 +8,7 @@
 namespace CodeStack.SwEx.AddIn.Enums
 {
     /// <summary>
-    /// States of configuration changes
+    /// States of configuration or sheet changes
     /// </summary>
     public enum ConfigurationChangeState_e
     {

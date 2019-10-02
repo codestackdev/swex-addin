@@ -31,8 +31,21 @@ namespace CodeStack.SwEx.AddIn.Core
         private readonly ConfigurationChangeEventsHandler m_ConfigurationChangeEventsHandler;
         private readonly Access3rdPartyDataEventsHandler m_Access3rdPartyDataEventsHandler;
 
+        /// <summary>
+        /// Raised when document is initialized
+        /// </summary>
+        /// <remarks>Initialization happens when model loads into a memory (e.g. opening the file, unsuppressing component, resolving component from lightweight mode)</remarks>
         public event DocumentStateChangedDelegate Initialized;
+
+        /// <summary>
+        /// Raised when model window is activated
+        /// </summary>
         public event DocumentStateChangedDelegate Activated;
+
+        /// <summary>
+        /// Raised when document is closed
+        /// </summary>
+        /// <remarks>This event will also be raised when add-in unloads but documents are still open</remarks>
         public event DocumentStateChangedDelegate Destroyed;
 
         /// <summary>
