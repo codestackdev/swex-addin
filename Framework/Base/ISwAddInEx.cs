@@ -5,6 +5,8 @@
 //Product URL: https://www.codestack.net/labs/solidworks/swex/add-in/
 //**********************
 
+using CodeStack.SwEx.AddIn.Core;
+using CodeStack.SwEx.AddIn.Delegates;
 using CodeStack.SwEx.Common.Attributes;
 using CodeStack.SwEx.Common.Base;
 using SolidWorks.Interop.sldworks;
@@ -80,7 +82,12 @@ namespace CodeStack.SwEx.AddIn.Base
         IDocumentsHandler<TDocHandler> CreateDocumentsHandler<TDocHandler>()
             where TDocHandler : IDocumentHandler, new();
 
-
+        /// <summary>
+        /// Creates generic documents handler which exposes lifecycle events
+        /// </summary>
+        /// <returns>Instance of generic documents handler. Explore the available events of <see cref="DocumentHandler"/> type</returns>
+        IDocumentsHandler<DocumentHandler> CreateDocumentsHandler();
+        
         /// <inheritdoc cref="CreateTaskPane{TControl, TCmdEnum}(Action{TCmdEnum}, out TControl)"/>
         ITaskpaneView CreateTaskPane<TControl>(out TControl ctrl)
             where TControl : UserControl, new();

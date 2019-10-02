@@ -29,6 +29,7 @@
     <Topic id="v0-4-1" visible="True" title="Version 0.4.1" />
     <Topic id="v0-7-0" visible="True" title="Version 0.7.0" />
     <Topic id="v0-7-5" visible="True" title="Version 0.7.5" />
-    <Topic id="v0-7-6" visible="True" isSelected="true" title="Version 0.7.6" />
+    <Topic id="v0-7-6" visible="True" title="Version 0.7.6" />
+    <Topic id="v0-8-0" visible="True" isSelected="true" title="Version 0.8.0" />
   </Topic>
 </Topics>

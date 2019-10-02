@@ -7,6 +7,7 @@
 
 using CodeStack.SwEx.AddIn.Attributes;
 using CodeStack.SwEx.AddIn.Base;
+using CodeStack.SwEx.AddIn.Delegates;
 using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;
 using CodeStack.SwEx.Common.Reflection;

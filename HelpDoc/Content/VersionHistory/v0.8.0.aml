@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="v0-8-0" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        Version 0.8.0 was released on October 2 2019.
+      </para>
+    </introduction>
+
+    <section>
+      <title>Enhancements</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 30</linkText>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/30</linkUri>
+              </externalLink> Add the support for common events
+            </para>
+          </listItem>
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 31</linkText>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/31</linkUri>
+              </externalLink> Provide a generic document events handler
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+    
+    <relatedTopics>
+      <link xlink:href="version-history" />
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

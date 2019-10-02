@@ -6,6 +6,7 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Attributes;
+using CodeStack.SwEx.AddIn.Delegates;
 using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;

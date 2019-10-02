@@ -8,7 +8,7 @@
 using CodeStack.SwEx.AddIn.Enums;
 using System;
 
-namespace CodeStack.SwEx.AddIn
+namespace CodeStack.SwEx.AddIn.Delegates
 {
     /// <summary>
     /// Method handler to provide the custom enable command behavior

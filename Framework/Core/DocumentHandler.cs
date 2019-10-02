@@ -6,94 +6,232 @@
 //**********************
 
 using CodeStack.SwEx.AddIn.Base;
+using CodeStack.SwEx.AddIn.Delegates;
+using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.AddIn.Helpers;
+using CodeStack.SwEx.AddIn.Helpers.EventHandlers;
 using SolidWorks.Interop.sldworks;
+using SolidWorks.Interop.swconst;
+using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace CodeStack.SwEx.AddIn.Core
 {
     /// <summary>
-    /// Specific implementation of document handler which provides overrides for the document lifecycle events
+    /// Specific implementation of document handler which exposes document lifecycle events
     /// </summary>
-    public abstract class DocumentHandler : IDocumentHandler
+    public class DocumentHandler : IDocumentHandler
     {
-        private const int S_OK = 0;
+        private readonly RebuildEventsHandler m_RebuildEventsHandler;
+        private readonly ObjectSelectionEventsHandler m_ObjectSelectionEventsHandler;
+        private readonly ItemModifyEventsHandler m_ItemModifyEventsHandler;
+        private readonly DocumentSaveEventsHandler m_DocumentSaveEventsHandler;
+        private readonly CustomPropertyModifyEventHandler m_CustomPropertyModifyEventHandler;
+        private readonly ConfigurationChangeEventsHandler m_ConfigurationChangeEventsHandler;
+        private readonly Access3rdPartyDataEventsHandler m_Access3rdPartyDataEventsHandler;
+
+        /// <summary>
+        /// Raised when document is initialized
+        /// </summary>
+        /// <remarks>Initialization happens when model loads into a memory (e.g. opening the file, unsuppressing component, resolving component from lightweight mode)</remarks>
+        public event DocumentStateChangedDelegate Initialized;
+
+        /// <summary>
+        /// Raised when model window is activated
+        /// </summary>
+        public event DocumentStateChangedDelegate Activated;
+
+        /// <summary>
+        /// Raised when document is closed
+        /// </summary>
+        /// <remarks>This event will also be raised when add-in unloads but documents are still open</remarks>
+        public event DocumentStateChangedDelegate Destroyed;
+
+        /// <summary>
+        /// Raised when document is saving or saved (including auto saving)
+        /// </summary>
+        public event DocumentSaveDelegate Save
+        {
+            add
+            {
+                m_DocumentSaveEventsHandler.Attach(value);
+            }
+            remove
+            {
+                m_DocumentSaveEventsHandler.Detach(value);
+            }
+        }
+
+        /// <summary>
+        /// Raised when object is selected in SOLIDWORKS (either by the user or API)
+        /// </summary>
+        public event ObjectSelectionDelegate Selection
+        {
+            add
+            {
+                m_ObjectSelectionEventsHandler.Attach(value);
+            }
+            remove
+            {
+                m_ObjectSelectionEventsHandler.Detach(value);
+            }
+        }
+
+        /// <summary>
+        /// Raised when 3rd party storage and stream are ready for access (reading or writing)
+        /// </summary>
+        public event Access3rdPartyDataDelegate Access3rdPartyData
+        {
+            add
+            {
+                m_Access3rdPartyDataEventsHandler.Attach(value);
+            }
+            remove
+            {
+                m_Access3rdPartyDataEventsHandler.Detach(value);
+            }
+        }
+
+        /// <summary>
+        /// Raised when custom properties modified (added, removed or changed) from the UI or API
+        /// </summary>
+        public event CustomPropertyModifyDelegate CustomPropertyModify
+        {
+            add
+            {
+                m_CustomPropertyModifyEventHandler.Attach(value);
+            }
+            remove
+            {
+                m_CustomPropertyModifyEventHandler.Detach(value);
+            }
+        }
+        
+        /// <summary>
+        /// Raised when item (e.g. feature, configuration) is modified in the Feature Manager Tree (e.g. renamed, added or removed)
+        /// </summary>
+        public event ItemModifyDelegate ItemModify
+        {
+            add
+            {
+                m_ItemModifyEventsHandler.Attach(value);
+            }
+            remove
+            {
+                m_ItemModifyEventsHandler.Detach(value);
+            }
+        }
+
+        /// <summary>
+        /// Raised when configuration is changed in part or assembly or sheet is activated in the drawing
+        /// </summary>
+        public event ConfigurationChangeDelegate ConfigurationChange
+        {
+            add
+            {
+                m_ConfigurationChangeEventsHandler.Attach(value);
+            }
+            remove
+            {
+                m_ConfigurationChangeEventsHandler.Detach(value);
+            }
+        }
+
+        /// <summary>
+        /// Raised when model is regenerated either as force regeneration or parametric regeneration or after rollback
+        /// </summary>
+        public event RebuildDelegate Rebuild
+        {
+            add
+            {
+                m_RebuildEventsHandler.Attach(value);
+            }
+            remove
+            {
+                m_RebuildEventsHandler.Detach(value);
+            }
+        }
 
         /// <summary>
         /// Pointer to the SOLIDWORKS application
         /// </summary>
-        protected ISldWorks App { get; private set; }
+        /// <remarks>This pointer assigned before <see cref="OnInit"/> method or <see cref="Initialized"/> event</remarks>
+        public ISldWorks App { get; private set; }
 
         /// <summary>
         /// Pointer to the model of this handler
         /// </summary>
-        protected IModelDoc2 Model { get; private set; }
-
-        private bool m_Is3rdPartyStreamLoaded;
-        private bool m_Is3rdPartyStoreLoaded;
+        /// <remarks>This pointer assigned before <see cref="OnInit"/> method or <see cref="Initialized"/> event</remarks>
+        public IModelDoc2 Model { get; private set; }
+        
+        public DocumentHandler()
+        {
+            m_RebuildEventsHandler = new RebuildEventsHandler(this);
+            m_ObjectSelectionEventsHandler = new ObjectSelectionEventsHandler(this);
+            m_ItemModifyEventsHandler = new ItemModifyEventsHandler(this);
+            m_DocumentSaveEventsHandler = new DocumentSaveEventsHandler(this);
+            m_CustomPropertyModifyEventHandler = new CustomPropertyModifyEventHandler(this);
+            m_ConfigurationChangeEventsHandler = new ConfigurationChangeEventsHandler(this);
+            m_Access3rdPartyDataEventsHandler = new Access3rdPartyDataEventsHandler(this);
+        }
 
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void Init(ISldWorks app, IModelDoc2 model)
         {
-            m_Is3rdPartyStreamLoaded = false;
-            m_Is3rdPartyStoreLoaded = false;
-
             App = app;
             Model = model;
 
-            if (Model is PartDoc)
-            {
-                (Model as PartDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
-                (Model as PartDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
-                (Model as PartDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
-                (Model as PartDoc).SaveToStorageNotify += OnSaveToStorageNotify;
-            }
-            else if (Model is AssemblyDoc)
-            {
-                (Model as AssemblyDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
-                (Model as AssemblyDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
-                (Model as AssemblyDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
-                (Model as AssemblyDoc).SaveToStorageNotify += OnSaveToStorageNotify;
-            }
-            else if (Model is DrawingDoc)
-            {
-                (Model as DrawingDoc).LoadFromStorageNotify += OnLoadFromStorageNotify;
-                (Model as DrawingDoc).LoadFromStorageStoreNotify += OnLoadFromStorageStoreNotify;
-                (Model as DrawingDoc).SaveToStorageStoreNotify += OnSaveToStorageStoreNotify;
-                (Model as DrawingDoc).SaveToStorageNotify += OnSaveToStorageNotify;
-            }
-
-            //NOTE: load from storage notification is not always raised
-            //it is not raised when model is loaded with assembly, it won't be also raised if the document already loaded
-            //as a workaround force call loading within the idle notification
-            (App as SldWorks).OnIdleNotify += OnIdleNotify;
+            //TODO: remove this once the obsolete methods are removed
+            this.Access3rdPartyData += OnAccess3rdPartyData;
+            //---
 
             (App as SldWorks).ActiveModelDocChangeNotify += OnActiveModelDocChangeNotify;
 
+            Initialized?.Invoke(this);
             OnInit();
         }
 
+        //TODO: remove this once the obsolete methods are removed
+        private void OnAccess3rdPartyData(DocumentHandler docHandler, Access3rdPartyDataState_e type)
+        {
+            switch (type)
+            {
+#pragma warning disable CS0618
+                case Access3rdPartyDataState_e.StorageRead:
+                    OnLoadFromStorageStore();
+                    break;
+
+                case Access3rdPartyDataState_e.StorageWrite:
+                    OnSaveToStorageStore();
+                    break;
+
+                case Access3rdPartyDataState_e.StreamRead:
+                    OnLoadFromStream();
+                    break;
+
+                case Access3rdPartyDataState_e.StreamWrite:
+                    OnSaveToStream();
+                    break;
+#pragma warning restore CS0618
+            }
+        }
+        //---
+
         private int OnActiveModelDocChangeNotify()
         {
+            const int S_OK = 0;
+            
             if (App.ActiveDoc == Model)
             {
+                Activated?.Invoke(this);
                 OnActivate();
             }
 
             return S_OK;
         }
-
-        private int OnIdleNotify()
-        {
-            EnsureLoadFromStream();
-            EnsureLoadFromStorageStore();
-
-            //only need to handle loading one time
-            (App as SldWorks).OnIdleNotify -= OnIdleNotify;
-
-            return S_OK;
-        }
-
+        
         /// <summary>
         /// Override to handle the initialization of the document
         /// </summary>
@@ -109,30 +247,26 @@ namespace CodeStack.SwEx.AddIn.Core
         {
         }
 
-        /// <summary>
-        /// Override to read the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
-        /// </summary>
+        [Obsolete("Deprecated. Use Access3rdPartyData event with StorageRead type instead")]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnLoadFromStorageStore()
         {
         }
 
-        /// <summary>
-        /// Override to read the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
-        /// </summary>
+        [Obsolete("Deprecated. Use Access3rdPartyData event with StreamRead type instead")]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnLoadFromStream()
         {
         }
 
-        /// <summary>
-        /// Override to save the data from the third party storage via <see cref="ModelDocExtension.Access3rdPartyStorageStore(IModelDoc2, string, bool)"/> method
-        /// </summary>
+        [Obsolete("Deprecated. Use Access3rdPartyData event with StorageWrite type instead")]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnSaveToStorageStore()
         {
         }
 
-        /// <summary>
-        /// Override to save the data from the 3rd party stream via <see cref="ModelDocExtension.Access3rdPartyStream(IModelDoc2, string, bool)"/>
-        /// </summary>
+        [Obsolete("Deprecated. Use Access3rdPartyData event with StreamWrite type instead")]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnSaveToStream()
         {
         }
@@ -141,82 +275,28 @@ namespace CodeStack.SwEx.AddIn.Core
         {
             (App as SldWorks).ActiveModelDocChangeNotify -= OnActiveModelDocChangeNotify;
 
-            if (Model is PartDoc)
-            {
-                (Model as PartDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
-                (Model as PartDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
-                (Model as PartDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
-                (Model as PartDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
-            }
-            else if (Model is AssemblyDoc)
-            {
-                (Model as AssemblyDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
-                (Model as AssemblyDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
-                (Model as AssemblyDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
-                (Model as AssemblyDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
-            }
-            else if (Model is DrawingDoc)
-            {
-                (Model as DrawingDoc).LoadFromStorageNotify -= OnLoadFromStorageNotify;
-                (Model as DrawingDoc).LoadFromStorageStoreNotify -= OnLoadFromStorageStoreNotify;
-                (Model as DrawingDoc).SaveToStorageStoreNotify -= OnSaveToStorageStoreNotify;
-                (Model as DrawingDoc).SaveToStorageNotify -= OnSaveToStorageNotify;
-            }
+            //TODO: remove this once the obsolete methods are removed
+            this.Access3rdPartyData -= OnAccess3rdPartyData;
+            //---
 
+            m_DocumentSaveEventsHandler.Dispose();
+            m_ObjectSelectionEventsHandler.Dispose();
+            m_Access3rdPartyDataEventsHandler.Dispose();
+            m_CustomPropertyModifyEventHandler.Dispose();
+            m_ItemModifyEventsHandler.Dispose();
+            m_ConfigurationChangeEventsHandler.Dispose();
+            m_RebuildEventsHandler.Dispose();
+
+            Destroyed?.Invoke(this);
             OnDestroy();
         }
-
+        
         /// <summary>
         /// Override to dispose the resources
         /// </summary>
         /// <remarks>Invoked when document has been destroyed</remarks>
         public virtual void OnDestroy()
         {
-        }
-
-        private int OnSaveToStorageStoreNotify()
-        {
-            OnSaveToStorageStore();
-            return S_OK;
-        }
-
-        private int OnLoadFromStorageNotify()
-        {
-            //NOTE: by some reasons this event is triggered twice, adding the flag to avoid repetition
-            EnsureLoadFromStream();
-
-            return S_OK;
-        }
-
-        private int OnSaveToStorageNotify()
-        {
-            OnSaveToStream();
-            return S_OK;
-        }
-
-        private int OnLoadFromStorageStoreNotify()
-        {
-            EnsureLoadFromStorageStore();
-
-            return S_OK;
-        }
-
-        private void EnsureLoadFromStream()
-        {
-            if (!m_Is3rdPartyStreamLoaded)
-            {
-                m_Is3rdPartyStreamLoaded = true;
-                OnLoadFromStream();
-            }
-        }
-
-        private void EnsureLoadFromStorageStore()
-        {
-            if (!m_Is3rdPartyStoreLoaded)
-            {
-                m_Is3rdPartyStoreLoaded = true;
-                OnLoadFromStorageStore();
-            }
-        }
+        }        
     }
 }
