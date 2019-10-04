@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CodeStack.SwEx.AddIn</id>
-    <version>0.8.0</version>
+    <version>0.8.1</version>
     <title>Development tools for SOLIDWORKS add-ins</title>
     <authors>CodeStack</authors>
     <owners>CodeStack</owners>

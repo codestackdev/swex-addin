@@ -107,6 +107,7 @@
     <None Include="Content\VersionHistory\v0.7.5.aml" />
     <None Include="Content\VersionHistory\v0.7.6.aml" />
     <None Include="Content\VersionHistory\v0.8.0.aml" />
+    <None Include="Content\VersionHistory\v0.8.1.aml" />
     <None Include="Content\VersionHistory\VersionHistory.aml" />
     <None Include="Content\Welcome.aml" />
     <None Include="Content\VersionHistory\v0.3.0.aml" />

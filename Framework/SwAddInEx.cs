@@ -13,6 +13,7 @@ using CodeStack.SwEx.AddIn.Enums;
 using CodeStack.SwEx.AddIn.Exceptions;
 using CodeStack.SwEx.AddIn.Helpers;
 using CodeStack.SwEx.AddIn.Icons;
+using CodeStack.SwEx.Common.Base;
 using CodeStack.SwEx.Common.Diagnostics;
 using CodeStack.SwEx.Common.Icons;
 using CodeStack.SwEx.Common.Reflection;
@@ -550,7 +551,7 @@ namespace CodeStack.SwEx.AddIn
             return cmdGroup;
         }
 
-        private void CreateIcons(CommandGroup cmdGroup, ICommandGroupSpec cmdBar, IconsConverter iconsConv)
+        private void CreateIcons(CommandGroup cmdGroup, ICommandGroupSpec cmdBar, IIconsConverter iconsConv)
         {
             var mainIcon = cmdBar.Icon;
 

@@ -35,6 +35,7 @@ namespace CodeStack.SwEx.AddIn.Enums
         /// <summary>
         /// Item is about to be renamed
         /// </summary>
+        /// <remarks>This option is supported from SOLIDWORKS 2016 (revision 24.0)</remarks>
         PreRename
     }
 }

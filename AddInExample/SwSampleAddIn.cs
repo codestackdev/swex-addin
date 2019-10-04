@@ -258,7 +258,14 @@ namespace CodeStack.SwEx.AddIn.Example
             handler.Save += OnSave;
             handler.Selection += OnSelection;
             handler.Rebuild += OnRebuild;
+            handler.DimensionChange += OnDimensionChange;
             handler.Destroyed += OnDestroyed;
+        }
+
+        private void OnDimensionChange(DocumentHandler docHandler, IDisplayDimension dispDim)
+        {
+            App.SendMsgToUser2($"'{docHandler.Model.GetTitle()}' dimension change: {dispDim.IGetDimension().FullName} = {dispDim.IGetDimension().Value}",
+                (int)swMessageBoxIcon_e.swMbInformation, (int)swMessageBoxBtn_e.swMbOk);
         }
 
         private bool OnRebuild(DocumentHandler docHandler, RebuildState_e type)
@@ -283,6 +290,7 @@ namespace CodeStack.SwEx.AddIn.Example
             handler.Save -= OnSave;
             handler.Selection -= OnSelection;
             handler.Rebuild -= OnRebuild;
+            handler.DimensionChange -= OnDimensionChange;
             handler.Destroyed -= OnDestroyed;
 
             App.SendMsgToUser2($"'{handler.Model.GetTitle()}' destroyed",

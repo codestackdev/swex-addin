@@ -8,6 +8,7 @@
 using CodeStack.SwEx.AddIn.Core;
 using CodeStack.SwEx.AddIn.Delegates;
 using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.Common.Enums;
 using SolidWorks.Interop.sldworks;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
     {
         private class PropertiesList : Dictionary<string, string>
         {
-            internal PropertiesList(ICustomPropertyManager prpsMgr) : base(StringComparer.CurrentCultureIgnoreCase)
+            internal PropertiesList(ICustomPropertyManager prpsMgr, ISldWorks app) : base(StringComparer.CurrentCultureIgnoreCase)
             {
                 var prpNames = prpsMgr.GetNames() as string[];
 
@@ -32,8 +33,15 @@ namespace CodeStack.SwEx.AddIn.Helpers
                     {
                         string val;
                         string resVal;
-                        bool wasRes;
-                        prpsMgr.Get5(prpName, true, out val, out resVal, out wasRes);
+                        if (app.IsVersionNewerOrEqual(SwVersion_e.Sw2014))
+                        {
+                            bool wasRes;
+                            prpsMgr.Get5(prpName, true, out val, out resVal, out wasRes);
+                        }
+                        else
+                        {
+                            prpsMgr.Get4(prpName, true, out val, out resVal);
+                        }
                         Add(prpName, val);
                     }
                 }
@@ -42,9 +50,9 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
         private class PropertiesSet : Dictionary<string, PropertiesList>
         {
-            internal PropertiesSet(IModelDoc2 model) : base(StringComparer.CurrentCultureIgnoreCase)
+            internal PropertiesSet(ISldWorks app, IModelDoc2 model) : base(StringComparer.CurrentCultureIgnoreCase)
             {
-                Add("", new PropertiesList(model.Extension.CustomPropertyManager[""]));
+                Add("", new PropertiesList(model.Extension.CustomPropertyManager[""], app));
 
                 var confNames = model.GetConfigurationNames() as string[];
 
@@ -52,7 +60,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
                 {
                     foreach (var confName in confNames)
                     {
-                        Add(confName, new PropertiesList(model.Extension.CustomPropertyManager[confName]));
+                        Add(confName, new PropertiesList(model.Extension.CustomPropertyManager[confName], app));
                     }
                 }
             }
@@ -131,7 +139,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
             {
                 if (!IsWindow(m_CurrentSummaryHandle))
                 {
-                    FindDifferences(m_CurPrpsSet, new PropertiesSet(m_Model));
+                    FindDifferences(m_CurPrpsSet, new PropertiesSet(m_App, m_Model));
                     m_CurrentSummaryHandle = IntPtr.Zero;
                     m_CurPrpsSet = null;
                 }
@@ -226,7 +234,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
 
             if (handle != IntPtr.Zero)
             {
-                m_CurPrpsSet = new PropertiesSet(m_Model);
+                m_CurPrpsSet = new PropertiesSet(m_App, m_Model);
                 return true;
             }
             else

@@ -13,6 +13,11 @@
 				<list class="bullet">
           <listItem>
             <para>
+              <link xlink:href="v0-8-1" />
+            </para>
+          </listItem>
+          <listItem>
+            <para>
               <link xlink:href="v0-8-0" />
             </para>
           </listItem>

@@ -10,6 +10,7 @@ using SolidWorks.Interop.sldworks;
 using CodeStack.SwEx.AddIn.Core;
 using CodeStack.SwEx.AddIn.Enums;
 using SolidWorks.Interop.swconst;
+using CodeStack.SwEx.Common.Enums;
 
 namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 {
@@ -34,7 +35,12 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             assm.AddItemNotify += OnAddItemNotify;
             assm.DeleteItemNotify += OnDeleteItemNotify;
             assm.DeleteItemPreNotify += OnDeleteItemPreNotify;
-            assm.PreRenameItemNotify += OnPreRenameItemNotify;
+
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2016))
+            {
+                assm.PreRenameItemNotify += OnPreRenameItemNotify;
+            }
+
             assm.RenameItemNotify += OnRenameItemNotify;
         }
 
@@ -51,7 +57,12 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             part.AddItemNotify += OnAddItemNotify;
             part.DeleteItemNotify += OnDeleteItemNotify;
             part.DeleteItemPreNotify += OnDeleteItemPreNotify;
-            part.PreRenameItemNotify += OnPreRenameItemNotify;
+
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2016))
+            {
+                part.PreRenameItemNotify += OnPreRenameItemNotify;
+            }
+
             part.RenameItemNotify += OnRenameItemNotify;
         }
 
@@ -60,7 +71,12 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             assm.AddItemNotify -= OnAddItemNotify;
             assm.DeleteItemNotify -= OnDeleteItemNotify;
             assm.DeleteItemPreNotify -= OnDeleteItemPreNotify;
-            assm.PreRenameItemNotify -= OnPreRenameItemNotify;
+
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2016))
+            {
+                assm.PreRenameItemNotify -= OnPreRenameItemNotify;
+            }
+
             assm.RenameItemNotify -= OnRenameItemNotify;
         }
 
@@ -77,7 +93,12 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             part.AddItemNotify -= OnAddItemNotify;
             part.DeleteItemNotify -= OnDeleteItemNotify;
             part.DeleteItemPreNotify -= OnDeleteItemPreNotify;
-            part.PreRenameItemNotify -= OnPreRenameItemNotify;
+
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2016))
+            {
+                part.PreRenameItemNotify -= OnPreRenameItemNotify;
+            }
+
             part.RenameItemNotify -= OnRenameItemNotify;
         }
 
