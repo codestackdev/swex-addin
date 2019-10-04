@@ -9,6 +9,7 @@ using CodeStack.SwEx.AddIn.Delegates;
 using SolidWorks.Interop.sldworks;
 using CodeStack.SwEx.AddIn.Core;
 using CodeStack.SwEx.AddIn.Enums;
+using CodeStack.SwEx.Common.Enums;
 
 namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 {
@@ -35,7 +36,11 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         protected override void SubscribeDrawingEvents(DrawingDoc draw)
         {
-            draw.ActivateSheetPreNotify += OnActivateSheetPreNotify;
+            if (m_DocHandler.App.GetVersion() >= SwVersion_e.Sw2013)
+            {
+                draw.ActivateSheetPreNotify += OnActivateSheetPreNotify;
+            }
+
             draw.ActivateSheetPostNotify += OnActivateSheetPostNotify;
         }
 
@@ -51,7 +56,11 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         protected override void UnsubscribeDrawingEvents(DrawingDoc draw)
         {
-            draw.ActivateSheetPreNotify -= OnActivateSheetPreNotify;
+            if (m_DocHandler.App.GetVersion() >= SwVersion_e.Sw2013)
+            {
+                draw.ActivateSheetPreNotify -= OnActivateSheetPreNotify;
+            }
+
             draw.ActivateSheetPostNotify -= OnActivateSheetPostNotify;
         }
 

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="v0-8-1" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        Version 0.8.1 was released on October 4 2019.
+      </para>
+    </introduction>
+
+    <section>
+      <title>Enhancements</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>
+              <externalLink>
+                <linkText>Issue 32</linkText>
+                <linkUri>https://github.com/codestackdev/swex-addin/issues/3Add support for dimension change notification</linkUri>
+              </externalLink> Add support for dimension change notification
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+	
+	 <section>
+      <title>Other</title>
+      <content>
+
+        <list class="bullet">
+          <listItem>
+            <para>
+              Updated SwEx.Common to version 0.9.9
+            </para>
+          </listItem>
+		  <listItem>
+            <para>
+              Added the backward compatibility to version SOLIDWORKS 2012 onwards
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+    
+    <relatedTopics>
+      <link xlink:href="version-history" />
+    </relatedTopics>
+
+  </developerConceptualDocument>
+</topic>

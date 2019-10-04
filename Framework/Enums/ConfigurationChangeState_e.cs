@@ -15,6 +15,7 @@ namespace CodeStack.SwEx.AddIn.Enums
         /// <summary>
         /// Configuration is about to be activated
         /// </summary>
+        /// <remarks>Pre activate for drawing sheets supported from SOLIDWORKS 2013 (revision 21.0)</remarks>
         PreActivate,
 
         /// <summary>

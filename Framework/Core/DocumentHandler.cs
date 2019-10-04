@@ -30,6 +30,7 @@ namespace CodeStack.SwEx.AddIn.Core
         private readonly CustomPropertyModifyEventHandler m_CustomPropertyModifyEventHandler;
         private readonly ConfigurationChangeEventsHandler m_ConfigurationChangeEventsHandler;
         private readonly Access3rdPartyDataEventsHandler m_Access3rdPartyDataEventsHandler;
+        private readonly DimensionChangeEventsHandler m_DimensionChangeEventsHandler;
 
         /// <summary>
         /// Raised when document is initialized
@@ -154,6 +155,21 @@ namespace CodeStack.SwEx.AddIn.Core
         }
 
         /// <summary>
+        /// Raised when dimension value is changed in the model
+        /// </summary>
+        public event DimensionChangeDelegate DimensionChange
+        {
+            add
+            {
+                m_DimensionChangeEventsHandler.Attach(value);
+            }
+            remove
+            {
+                m_DimensionChangeEventsHandler.Detach(value);
+            }
+        }
+
+        /// <summary>
         /// Pointer to the SOLIDWORKS application
         /// </summary>
         /// <remarks>This pointer assigned before <see cref="OnInit"/> method or <see cref="Initialized"/> event</remarks>
@@ -174,6 +190,7 @@ namespace CodeStack.SwEx.AddIn.Core
             m_CustomPropertyModifyEventHandler = new CustomPropertyModifyEventHandler(this);
             m_ConfigurationChangeEventsHandler = new ConfigurationChangeEventsHandler(this);
             m_Access3rdPartyDataEventsHandler = new Access3rdPartyDataEventsHandler(this);
+            m_DimensionChangeEventsHandler = new DimensionChangeEventsHandler(this);
         }
 
         [Browsable(false)]

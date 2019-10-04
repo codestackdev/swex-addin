@@ -7,6 +7,7 @@
 
 using CodeStack.SwEx.AddIn.Attributes;
 using CodeStack.SwEx.AddIn.Icons;
+using CodeStack.SwEx.Common.Base;
 using CodeStack.SwEx.Common.Diagnostics;
 using CodeStack.SwEx.Common.Icons;
 using CodeStack.SwEx.Common.Reflection;
@@ -42,7 +43,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
         private readonly TCmdEnum[] m_Commands;
 
         internal TaskPaneHandler(ISldWorks app, ITaskpaneView taskPaneView,
-            Action<TCmdEnum> cmdHandler, IconsConverter iconsConv, ILogger logger)
+            Action<TCmdEnum> cmdHandler, IIconsConverter iconsConv, ILogger logger)
         {
             m_Logger = logger;
             
