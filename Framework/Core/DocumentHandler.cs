@@ -155,8 +155,9 @@ namespace CodeStack.SwEx.AddIn.Core
         }
 
         /// <summary>
-        /// Raised when dimension value is changed in the model
+        /// Raised when dimension value is changed in the model from the Dimension property page
         /// </summary>
+        /// <remarks>This event is not raised when dimension is changed via Instant3D</remarks>
         public event DimensionChangeDelegate DimensionChange
         {
             add

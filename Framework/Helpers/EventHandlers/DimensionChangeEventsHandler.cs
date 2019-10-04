@@ -49,6 +49,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         private int OnDimensionChangeNotify(object displayDim)
         {
+            Delegate.Invoke(m_DocHandler, displayDim as IDisplayDimension);
             return S_OK;
         }
 
