@@ -36,7 +36,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         protected override void SubscribeDrawingEvents(DrawingDoc draw)
         {
-            if (m_DocHandler.App.GetVersion() >= SwVersion_e.Sw2013)
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2013))
             {
                 draw.ActivateSheetPreNotify += OnActivateSheetPreNotify;
             }
@@ -56,7 +56,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
 
         protected override void UnsubscribeDrawingEvents(DrawingDoc draw)
         {
-            if (m_DocHandler.App.GetVersion() >= SwVersion_e.Sw2013)
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2013))
             {
                 draw.ActivateSheetPreNotify -= OnActivateSheetPreNotify;
             }

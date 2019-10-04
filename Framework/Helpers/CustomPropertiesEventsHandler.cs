@@ -33,7 +33,7 @@ namespace CodeStack.SwEx.AddIn.Helpers
                     {
                         string val;
                         string resVal;
-                        if (app.GetVersion() >= SwVersion_e.Sw2014)
+                        if (app.IsVersionNewerOrEqual(SwVersion_e.Sw2014))
                         {
                             bool wasRes;
                             prpsMgr.Get5(prpName, true, out val, out resVal, out wasRes);

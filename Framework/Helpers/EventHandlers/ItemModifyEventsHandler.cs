@@ -36,7 +36,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             assm.DeleteItemNotify += OnDeleteItemNotify;
             assm.DeleteItemPreNotify += OnDeleteItemPreNotify;
 
-            if (m_DocHandler.App.GetVersion() >= SwVersion_e.Sw2016)
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2016))
             {
                 assm.PreRenameItemNotify += OnPreRenameItemNotify;
             }
@@ -58,7 +58,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             part.DeleteItemNotify += OnDeleteItemNotify;
             part.DeleteItemPreNotify += OnDeleteItemPreNotify;
 
-            if (m_DocHandler.App.GetVersion() >= SwVersion_e.Sw2016)
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2016))
             {
                 part.PreRenameItemNotify += OnPreRenameItemNotify;
             }
@@ -72,7 +72,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             assm.DeleteItemNotify -= OnDeleteItemNotify;
             assm.DeleteItemPreNotify -= OnDeleteItemPreNotify;
 
-            if (m_DocHandler.App.GetVersion() >= SwVersion_e.Sw2016)
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2016))
             {
                 assm.PreRenameItemNotify -= OnPreRenameItemNotify;
             }
@@ -94,7 +94,7 @@ namespace CodeStack.SwEx.AddIn.Helpers.EventHandlers
             part.DeleteItemNotify -= OnDeleteItemNotify;
             part.DeleteItemPreNotify -= OnDeleteItemPreNotify;
 
-            if (m_DocHandler.App.GetVersion() >= SwVersion_e.Sw2016)
+            if (m_DocHandler.App.IsVersionNewerOrEqual(SwVersion_e.Sw2016))
             {
                 part.PreRenameItemNotify -= OnPreRenameItemNotify;
             }
