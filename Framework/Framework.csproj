@@ -135,6 +135,9 @@
     <Compile Include="Icons\CommandGroupIcon.cs" />
     <Compile Include="Icons\TaskPaneHighResIcon.cs" />
     <Compile Include="Icons\TaskPaneMasterIcon.cs" />
+    <Compile Include="Modules\CommandManagerModule.cs" />
+    <Compile Include="Modules\DocumentsHandlerModule.cs" />
+    <Compile Include="Modules\TaskPaneModule.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
